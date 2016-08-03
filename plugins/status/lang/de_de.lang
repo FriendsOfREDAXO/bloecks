@@ -1,0 +1,4 @@
+plugin_title = SliceStatus
+modules_available_all = Option in allen Modulen verfügbar
+bloeck_toggle_status_visible = Block offline stellen
+bloeck_toggle_status_invisible = Block online stellen

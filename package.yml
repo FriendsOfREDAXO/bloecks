@@ -1,0 +1,15 @@
+package: bloecks
+version: '1.0'
+author: 'Thomas Göllner'
+supportpage: https://github.com/FriendsOfREDAXO/bloecks
+
+page:
+    title: BlÖcks
+    perm: bloecks[]
+    pjax: false
+    icon: rex-icon rex-icon-template
+
+requires:
+    packages:
+        structure/content: '>=2.1.0'
+    redaxo: ^5.2.0

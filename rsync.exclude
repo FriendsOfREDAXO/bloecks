@@ -1,0 +1,17 @@
+_*/
+.DS_Store*
+._*
+.Spotlight-V100
+.Trashes
+./Icon*
+ehthumbs.db
+Thumbs.db
+.sass-cache
+.idea
+.kommodotools
+*.kommodoproject
+*.sublime-project
+composer.phar
+composer.lock
+.gitignore
+node_modules

@@ -1,0 +1,13 @@
+package: bloecks/columns
+version: '1.0'
+author: 'Thomas Göllner'
+supportpage: https://github.com/FriendsOfREDAXO/bloecks
+
+grids: [columns]
+
+page:
+  title: 'translate:columns'
+  icon: rex-icon
+  perm: admin
+  pjax: false
+  block: bloeck

@@ -1,0 +1,19 @@
+{
+  "name": "Redaxo5_SliceGrid",
+  "version": "0.1.0",
+  "author": "Thomas Goellner",
+  "private": true,
+  "description": "",
+  "devDependencies": {
+    "grunt": "*",
+    "grunt-contrib-less": "*",
+    "less-plugin-autoprefix": "*",
+    "grunt-contrib-concat": "*",
+    "grunt-contrib-uglify": "*",
+    "grunt-contrib-watch": "*",
+    "grunt-shell": "*",
+    "grunt-text-replace": "*",
+    "load-grunt-tasks": "*"
+},
+  "theme": "slicegrid"
+}

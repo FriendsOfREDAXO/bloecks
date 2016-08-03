@@ -1,0 +1,25 @@
+.rex-slice {
+    &.rex-slice-select {
+        opacity: 1;
+        transition: opacity 0.1s;
+
+        .ui-state-sorting & {
+            opacity: 0;
+        }
+    }
+
+    &.rex-slice-output {
+        [href*="direction=move"] {
+            display: none;
+        }
+
+        .panel-heading {
+            cursor: move;
+        }
+    }
+
+    &.rex-slice-placeholder {
+        background: rgba(0,0,0,0.2);
+    }
+
+}
