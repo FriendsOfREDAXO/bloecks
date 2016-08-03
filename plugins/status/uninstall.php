@@ -1,6 +1,6 @@
 <?php
     $addon_cols = [
-        'status'
+        'bloecks_status'
     ];
 
     $db_cols = rex_sql::showColumns(rex::getTablePrefix().'article_slice');

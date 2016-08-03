@@ -1,6 +1,6 @@
 <?php
     $addon_cols = [
-        'format'
+        'bloecks_format'
     ];
 
     $db_cols = rex_sql::showColumns(rex::getTablePrefix().'article_slice');
