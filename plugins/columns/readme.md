@@ -77,6 +77,18 @@ becomes
         <h1>My Content</h1>
     </section>
 
+You can define the class that is inserted yourself on the settings page - use placeholders within the definition
+that will be replaced by size, grid, minimum and maximum size. If you use uppercase placeholders a word
+is inserted instead of a number: [columns_size] becomes "4", [COLUMNS_SIZE] becomes "four"." Define multiple
+separated by comma (,). If a class definition contains an unreplaced placeholder it is left out.
+
+    col-md-[columns]                  // will be output as "col-md-4" (Bootstrap style)
+    grid_[columns]                    // will be output as "grid_4" (960.js style)
+    [COLUMNS] wide column             // will be output as "four wide column" (SemanticUi style)
+    col-[columns]-of-[columns_grid]   // will be output as "col-4-of-12"
+    col-[columns], some-[rows]        // will be output as "col-4 some-99"
+    col-[columns], some-[bogus]       // will be output as "col-4"
+
 **The styling of these elements is up to you!**
 
 ---

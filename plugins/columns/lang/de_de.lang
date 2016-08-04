@@ -6,3 +6,7 @@ bloecks_columns_max = Maximalgröße
 bloecks_columns_rows = Zeilen
 bloecks_columns_advanced = Erweitert
 bloecks_columns_advanced_info = Hier lassen sich Ausnahmen von den Standardregeln angeben. Pro Zeile wird eine Regel angegeben. Zur Definition der zu erfüllenden Regel können »clang«, »template«, »ctype«, »module« und »article« angegeben werden. Die anzupassenden Parameter werden mit [typ]_[wert] überschrieben. Beispielsweise kann die Standardeinstellung für die minimale Breite eines Moduls mit der ID 9 im Template mit der ID 2 folgendermaßen mit '2' überschrieben werden: »template:1,module:9,column_min:2«. Es gilt: Die Regel mit den meisten Übereinstimmungen überschreibt Regeln geringerer Übereinstimmung. »template:1,module:9,column_min:2« (2 Übereinstimmungen) würde also »template:1,column_min:2« (1 Übereinstimmung) überschreiben, wird aber von »template:1,module:9,clang:1,column_min:2« (3 Übereinstimmungen) wiederum überschrieben.
+
+bloecks_columns_basics = Basics
+bloecks_columns_css = CSS-Klasse
+bloecks_columns_css_info = [COLUMNS] wird durch ein Wort ersetzt (one, two, three), [columns] wird durch die Zahl ersetzt (1, 2, 3)

@@ -19,6 +19,36 @@
         }
     }
 
+    $content = '';
+
+
+    $setting = 'basics';
+    $values = $plugin->getConfig($setting);
+    $inputs = [];
+
+    $options = ['css'];
+
+    foreach($options as $option)
+    {
+        $id = $plugin->getName() . '-' . $setting . '-' . $option;
+        $inputs[] = [
+            'label' => '<label for="' . $id . '">' . $plugin->i18n('bloecks_columns_'.$option) . '</label>',
+            'field' => '<input class="form-control" id="' . $id . '" type="text" name="bloecks[' . $plugin->getName() . '][' . $setting . '][' . $option . ']" value="' . (isset($values[$option]) ? (string) $values[$option] : '') . '" />',
+            'note' => $plugin->i18n('bloecks_columns_'.$option.'_info')
+        ];
+        unset($id);
+    }
+
+    unset($values, $option);
+
+    $fragment = new rex_fragment();
+    $fragment->setVar('elements', $inputs, false);
+
+    $content .= '<fieldset><legend>' . $plugin->i18n('bloecks_columns_'.$setting) . '</legend>';
+    $content .= $fragment->parse('core/form/form.php');
+
+    unset($fragment, $inputs);
+
     $settings = $plugin->getProperty('grids', []);
     $options = [
         'grid',
@@ -27,7 +57,6 @@
         'max'
     ];
 
-    $content = '';
 
     foreach($settings as $setting)
     {

@@ -16,4 +16,6 @@ bloecks_fragment_columns_modules = Module
 bloecks_fragment_columns_active = aktiviert
 save = speichern
 reset = zurücksetzen
+
 bloecks_plugin_missing = PlugIn noch nicht vorhanden.
+bloecks_no_plugins_installed = Keine PlugIns installiert
