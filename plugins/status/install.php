@@ -3,6 +3,15 @@
     /**
      * Make sure we have a STATUS column in the database
      */
-    rex_sql_table::get(rex::getTablePrefix().'article_slice')
-      ->ensureColumn(new rex_sql_column('status', 'tinyint(1)', false, 1, 'unsigned'))
-      ->alter();
+
+     if(rex_sql_table::get(rex::getTablePrefix().'article_slice')->hasColumn('bloecks_status'))
+     {
+         $qry = "ALTER TABLE `" . rex::getTablePrefix()."article_slice` CHANGE `bloecks_status` `status` TINYINT;";
+         rex_sql::factory()->setQuery($qry);
+     }
+     else
+     {
+         rex_sql_table::get(rex::getTablePrefix().'article_slice')
+           ->ensureColumn(new rex_sql_column('status', 'tinyint(1)', false, 1, 'unsigned'))
+           ->alter();
+     }
