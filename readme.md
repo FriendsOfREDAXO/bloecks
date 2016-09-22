@@ -1,4 +1,4 @@
-blÖcks
+blÖcks 0.1-alpha
 =======================
 
 Das AddOn dient als Basis für weitere Plugins und soll als Ersatz für das SliceUI-Addon dienen. Für
