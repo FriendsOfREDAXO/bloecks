@@ -1,6 +1,9 @@
 <?php
+    /**
+     * Let's remove the STATUS column in the database
+     */
     $addon_cols = [
-        'bloecks_status'
+        'status'
     ];
 
     $db_cols = rex_sql::showColumns(rex::getTablePrefix().'article_slice');

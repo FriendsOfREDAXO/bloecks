@@ -33,7 +33,7 @@ module.exports = function(grunt) {
                     ext: '.css',   // Dest filepaths will have this extension.
                     extDot: 'last',   // Extensions in filenames begin after the first dot
                     rename: function(dest, src) {
-                        src = src.replace(/\/less\//, '/css/');
+                        src = src.replace(/\/less\//, '/../assets/css/');
                         return src;
                     }
                 }],
@@ -78,7 +78,7 @@ module.exports = function(grunt) {
     });
 
     // get all module directories
-    grunt.file.expand('**/assets/js/be').forEach(function (dir) {
+    grunt.file.expand('**/assets_src/js/be').forEach(function (dir) {
         // get the module name from the directory name
         var dirName = dir.substr(dir.lastIndexOf('/')+1),
             taskLabel = dir.replace(/[^a-zA-Z0-9\_]/g, '_');
@@ -87,7 +87,7 @@ module.exports = function(grunt) {
         var concat = grunt.config.get('concat') || {};
         concat[taskLabel] = {
             src : [dir + '/**/*.js'],
-            dest: dir + '/../be.js'
+            dest: dir + '/../../../assets/js/be.js'
         };
         grunt.config.set('concat', concat);
 
@@ -107,7 +107,7 @@ module.exports = function(grunt) {
     });
 
     // get all module directories
-    grunt.file.expand('**/assets/js/fe').forEach(function (dir) {
+    grunt.file.expand('**/assets_src/js/fe').forEach(function (dir) {
         // get the module name from the directory name
         var dirName = dir.substr(dir.lastIndexOf('/')+1),
             taskLabel = dir.replace(/[^a-zA-Z0-9\_]/g, '_');
@@ -116,7 +116,7 @@ module.exports = function(grunt) {
         var concat = grunt.config.get('concat') || {};
         concat[taskLabel] = {
             src : [dir + '/**/*.js'],
-            dest: dir + '/../fe.js'
+            dest: dir + '/../../../assets/js/fe.js'
         };
         grunt.config.set('concat', concat);
 

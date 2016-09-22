@@ -1,68 +1,45 @@
 <?php
-
-abstract class Bloecks
+/**
+ * bloecks class - basic functions for the addon and its plugins
+ */
+class bloecks extends bloecks_abstract
 {
-    protected static function getSlice($slice_id)
+    /**
+     * Initializes the addon
+     * @param  rex_extension_point $ep
+     */
+    public static function init(rex_extension_point $ep)
     {
-        if (rex::isBackend())
+        if (rex::isBackend() && rex::getUser())
         {
-            $slice = BloecksBackend::getSlice($slice_id, static::getPluginName());
+            // initialize the backend functions
+            bloecks_backend::init($ep);
         }
-        else
+        else if(!rex::isBackend())
         {
-            $slice = rex_article_slice::getArticleSliceById($slice_id);
+            // things to do in frontend
+            rex_extension::register('SLICE_SHOW', array('bloecks', 'showSlice'), rex_extension::EARLY);
         }
-
-        return $slice;
     }
 
-    protected static function getPluginName()
+    /**
+     * Creates our own extension point to use in all our plugins
+     * @param  rex_extension_point $ep
+     * @return string                  slice content
+     */
+    public static function showSlice(rex_extension_point $ep)
     {
-        return preg_replace('/^bloecks/', '', strtolower(get_called_class()));
-    }
+        // get subject
+        $slice_content = $ep->getSubject();
 
-    protected static function getConfig($what = null)
-    {
-        if(class_exists('BloecksBackend'))
-        {
-            $plugin = BloecksBackend::getPlugin(static::getPluginName());
-            return $plugin->getConfig($what);
-        }
-        return null;
-    }
+        // add our own extension point
+        $slice_content = rex_extension::registerPoint(new rex_extension_point(
+            'SLICE_SHOW_BLOECKS_FE',
+            $slice_content,
+            $ep->getParams()
+        ));
 
-    protected static function getProperty($what = null)
-    {
-        if(class_exists('BloecksBackend'))
-        {
-            $plugin = BloecksBackend::getPlugin(static::getPluginName());
-            return $plugin->getProperty($what);
-        }
-        return null;
-    }
-
-    public static function processRequests()
-    {
-        $page = rex_request('page');
-        preg_match('/^bloecks\/([a-z]+)\/([a-z]+)$/i', $page, $match);
-        if(!empty($match[1]))
-        {
-            if(class_exists($class = 'Bloecks' . ucfirst($match[1])))
-            {
-                if(is_callable(array($class, $method = $match[2] . 'Action')))
-                {
-                    $class::$method();
-                }
-            }
-
-            $url = !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'index.php?page=content/edit&article_id=' . rex_request('article_id') . '&mode=edit&module_id=' . rex_request('module_id') . '&slice_id=' . rex_request('slice_id') . '&clang=' . rex_request('clang') . '&ctype=' . rex_request('ctype') . '&mode=edit';
-
-            // Alle OBs schließen
-            while (@ob_end_clean());
-            header('Location: ' . $url);
-            exit();
-        }
+        // return
+        return $slice_content;
     }
 }
-
-?>

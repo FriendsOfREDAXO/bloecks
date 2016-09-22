@@ -1,0 +1,9 @@
+bloecks_status_navigation = Status
+bloecks_status_name = blÖcks / Status
+bloecks_toggle_status_visible = Set block offline
+bloecks_toggle_status_invisible = Set block online
+bloecks_slice_updated = Block has been updated and set to {0}.
+bloecks_slice_not_updated = Failed to update block and set it to {0}.
+bloecks_invisible = offline
+bloecks_visible = online
+bloecks_perm_description = Toggle blocks on/offline

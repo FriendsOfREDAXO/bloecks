@@ -1,21 +1,6 @@
-bloecks_title = blÖcks
-
-config_not_saved = Einstellung konnte nicht gespeichert werden
-config_saved_successful = Einstellung gespeichert
-
-bloecks_modules_title = Verfügbar in Modulen
-bloecks_modules_available_all = Option in allen Modulen verfügbar
-bloecks_modules_available = In folgenden Modulen verfügbar
-bloecks_templates_title = Verfügbarkeit in Template
-bloecks_templates_available_all = Option in allen CTypes des Templates verfügbar
-bloecks_templates_available = In folgenden CTypes verfügbar
-bloecks_templates_available_no_ctypes = Option im Template verfügbar (keine CTypes definiert)
-
-bloecks_columns_title_defaultsettings = Standardeinstellungen
-bloecks_fragment_columns_modules = Module
-bloecks_fragment_columns_active = aktiviert
-save = speichern
-reset = zurücksetzen
-
-bloecks_plugin_missing = PlugIn noch nicht vorhanden.
-bloecks_no_plugins_installed = Keine PlugIns installiert
+bloecks_navigation = blÖcks
+bloecks_name = blÖcks - Modulerweiterungen
+bloecks_no_plugin_settings_available = Keine Plugin-Einstellungen verfügbar.
+bloecks_switch_to_addons_page = Zur AddOn-Seite wechseln.
+bloecks_saved = Einstellungen gespeichert.
+bloecks_not_saved = Einstellungen wurden nicht gespeichert.

@@ -1,11 +1,4 @@
 package: bloecks/status
-version: '1.0'
-author: 'Thomas Göllner'
+version: '0.1-alpha'
+author: 'FriendsOfREDAXO'
 supportpage: https://github.com/FriendsOfREDAXO/bloecks
-
-page:
-  title: 'translate:plugin_title'
-  icon: rex-icon
-  perm: admin
-  pjax: false
-  block: bloeck
