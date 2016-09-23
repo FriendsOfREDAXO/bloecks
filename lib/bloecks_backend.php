@@ -16,8 +16,11 @@ class bloecks_backend extends bloecks_abstract
             // let's register the permission for this addon / plugin
             static::addPerm();
 
-            // hook into SLICE_SHOW extension point so we can change the display of the slice a bit
-            rex_extension::register('SLICE_SHOW', array('bloecks_backend', 'showSlice'), rex_extension::EARLY);
+            if(!static::plugin())
+            {
+                // hook into SLICE_SHOW extension point so we can change the display of the slice a bit
+                rex_extension::register('SLICE_SHOW', array('bloecks_backend', 'showSlice'), rex_extension::EARLY);
+            }
 
             if(strpos(rex_request('page'),'content/edit') !== false)
             {
