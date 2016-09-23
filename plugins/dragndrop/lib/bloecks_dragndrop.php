@@ -1,6 +1,6 @@
 <?php
 /**
- * bloecks_status class - basic functions for the plugin
+ * bloecks_dragndrop class - basic functions for the plugin
  */
 class bloecks_dragndrop extends bloecks_abstract
 {

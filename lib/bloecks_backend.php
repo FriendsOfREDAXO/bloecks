@@ -22,7 +22,7 @@ class bloecks_backend extends bloecks_abstract
                 rex_extension::register('SLICE_SHOW', array('bloecks_backend', 'showSlice'), rex_extension::EARLY);
             }
 
-            if(strpos(rex_request('page'),'content/edit') !== false)
+            if(strpos(rex_request('page'),'content/edit') !== false && rex::getUser()->hasPerm(static::getPermName()))
             {
                 // and only on content/edit pages we load the css and js files
                 $package = static::package();
