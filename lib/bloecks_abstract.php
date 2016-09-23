@@ -71,6 +71,11 @@ abstract class bloecks_abstract
         return null;
     }
 
+    public static function settings($key = null, $default = null)
+    {
+        return static::package()->getConfig($key, $default);
+    }
+
     /**
      * Selects a value of a slice from the database
      * @param  (int)    $slice_id   ID of the slice

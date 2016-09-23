@@ -10,6 +10,8 @@ class bloecks_dragndrop_backend extends bloecks_backend
      */
     protected static $plugin_name = 'dragndrop';
 
+    protected static $is_moving = false;
+
     /**
      * Initialize the plugin in the backend
      */
@@ -19,7 +21,7 @@ class bloecks_dragndrop_backend extends bloecks_backend
         // rex_extension::register('STRUCTURE_CONTENT_SLICE_MENU', array('bloecks_dragndrop_backend', 'addButtons'));
 
         // register action for toggling the slice status
-        rex_extension::register('STRUCTURE_CONTENT_BEFORE_SLICES', array('bloecks_dragndrop_backend', 'process'));
+        # rex_extension::register('SLICE_MOVE', array('bloecks_dragndrop_backend', 'process'));
 
         // register action for display of the slice
         rex_extension::register('SLICE_SHOW_BLOECKS_BE', array('bloecks_dragndrop_backend', 'showSlice'));
@@ -37,22 +39,73 @@ class bloecks_dragndrop_backend extends bloecks_backend
      */
     public static function process(rex_extension_point $ep)
     {
-        $function = rex_request('bloecks', 'string', null);
-        $slice_id = $ep->getParam('slice_id');
-        $module_id = $ep->getParam('module_id');
-        $status = rex_request('status', 'bool', null);
-
-        if($function === static::plugin()->getName())
+        // let's mark that we are already moving the slice (otherwise this would be called each time the slice is moved)
+        if(!empty(static::$is_moving))
         {
-            if(static::setSliceStatus($slice_id, $status))
+            return;
+        }
+        static::$is_moving = true;
+
+        $direction = $ep->getParam('direction');
+        $slice_id = $ep->getParam('slice_id');
+        $clang_id = $ep->getParam('clang_id');
+        $slice_revision = $ep->getParam('slice_revision');
+        $insertafter = rex_request('insertafter', 'int', null);
+        $insertafter_prio = null;
+
+
+        if($insertafter !== null && ($direction == 'moveup' || $direction == 'movedown'))
+        {
+            $slice = rex_article_slice::getArticleSlicebyId($slice_id, $clang_id, $slice_revision);
+            if($slice)
             {
-                return rex_view::success(static::package()->i18n('slice_updated', static::package()->i18n($status ? 'visible' : 'invisible')));
-            }
-            else
-            {
-                return rex_view::warning(static::package()->i18n('slice_not_updated', static::package()->i18n($status ? 'visible' : 'invisible')));
+                $slice_priority = (int) $slice->getValue('priority');
+                // slice is valid
+                if($insertafter > 0)
+                {
+                    // insertafter is given, let's get it
+                    $insertafter_slice = rex_article_slice::getArticleSlicebyId($insertafter, $clang_id, $slice_revision);
+                    if($insertafter_slice && ($insertafter_slice->getArticleId() == $slice->getArticleId()) && ($insertafter_slice->getCtype() == $slice->getCtype()))
+                    {
+                        // insertafter_slice exists and is within the same article and is within the same ctype,
+                        // let's get its priority
+                        $insertafter_prio = (int) $insertafter_slice->getValue('priority');
+                    }
+                }
+                else
+                {
+                    // insert after is 0 so the new priority is 0
+                    $insertafter_prio = 0;
+                }
+
+                if($insertafter_prio !== null)
+                {
+                    // we could define a new priority
+                    //
+                    $steps = 0;
+                    if($direction == 'movedown')
+                    {
+                        $steps = $insertafter_prio - $slice_priority - 1;
+                    }
+                    else if($direction == 'moveup')
+                    {
+                        $steps = $slice_priority - $insertafter_prio - 2;
+                    }
+
+                    if($steps > 0)
+                    {
+                        for($i = 0; $i < $steps; $i++)
+                        {
+                            // execute the move $step times (the last one is made by rex_content_service::moveSlice itself)
+                            rex_content_service::moveSlice($slice_id, $clang_id, $direction);
+                        }
+                    }
+                }
             }
         }
+
+        static::$is_moving = false;
+        die();
     }
 
     /**
@@ -131,7 +184,7 @@ class bloecks_dragndrop_backend extends bloecks_backend
     }
 
     /**
-     * Wrap a .rex-slice-wrapper LI around both the block selector and the block itself
+     * Wrap a LI.rex-slice-draggable around both the block selector and the block itself
      * @param  rex_extension_point $ep [description]
      * @return string                  the slice content
      */
@@ -139,7 +192,13 @@ class bloecks_dragndrop_backend extends bloecks_backend
     {
         $subject = $ep->getSubject();
 
-        $subject = '<li class="rex-slice rex-slice-wrapper"><ul class="rex-slices">' . $subject . '</ul></li>';
+        // get setting 'display sort buttons' ?
+        $sortbuttons = static::settings('hide_sort_buttons', true) ? ' has--no-sortbuttons' : '';
+
+        // get setting 'display in compact mode' ?
+        $compactmode = static::settings('display_compact', true) ? ' is--compact' : '';
+
+        $subject = '<li class="rex-slice rex-slice-draggable' . $sortbuttons . $compactmode . '"><ul class="rex-slices is--undraggable">' . $subject . '</ul></li>';
 
         return $subject;
     }
