@@ -31,6 +31,7 @@ class bloecks_status_backend extends bloecks_backend
     /**
      * Adds a toggle button to the slice menu
      * @param rex_extension_point $ep [description]
+     * @return array $items
      */
     public static function addButtons(rex_extension_point $ep)
     {
@@ -76,12 +77,14 @@ class bloecks_status_backend extends bloecks_backend
     {
         $function = rex_request('bloecks', 'string', null);
         $slice_id = $ep->getParam('slice_id');
+	    $clang = $ep->getParam('clang');
         $module_id = $ep->getParam('module_id');
         $status = rex_request('status', 'bool', null);
+	    $revision = $ep->getParam('slice_revision');
 
         if($function === static::plugin()->getName())
         {
-            if(static::setSliceStatus($slice_id, $status))
+            if(static::setSliceStatus($slice_id, $clang, $revision, $status))
             {
                 return rex_view::success(static::package()->i18n('slice_updated', static::package()->i18n($status ? 'visible' : 'invisible')));
             }
@@ -97,11 +100,13 @@ class bloecks_status_backend extends bloecks_backend
      * SLICE_UPDATE_STATUS extension point. After successful changing of the status
      * it calls the SLICE_STATUS_UPDATED extension point.
      * @param int $slice_id     the id of the slice
+     * @param int $clang        the id of the current language
      * @param int $status       the status (1 for online, 0 for offline)
+     * @return bool
      */
-    public static function setSliceStatus($slice_id, $status = null)
+    public static function setSliceStatus($slice_id, $clang = null, $revision = null, $status = null)
     {
-        $slice = rex_article_slice::getArticleSlicebyId($slice_id);
+        $slice = rex_article_slice::getArticleSliceById($slice_id, $clang, $revision);
         if($slice)
         {
             // the slice exists...
