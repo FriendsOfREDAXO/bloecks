@@ -1,4 +1,4 @@
-blÖcks / Status 1.1-alpha
+blÖcks / Status 1.3-alpha
 =======================
 
 Das AddOn ermöglicht es, einzelne Slices online und offline zu stellen. Dazu wird ein neuer Button

@@ -1,0 +1,12 @@
+bloecks_cutncopy_navigation = Cut&Copy
+bloecks_cutncopy_name = blÖcks / Cut&Copy
+bloecks_copy_slice = Copy block
+bloecks_cut_slice = Cut block
+bloecks_slice_not_copied = Block with ID #{0} could not be copied to clipboard
+bloecks_slice_copied = Block with ID #{0} could has been copied to clipboard
+bloecks_slice_not_cut = Block with ID #{0} could not be cut to clipboard
+bloecks_slice_cut = Block with ID #{0} could has been copied to clipboard and marked for deletion after insert.
+bloecks_insert_slice = Insert block with ID #{0} in article »{1}« here
+bloecks_slice_removed_after_insert = Block with ID #{0} in article »{1}« has been deleted.
+bloecks_slice_not_removed_after_insert = Block with ID #{0} in article »{1}« could not be deleted.
+bloecks_perm_description = Copy blocks

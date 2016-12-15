@@ -34,12 +34,12 @@ class bloecks_status_backend extends bloecks_backend
      */
     public static function addButtons(rex_extension_point $ep)
     {
-        $items = [];
         if(rex::getUser()->hasPerm(static::getPermName()))
         {
             $status = (bool) static::getValueOfSlice($ep->getParam('slice_id'), 'status', 1);
             $mode = $status ? 'visible' : 'invisible';
-            $btn = [
+
+            static::addButton($ep, [
                 'hidden_label' => static::package()->i18n('toggle_status_'.$mode),
                 'url' => rex_url::backendController([
                     'page' => 'content/edit',
@@ -57,12 +57,8 @@ class bloecks_status_backend extends bloecks_backend
                     'data-state' => $mode,
                 ],
                 'icon' => $mode,
-            ];
-
-            $items[] = $btn;
+            ]);
         }
-
-        return $items;
     }
 
     /**

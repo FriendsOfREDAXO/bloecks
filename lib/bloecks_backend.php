@@ -120,4 +120,11 @@ class bloecks_backend extends bloecks_abstract
 
         return $slice_content;
     }
+
+    public static function addButton(rex_extension_point $ep, array $btn)
+    {
+        $items = (array) $ep->getSubject();
+        $items[] = $btn;
+        $ep->setSubject($items);
+    }
 }

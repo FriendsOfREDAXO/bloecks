@@ -1,0 +1,2 @@
+bloecks.addPlugin("status",{init:function(){$('[href*="bloecks/status/status"][href*="status="]').each(function(a,b){var c=$(b).attr("href").match(/status=(\d)/),d=$(b).parents(".rex-slice-output");d.length&&c&&(c=0===parseInt(c[1]),c?d.first().removeClass("bloecks--status--inactive"):d.first().addClass("bloecks--status--inactive")),$(b).on("click.bloecks",function(a){return $.pjax({url:$(this).attr("href"),container:"#rex-js-page-main-content",fragment:"#rex-js-page-main-content",push:!1}),!1})})}});
+//# sourceMappingURL=be.js.map
