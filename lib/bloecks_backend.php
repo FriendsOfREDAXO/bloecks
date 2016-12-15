@@ -70,7 +70,14 @@ class bloecks_backend extends bloecks_abstract
             if(!rex_perm::has($perm))
             {
                 $group = preg_match('/\[\]$/', $perm) ? rex_perm::GENERAL : rex_perm::OPTIONS;
-                rex_perm::register($perm, static::package()->i18n('perm_description'), $group);
+
+                $name = 'perm_description';
+                if($plugin = static::plugin())
+                {
+                    $name = $plugin->getName() . '_' . $name;
+                }
+
+                rex_perm::register($perm, static::package()->i18n($name), $group);
             }
             return $perm;
         }

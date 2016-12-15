@@ -6,4 +6,4 @@ bloecks_slice_updated = Block wurde aktualisiert und auf {0} gesetzt.
 bloecks_slice_not_updated = Block konnte nicht aktualisiert und auf {0} gesetzt werden.
 bloecks_invisible = offline
 bloecks_visible = online
-bloecks_perm_description = Blöcke an/abschalten
+bloecks_status_perm_description = Blöcke an/abschalten

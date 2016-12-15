@@ -9,4 +9,4 @@ bloecks_slice_cut = Block {0} wurde in die Zwischenablage kopiert
 bloecks_insert_slice = Modul mit der ID #{0} aus Artikel »{1}« an dieser Stelle einfügen
 bloecks_slice_removed_after_insert = Modul mit der ID #{0} aus Artikel »{1}« wurde entfernt.
 bloecks_slice_not_removed_after_insert = Modul mit der ID #{0} aus Artikel »{1}« konnte nicht entfernt werden.
-bloecks_perm_description = Blöcke kopieren
+bloecks_cutncopy_perm_description = Blöcke kopieren
