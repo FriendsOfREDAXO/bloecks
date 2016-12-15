@@ -5,4 +5,4 @@ DSTDIR=$( cd "$( dirname "$SCRIPT_DIR/../" )" && pwd );
 
 cd $SCRIPT_DIR/..;
 
-zip -r bloecks.zip ./bloecks/ -x "*node_modules*" -x "*.git*" -x "rsync*" -x "Gruntfile*" -x "package.json" -x ".*" -x "*assets_src*" -x "zip.sh"
+zip -r bloecks.zip ./bloecks/ -x "*node_modules*" "*.git*" "rsync*" "*Gruntfile*" "*package.json" ".*" "*assets_src*" "*.sh" "*.exclude"
