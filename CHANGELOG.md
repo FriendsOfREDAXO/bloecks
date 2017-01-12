@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 1.3.1 - 11.01.2017
+--------------------------
+
+Readme für das Cut&Copy-Plugin aktualisiert und PJAX/URL-Push für die Icons angepasst.
+
+
 Version 1.3 - 15.12.2016
 --------------------------
 
