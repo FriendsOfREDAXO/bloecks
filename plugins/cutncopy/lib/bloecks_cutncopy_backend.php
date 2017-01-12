@@ -154,6 +154,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
                         'class' => array('btn-' . $type),
                         'title' => static::package()->i18n($type . '_slice'),
                         'data-bloecks-cutncopy-iscopied' => $is_copied && ($action === $type) ? 'true' : 'false',
+                        'data-pjax-no-history' => 'true'
                     ],
                     'icon' => $type,
                 ]);
@@ -407,14 +408,36 @@ class bloecks_cutncopy_backend extends bloecks_backend
                     $url = $matches[1];
                     $url = str_replace('slice_id=', 'source_slice_id=' . $slice->getId() . '&amp;slice_id=', $url);
 
-                    $prefix = substr($subject, 0, strpos($subject, '<li'));
-                    $suffix = substr($subject, strpos($subject, '<li'));
+                    $prefix = substr($subject, 0, strrpos($subject, '</ul'));
+                    $suffix = substr($subject, strrpos($subject, '</ul'));
 
-                    $subject = $prefix . '<li class="bloecks-cutncopy-clipboard-slice is--' . $action . '"><a href="' . $url . '">' . static::package()->i18n('insert_slice', $slice->getId(), $slice->getArticle()->getName() ) . '</a></li>' . $suffix;
+                    $subject = $prefix . '<li class="bloecks-cutncopy-clipboard-slice is--' . $action . '"><a href="' . $url . '">' . static::package()->i18n('insert_slice', static::getModuleName($slice->getModuleId()), $slice->getId(), $slice->getArticle()->getName() ) . '</a></li>' . $suffix;
 
                     $ep->setSubject($subject);
                 }
             }
         }
+    }
+
+    /**
+     * Retrieves the module's name by its ID
+     * @param  [int] $module_id A module ID
+     * @return [string]         The module's name (or the ID if no module was found for the given module ID)
+     */
+    protected static function getModuleName($module_id)
+    {
+        $module_id = (int) $module_id;
+        if(!empty($module_id))
+        {
+            $sql = rex_sql::factory();
+            $qry = "SELECT `name` FROM `" . rex::getTable('module') . "` WHERE `id` = " . $module_id;
+            $sql->setQuery($qry);
+            if(count($row = $sql->getArray()))
+            {
+                return rex_i18n::translate($row[0]['name']);
+            }
+        }
+
+        return $module_id;
     }
 }
