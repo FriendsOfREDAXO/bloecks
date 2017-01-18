@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Version 1.3.2 - 18.01.2017
+--------------------------
+
+Wird ein kopierter Artikel über das BLOCK HINZUFÜGEN DropDown eingefügt, geschieht das nun via PJAX,
+sodass sich die URL des Browsers nicht ändert. Sonst fügt man versehentlich weitere Blöcke beim
+Reload der Seite ein oder kann den Block am Ende nur einmal einfügen.
+
+Außerdem wird der kopierte Block beim Einfügen weiterhin im Clipboard behalten (wurde vorher entfernt).
+
+
 Version 1.3.1 - 11.01.2017
 --------------------------
 
