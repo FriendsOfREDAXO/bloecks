@@ -148,7 +148,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
                         'slice_id' => $ep->getParam('slice_id'),
                         'clang' => $ep->getParam('clang'),
                         'ctype' => $ep->getParam('ctype'),
-                        'action' => $type
+                        'cuc_action' => $type
                     ]),
                     'attributes' => [
                         'class' => array('btn-' . $type),
@@ -171,7 +171,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
     {
         $function = rex_request('bloecks', 'string', null);
         $slice_id = rex_request('slice_id', 'int', 0);
-        $action = rex_request('action', 'string', null);
+        $action = rex_request('cuc_action', 'string', null);
 
         if($function === static::plugin()->getName())
         {
@@ -376,9 +376,9 @@ class bloecks_cutncopy_backend extends bloecks_backend
                         {
                             $info = static::package()->i18n('slice_not_removed_after_insert', $clipboard_slice->getId(), $clipboard_slice->getArticle()->getName() );
                         }
-                    }
 
-                    static::deleteCookie();
+                        static::deleteCookie();
+                    }
 
                     return $info;
                 }
@@ -411,7 +411,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
                     $prefix = substr($subject, 0, strrpos($subject, '</ul'));
                     $suffix = substr($subject, strrpos($subject, '</ul'));
 
-                    $subject = $prefix . '<li class="bloecks-cutncopy-clipboard-slice is--' . $action . '"><a href="' . $url . '">' . static::package()->i18n('insert_slice', static::getModuleName($slice->getModuleId()), $slice->getId(), $slice->getArticle()->getName() ) . '</a></li>' . $suffix;
+                    $subject = $prefix . '<li class="bloecks-cutncopy-clipboard-slice is--' . $action . '"><a href="' . $url . '" data-pjax="true" data-pjax-no-history="true">' . static::package()->i18n('insert_slice', static::getModuleName($slice->getModuleId()), $slice->getId(), $slice->getArticle()->getName() ) . '</a></li>' . $suffix;
 
                     $ep->setSubject($subject);
                 }
