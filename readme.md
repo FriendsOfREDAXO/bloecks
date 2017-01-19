@@ -11,7 +11,7 @@ Jedes Plugin sollte die Klassen ```bloecks_PLUGINNAME``` (für alle Basisfunktio
 (für alle Funktionen im Backend) beinhalten. Dabei erweitert ```bloecks_PLUGINNAME``` immer die ```bloecks```-Klasse,
 und ```bloecks_PLUGINNAME_backend``` entsprechend die ```bloecks_backend```-Klasse.
 
-### bleocks_abstract
+### bloecks_abstract
 
 Diese Klasse dient als Basis für allen anderen Klassen und beinhaltet Funktionen zur Vereinfachung des Zugriffs
 auf das Addon und seine Plugins.
