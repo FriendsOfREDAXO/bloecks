@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 1.3.3 - 19.01.2017
+--------------------------
+
+Auch der Status eines Revision-Slices kann nun geändert werden (Fix durch [@omphteliba](https://github.com/omphteliba).
+
+
 Version 1.3.2 - 18.01.2017
 --------------------------
 
