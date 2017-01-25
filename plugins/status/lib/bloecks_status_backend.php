@@ -97,6 +97,7 @@ class bloecks_status_backend extends bloecks_backend
      * it calls the SLICE_STATUS_UPDATED extension point.
      * @param int $slice_id     the id of the slice
      * @param int $clang        the id of the current language
+     * @param int revision      the revision id
      * @param int $status       the status (1 for online, 0 for offline)
      * @return bool
      */
