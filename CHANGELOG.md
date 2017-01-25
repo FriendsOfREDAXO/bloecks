@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Version 1.3.4 - 25.01.2017
+--------------------------
+
+Beim EP ```SLICE_DELETED``` und ```STRUCTURE_CONTENT_SLICE_DELETED``` wird nun auch bei ```article_id```
+die Artikel-ID und nicht der Artikel übergeben ([Issue #12](https://github.com/FriendsOfREDAXO/bloecks/issues/12)).
+
+
 Version 1.3.3 - 19.01.2017
 --------------------------
 

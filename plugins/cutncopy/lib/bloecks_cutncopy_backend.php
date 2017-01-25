@@ -359,7 +359,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
                             foreach (['SLICE_DELETED', /* deprecated */ 'STRUCTURE_CONTENT_SLICE_DELETED'] as $ep)
                             {
                                 rex_extension::registerPoint(new rex_extension_point($ep, $global_info, [
-                                    'article_id' => static::$clipboard_slice->getArticle(),
+                                    'article_id' => static::$clipboard_slice->getArticleId(),
                                     'clang' => static::$clipboard_slice->getClang(),
                                     'function' => 'delete',
                                     'slice_id' => static::$clipboard_slice->getId(),
