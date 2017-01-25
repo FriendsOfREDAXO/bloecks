@@ -34,7 +34,7 @@ class bloecks_dragndrop_backend extends bloecks_backend
             $subject = $ep->getSubject();
 
             // get setting 'display sort buttons' ?
-            $sortbuttons = static::settings('hide_sort_buttons', true) ? ' has--no-sortbuttons' : '';
+            $sortbuttons = static::settings('display_sort_buttons', false) ? '' : ' has--no-sortbuttons';
 
             // get setting 'display in compact mode' ?
             $compactmode = static::settings('display_compact', true) ? ' is--compact' : '';

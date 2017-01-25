@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Version 1.3.5 - 25.01.2017
+--------------------------
+
+Beim Drag&Drop Plugin kann nun bei Bedarf die Anzeige der Sortierungsbuttons per Einstellung eingeschaltet werden
+([Issue #2](https://github.com/FriendsOfREDAXO/bloecks/issues/2)).
+
+
 Version 1.3.4 - 25.01.2017
 --------------------------
 

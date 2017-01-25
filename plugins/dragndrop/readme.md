@@ -1,4 +1,4 @@
-blÖcks / Drag&Drop 1.3.4-alpha
+blÖcks / Drag&Drop 1.3.5-alpha
 =======================
 
 Das AddOn ermöglicht es, einzelne Slices per Drag&Drop zu verschieben. Erstellt dazu eine neue Klasse

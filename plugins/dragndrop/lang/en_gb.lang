@@ -4,3 +4,5 @@ bloecks_perm_description = move blocks via drag&drop
 bloecks_dragndrop_something_went_wrong = An error occurred ({0}).
 bloecks_dragndrop_moveup = while moving up
 bloecks_dragndrop_movedown = while moving down
+bloecks_display_sort_buttons = Display sort buttons besides module blocks
+bloecks_save = Save

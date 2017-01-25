@@ -1,4 +1,11 @@
 package: bloecks/dragndrop
-version: '1.3.4-alpha'
+version: '1.3.5-alpha'
 author: 'FriendsOfREDAXO'
 supportpage: https://github.com/FriendsOfREDAXO/bloecks
+
+page:
+  title: 'Drag&Drop'
+  icon: rex-icon
+  perm: bloecks[dragndrop]
+  pjax: false
+  block: bloecks

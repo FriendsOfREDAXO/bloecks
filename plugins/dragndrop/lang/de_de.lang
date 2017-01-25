@@ -4,3 +4,5 @@ bloecks_dragndrop_perm_description = Blöcke per Drag&Drop verschieben
 bloecks_dragndrop_something_went_wrong = Ein Fehler trat auf ({0}).
 bloecks_dragndrop_moveup = beim Verschieben nach oben
 bloecks_dragndrop_movedown = beim Verschieben nach unten
+bloecks_display_sort_buttons = Zeige Sortierungs-Buttons an den einzelnen Modulblöcken.
+bloecks_save = Speichern
