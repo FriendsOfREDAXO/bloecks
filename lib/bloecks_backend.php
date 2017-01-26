@@ -16,14 +16,14 @@ class bloecks_backend extends bloecks_abstract
             // let's register the permission for this addon / plugin
             static::addPerm();
 
-            if(!static::plugin())
-            {
-                // hook into SLICE_SHOW extension point so we can change the display of the slice a bit
-                rex_extension::register('SLICE_SHOW', array('bloecks_backend', 'showSlice'), rex_extension::EARLY);
-            }
-
             if(strpos(rex_request('page'),'content/edit') !== false && rex::getUser()->hasPerm(static::getPermName()))
             {
+                if(!static::plugin())
+                {
+                    // hook into SLICE_SHOW extension point so we can change the display of the slice a bit
+                    rex_extension::register('SLICE_SHOW', array('bloecks_backend', 'showSlice'), rex_extension::EARLY);
+                }
+
                 // and only on content/edit pages we load the css and js files
                 $package = static::package();
 

@@ -1,4 +1,4 @@
-blÖcks 1.3.5-alpha
+blÖcks 1.3.6-alpha
 =======================
 
 Das AddOn dient als Basis für weitere Plugins und soll als Ersatz für das SliceUI-Addon dienen. Für

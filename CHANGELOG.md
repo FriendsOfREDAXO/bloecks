@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 1.3.6 - 26.01.2017
+--------------------------
+
+Das AddOn läuft nun auch in Kombination mit dem CacheWarmup-Plugin.
+
+
 Version 1.3.5 - 25.01.2017
 --------------------------
 
