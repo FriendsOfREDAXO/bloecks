@@ -1,4 +1,4 @@
-blÖcks / Cut&Copy 1.3.6-alpha
+blÖcks / Cut&Copy
 =======================
 
 Das AddOn ermöglicht es, einzelne Slices zu kopieren, bzw. auszuschneiden und an anderer
