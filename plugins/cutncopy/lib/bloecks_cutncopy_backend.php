@@ -211,7 +211,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
             }
             else
             {
-                static::setCookie(['slice_id' => $slice->getId(), 'action' => 'copy']);
+                static::setCookie(['slice_id' => $slice->getId(), 'clang' => $slice->getClang(), 'revision' => $slice->getRevision(), 'action' => 'copy']);
 
                 rex_extension::registerPoint(new rex_extension_point('SLICE_COPIED', '', [
                     'slice_id' => $slice->getId(),
@@ -245,7 +245,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
             }
             else
             {
-                static::setCookie(['slice_id' => $slice->getId(), 'action' => 'cut']);
+                static::setCookie(['slice_id' => $slice->getId(), 'clang' => $slice->getClang(), 'revision' => $slice->getRevision(), 'action' => 'cut']);
 
                 rex_extension::registerPoint(new rex_extension_point('SLICE_COPIED', '', [
                     'slice_id' => $slice->getId(),
@@ -278,9 +278,12 @@ class bloecks_cutncopy_backend extends bloecks_backend
                 if((int) $source_slice_id === static::getCookie('slice_id', 'int', null))
                 {
                     $action = static::getCookie('action', 'string', '');
+                    $clang = static::getCookie('clang', 'int', null);
+                    $revision = static::getCookie('revision', 'int', 0);
+
                     if($action)
                     {
-                        $slice = rex_article_slice::getArticleSlicebyId((int) $source_slice_id);
+                        $slice = rex_article_slice::getArticleSlicebyId((int) $source_slice_id, $clang, $revision);
                         if($slice)
                         {
                             static::$clipboard_slice = $slice;
@@ -394,11 +397,14 @@ class bloecks_cutncopy_backend extends bloecks_backend
     public static function addBlockToDropdown(rex_extension_point $ep)
     {
         $slice_id = static::getCookie('slice_id', 'int', null);
+        $clang = static::getCookie('clang', 'int', null);
+        $revision = static::getCookie('revision', 'int', 0);
         $action = static::getCookie('action', 'string', null);
 
         if($slice_id && $action)
         {
-            $slice = rex_article_slice::getArticleSlicebyId($slice_id);
+            $slice = rex_article_slice::getArticleSlicebyId($slice_id, $clang, $revision);
+
             if($slice)
             {
                 $subject = $ep->getSubject();
