@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 1.3.8 - 31.01.2017
+--------------------------
+
+Blöcke können nun auch zwischen verschiedenen Sprachen kopiert und eingefügt werden.
+
+
 Version 1.3.7 - 26.01.2017
 --------------------------
 
