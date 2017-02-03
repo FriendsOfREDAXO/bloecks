@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 1.3.9 - 03.02.2017
+--------------------------
+
+Probleme bei der Cache-Erstellung in verbindung mit dem search_it Addon behoben.
+
+
 Version 1.3.8 - 31.01.2017
 --------------------------
 

@@ -33,18 +33,18 @@ class bloecks_dragndrop_backend extends bloecks_backend
         {
             $subject = $ep->getSubject();
 
-            // get setting 'display sort buttons' ?
-            $sortbuttons = static::settings('display_sort_buttons', false) ? '' : ' has--no-sortbuttons';
+            if(preg_match('/class="rex-slice rex-slice-output"/', $subject) && preg_match('/class="rex-slice rex-slice-select"/', $subject))
+            {
+                // get setting 'display sort buttons' ?
+                $sortbuttons = static::settings('display_sort_buttons', false) ? '' : ' has--no-sortbuttons';
 
-            // get setting 'display in compact mode' ?
-            $compactmode = static::settings('display_compact', true) ? ' is--compact' : '';
+                // get setting 'display in compact mode' ?
+                $compactmode = static::settings('display_compact', true) ? ' is--compact' : '';
 
-            $subject = '<li class="rex-slice rex-slice-draggable' . $sortbuttons . $compactmode . '"><ul class="rex-slices is--undraggable">' . $subject . '</ul></li>';
+                $subject = '<li class="rex-slice rex-slice-draggable' . $sortbuttons . $compactmode . '"><ul class="rex-slices is--undraggable">' . $subject . '</ul></li>';
 
-            $ep->setSubject($subject);
-
-            // return $subject;
+                $ep->setSubject($subject);
+            }
         }
     }
-
 }
