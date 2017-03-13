@@ -1,6 +1,8 @@
 blÖcks / Cut&Copy
 =======================
 
+![Screenshot](https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/master/plugins/cutncopy/readme/screenshot.jpg)
+
 Das AddOn ermöglicht es, einzelne Slices zu kopieren, bzw. auszuschneiden und an anderer
 Stelle einzufügen.
 
@@ -23,7 +25,7 @@ Kopierte Module können nur auf solchen Seiten eingefügt werden, auf denen der 
 ### Extension points
 
 - Nachdem ein Block in den Zwischenspeicher kopiert wurde, wird der ExtensionPoint ```SLICE_COPIED``` aufgerufen.
-- Nachdem ein Block zum Ausschneiden in den Zwischenspeicher kopiert wurde, wird der ExtensionPoint ```SLICE_CUT``` aufgerufen. 
+- Nachdem ein Block zum Ausschneiden in den Zwischenspeicher kopiert wurde, wird der ExtensionPoint ```SLICE_CUT``` aufgerufen.
 - Nach Einfügen des Blocks an anderer Stelle wird der ExtensionPoint ```SLICE_INSERTED``` aufgerufen.
 
 ### Rechte

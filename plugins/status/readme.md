@@ -1,6 +1,8 @@
 blÖcks / Status
 =======================
 
+![Screenshot](https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/master/plugins/status/readme/screenshot.jpg)
+
 Das AddOn ermöglicht es, einzelne Slices online und offline zu stellen. Dazu wird ein neuer Button
 zwischen "Block löschen" und "Block verschieben" eingefügt, der den Status des Blocks  umstellt. Deaktivierte
 Blöcke werden im Backend ausgegraut, im Frontend nicht angezeigt.

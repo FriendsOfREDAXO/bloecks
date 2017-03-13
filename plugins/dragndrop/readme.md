@@ -1,6 +1,8 @@
 blÖcks / Drag&Drop
 =======================
 
+![Screenshot](https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/master/plugins/dragndrop/readme/screenshot.jpg)
+
 Das AddOn ermöglicht es, einzelne Slices per Drag&Drop zu verschieben. Erstellt dazu eine neue Klasse
 ```rex_api_content_move_slice_to``` die dazu die vorhandene Klasse ```rex_api_content_move_slice``` verwendet.
 
