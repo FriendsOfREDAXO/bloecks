@@ -22,8 +22,9 @@ Kopierte Module können nur auf solchen Seiten eingefügt werden, auf denen der 
 
 ### Extension points
 
-Nachdem ein Block in den Zwischenspeicher kopiert wurde, wird der ExtensionPoint ```SLICE_COPIED``` aufgerufen. Nach
-Einfügen des Blocks an anderer Stelle wird der ExtensionPoint ```SLICE_INSERTED``` aufgerufen.
+- Nachdem ein Block in den Zwischenspeicher kopiert wurde, wird der ExtensionPoint ```SLICE_COPIED``` aufgerufen.
+- Nachdem ein Block zum Ausschneiden in den Zwischenspeicher kopiert wurde, wird der ExtensionPoint ```SLICE_CUT``` aufgerufen. 
+- Nach Einfügen des Blocks an anderer Stelle wird der ExtensionPoint ```SLICE_INSERTED``` aufgerufen.
 
 ### Rechte
 Um die Funktion zu nutzen muss der Nutzer entweder ein Administrator sein oder über das Recht ```bloecks[cutncopy]```

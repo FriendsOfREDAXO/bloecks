@@ -247,7 +247,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
             {
                 static::setCookie(['slice_id' => $slice->getId(), 'clang' => $slice->getClang(), 'revision' => $slice->getRevision(), 'action' => 'cut']);
 
-                rex_extension::registerPoint(new rex_extension_point('SLICE_COPIED', '', [
+                rex_extension::registerPoint(new rex_extension_point('SLICE_CUT', '', [
                     'slice_id' => $slice->getId(),
                     'article_id' => $slice->getArticleId(),
                     'clang_id' => $slice->getClang(),
