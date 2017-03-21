@@ -20,11 +20,8 @@ class bloecks_status extends bloecks_abstract
             // call the backend functions
             bloecks_status_backend::init($ep);
         }
-        else if(!rex::isBackend())
-        {
-            // add our slice_show extension whenever a sliceis displayed
-            rex_extension::register('SLICE_SHOW_BLOECKS_FE', array('bloecks_status', 'showSlice'));
-        }
+        // add our slice_show extension whenever a sliceis displayed
+        rex_extension::register('SLICE_SHOW_BLOECKS_FE', array('bloecks_status', 'showSlice'));
     }
 
     /**
