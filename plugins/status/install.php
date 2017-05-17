@@ -12,6 +12,6 @@
      else
      {
          rex_sql_table::get(rex::getTablePrefix().'article_slice')
-           ->ensureColumn(new rex_sql_column('status', 'tinyint(1)', false, 1, 'unsigned'))
+           ->ensureColumn(new rex_sql_column('status', 'tinyint(1) unsigned', false, 1))
            ->alter();
      }
