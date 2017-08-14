@@ -20,7 +20,7 @@ abstract class bloecks_abstract
      * Returns the current package (either the addon or the plugin if this is extending a plugin class)
      * @return rex_addon / rex_plugin
      */
-    protected static function package()
+    public static function package()
     {
         if($plugin = static::plugin())
         {

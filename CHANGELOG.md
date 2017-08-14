@@ -8,7 +8,7 @@ Version 1.3.10 - 13.08.2017
 - EP in cut&copy plugin aktualisiert ([Issue #19](https://github.com/FriendsOfREDAXO/bloecks/issues/19)
 - online/offline-Ansicht von Blöcken aktualisiert
 - Status-Plugin-installation gefixt ([Issue #27](https://github.com/FriendsOfREDAXO/bloecks/issues/27) von [tbaddade](https://github.com/tbaddade)
-
+- package()-Aufruf in Fehlermeldung innerhalb rex_api_content_move_slice_to.php gefixt
 
 Version 1.3.9 - 03.02.2017
 --------------------------
