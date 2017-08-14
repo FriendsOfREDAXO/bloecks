@@ -54,7 +54,7 @@ module.exports = function(grunt) {
                 sourceMapIncludeSources : true,
                 sourceMapIn : function(path) { return path.replace(/\.js/,"\.js\.map")},
 				compress: {
-					drop_console: false
+					drop_console: true
 				}
 			}
 		},
