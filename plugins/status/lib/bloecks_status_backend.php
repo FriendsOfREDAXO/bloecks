@@ -178,7 +178,16 @@ class bloecks_status_backend extends bloecks_backend
     {
         $subject = $ep->getSubject();
 
-        $status = (bool) static::getValueOfSlice($ep->getParam('slice_id'), 'status', 1);
+        if ($ep->hasParam('sql'))
+        {
+            /** @var rex_sql $sql */
+            $sql = $ep->getParam('sql');
+            $status = (bool) $sql->getValue('status');
+        }
+        else
+        {
+            $status = (bool) static::getValueOfSlice($ep->getParam('slice_id'), 'status', 1);
+        }
         if($status === false)
         {
             return str_replace('class="rex-slice rex-slice-output"','class="rex-slice rex-slice-output rex-slice-status-off"', $subject);

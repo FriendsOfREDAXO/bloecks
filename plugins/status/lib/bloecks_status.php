@@ -34,7 +34,16 @@ class bloecks_status extends bloecks_abstract
      */
     public static function showSlice(rex_extension_point $ep)
     {
-        $status = (bool) static::getValueOfSlice($ep->getParam('slice_id'), 'status', 1);
+        if ($ep->hasParam('sql'))
+        {
+            /** @var rex_sql $sql */
+            $sql = $ep->getParam('sql');
+            $status = (bool) $sql->getValue('status');
+        }
+        else
+        {
+            $status = (bool) static::getValueOfSlice($ep->getParam('slice_id'), 'status', 1);
+        }
         if($status === false)
         {
             // slice is not active - don't show anything!
