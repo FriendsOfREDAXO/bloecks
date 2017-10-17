@@ -1,5 +1,11 @@
 Changelog
 =========
+Version 1.3.12 - 17.10.2017
+--------------------------
+- Slice Status wird nun über neuen EP-param abgefragt ([Issue #36](https://github.com/FriendsOfREDAXO/bloecks/pull/36) von [gharlan](https://github.com/gharlan))
+- sv_se.lang hinzugefügt ([Issue #38](https://github.com/FriendsOfREDAXO/bloecks/pull/38) von [ytraduko-bot](https://github.com/ytraduko-bot))
+
+
 Version 1.3.11 - 13.08.2017
 --------------------------
 
