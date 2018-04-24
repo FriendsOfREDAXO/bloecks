@@ -41,7 +41,9 @@ class bloecks_dragndrop_backend extends bloecks_backend
                 // get setting 'display in compact mode' ?
                 $compactmode = static::settings('display_compact', true) ? ' is--compact' : '';
 
-                $subject = '<li class="rex-slice rex-slice-draggable' . $sortbuttons . $compactmode . '"><ul class="rex-slices is--undraggable">' . $subject . '</ul></li>';
+                $csrfToken = rex_csrf_token::factory(rex_api_content_move_slice_to::class)->getValue();
+
+                $subject = '<li class="rex-slice rex-slice-draggable' . $sortbuttons . $compactmode . '" data-csrf-token="' . $csrfToken . '"><ul class="rex-slices is--undraggable">' . $subject . '</ul></li>';
 
                 $ep->setSubject($subject);
             }
