@@ -1,0 +1,9 @@
+bloecks_dragndrop_navigation = Arrastrar y soltar
+bloecks_dragndrop_name = Bloecks / Arrastrar y soltar
+bloecks_dragndrop_perm_description = Mover bloques arrastrando y soltando
+bloecks_dragndrop_something_went_wrong = Se produjo un error ({0}).
+bloecks_dragndrop_moveup = cuando se mueve hacia arriba
+bloecks_dragndrop_movedown = cuando se mueve hacia abajo
+bloecks_dragndrop_display_sort_buttons = Mostrar botones de clasificación en los bloques de módulos
+bloecks_dragndrop_save = Guardar
+bloecks_dragndrop_settings = Ajustes
