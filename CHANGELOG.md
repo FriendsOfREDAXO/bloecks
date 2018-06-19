@@ -1,5 +1,17 @@
 Changelog
 =========
+
+Version 1.3.14 - 19.06.2018
+--------------------------
+
+- Traducción en castellano ([Issue #51](https://github.com/FriendsOfREDAXO/bloecks/pull/51) von [@nandes2062](https://github.com/@nandes2062))
+
+Version 1.3.13 - 03.05.2018
+--------------------------
+
+- D'n'd: CSRF-Problematik gelöst ([Issue #50](https://github.com/FriendsOfREDAXO/bloecks/issues/50) von [gharlan](https://github.com/gharlan))
+- Update it_it.lang ([Issue #40](https://github.com/FriendsOfREDAXO/bloecks/pull/40) von [Fanello](https://github.com/Fanello))
+
 Version 1.3.12 - 17.10.2017
 --------------------------
 - Slice Status wird nun über neuen EP-param abgefragt ([Issue #36](https://github.com/FriendsOfREDAXO/bloecks/pull/36) von [gharlan](https://github.com/gharlan))
