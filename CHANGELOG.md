@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 1.3.15 - 01.07.2018
+--------------------------
+
+- REDAXO Mindestversion angehoben auf 5.5
+
 Version 1.3.14 - 19.06.2018
 --------------------------
 
