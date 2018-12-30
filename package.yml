@@ -13,3 +13,6 @@ requires:
     packages:
         structure/content: '>=2.1.0'
     redaxo: ^5.5.0
+
+installer_ignore:
+    - node_modules
