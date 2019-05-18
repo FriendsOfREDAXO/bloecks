@@ -414,8 +414,8 @@ class bloecks_cutncopy_backend extends bloecks_backend
                     $url = $matches[1];
                     $url = str_replace('slice_id=', 'source_slice_id=' . $slice->getId() . '&amp;slice_id=', $url);
 
-                    $prefix = substr($subject, 0, strrpos($subject, '</ul'));
-                    $suffix = substr($subject, strrpos($subject, '</ul'));
+                    $prefix = substr($subject, 0, strpos($subject, '<li>'));
+                    $suffix = substr($subject, strpos($subject, '<li>'));
 
                     $subject = $prefix . '<li class="bloecks-cutncopy-clipboard-slice is--' . $action . '"><a href="' . $url . '" data-pjax="true" data-pjax-no-history="true">' . static::package()->i18n('insert_slice', static::getModuleName($slice->getModuleId()), $slice->getId(), $slice->getArticle()->getName() ) . '</a></li>' . $suffix;
 
