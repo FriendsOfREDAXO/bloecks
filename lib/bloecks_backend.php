@@ -16,7 +16,7 @@ class bloecks_backend extends bloecks_abstract
             // let's register the permission for this addon / plugin
             static::addPerm();
 
-            if(strpos(rex_request('page'),'content/edit') !== false && rex::getUser()->hasPerm(static::getPermName()))
+            if(strpos(rex_request('page'),'content/edit') !== false)
             {
                 if(!static::plugin())
                 {
