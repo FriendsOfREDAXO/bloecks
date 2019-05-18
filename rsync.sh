@@ -15,7 +15,7 @@ for src in $(find $SRCDIR -type d -iname "assets");do
     fi;
 
     # rsync folders
-    rsync -a --exclude-from="$SCRIPT_DIR/rsync.exclude" --delete-excluded $src/ $dst/
+    rsync -a --exclude-from="$SCRIPT_DIR/rsync.exclude" $src/ $dst/
 done;
 
 exit;
