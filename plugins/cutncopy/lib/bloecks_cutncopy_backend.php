@@ -376,14 +376,15 @@ class bloecks_cutncopy_backend extends bloecks_backend
                                 'module_id' => static::$clipboard_slice->getModuleId()
                             ];
 
-                            rex_extension::registerPoint(new rex_extension_point('SLICE_DELETED', $global_info, $epParams));
-                            /* deprecated */ rex_extension::registerPoint(new rex_extension_point('STRUCTURE_CONTENT_SLICE_DELETED', $global_info, $epParams));
+                            $info = static::package()->i18n('slice_removed_after_insert', static::getModuleName(static::$clipboard_slice->getModuleId()), static::$clipboard_slice->getId(), static::$clipboard_slice->getArticle()->getName() );
 
-                            $info = static::package()->i18n('slice_removed_after_insert', static::$clipboard_slice->getId(), static::$clipboard_slice->getArticle()->getName() );
+                            rex_extension::registerPoint(new rex_extension_point('SLICE_DELETED', $info, $epParams));
+                            /* deprecated */ rex_extension::registerPoint(new rex_extension_point('STRUCTURE_CONTENT_SLICE_DELETED', $info, $epParams));
+
                         }
                         else
                         {
-                            $info = static::package()->i18n('slice_not_removed_after_insert', $clipboard_slice->getId(), $clipboard_slice->getArticle()->getName() );
+                            $info = static::package()->i18n('slice_not_removed_after_insert', static::getModuleName(static::$clipboard_slice->getModuleId()), static::$clipboard_slice->getId(), static::$clipboard_slice->getArticle()->getName() );
                         }
 
                         static::deleteCookie();
