@@ -24,6 +24,9 @@ class bloecks_status_backend extends bloecks_backend
         // register action for display of the slice
         rex_extension::register('SLICE_SHOW_BLOECKS_BE', array('bloecks_status_backend', 'showSlice'));
 
+        // register action for updating an inserted slice status
+        rex_extension::register('SLICE_INSERTED', array('bloecks_status_backend', 'updateSliceStatus'));
+
         // call the addon init function - see blocks_backend:init() class
         parent::init($ep);
     }
@@ -195,4 +198,22 @@ class bloecks_status_backend extends bloecks_backend
         return $subject;
     }
 
+    /**
+     * Updates an inserted slice status
+     * @param  rex_extension_point $ep [description]
+     * @return string                  the slice content
+     */
+    public static function updateSliceStatus(rex_extension_point $ep)
+    {
+        $slice_id = $ep->getParam('inserted_slice_id');
+        $clang = $ep->getParam('clang_id');
+        $revision = $ep->getParam('slice_revision');
+        $status = $ep->getParam('status');
+        $cutncopyAction = $ep->getParam('cutncopy-action');
+
+        if ('copy' === $cutncopyAction || 'cut' === $cutncopyAction)
+        {
+            static::setSliceStatus($slice_id, $clang, $revision, $status);
+        }
+    }
 }

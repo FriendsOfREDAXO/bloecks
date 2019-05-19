@@ -211,13 +211,15 @@ class bloecks_cutncopy_backend extends bloecks_backend
             }
             else
             {
-                static::setCookie(['slice_id' => $slice->getId(), 'clang' => $slice->getClang(), 'revision' => $slice->getRevision(), 'action' => 'copy']);
+                $status = static::getValueOfSlice($slice->getId(), 'status', 1);
+                static::setCookie(['slice_id' => $slice->getId(), 'clang' => $slice->getClang(), 'revision' => $slice->getRevision(), 'status' => $status, 'action' => 'copy']);
 
                 rex_extension::registerPoint(new rex_extension_point('SLICE_COPIED', '', [
                     'slice_id' => $slice->getId(),
                     'article_id' => $slice->getArticleId(),
                     'clang_id' => $slice->getClang(),
                     'slice_revision' => $slice->getRevision(),
+                    'status' => $status,
                     'cutncopy-action' => 'copy'
                 ]));
 
@@ -245,13 +247,15 @@ class bloecks_cutncopy_backend extends bloecks_backend
             }
             else
             {
-                static::setCookie(['slice_id' => $slice->getId(), 'clang' => $slice->getClang(), 'revision' => $slice->getRevision(), 'action' => 'cut']);
+                $status = static::getValueOfSlice($slice->getId(), 'status', 1);
+                static::setCookie(['slice_id' => $slice->getId(), 'clang' => $slice->getClang(), 'revision' => $slice->getRevision(), 'status' => $status, 'action' => 'cut']);
 
                 rex_extension::registerPoint(new rex_extension_point('SLICE_CUT', '', [
                     'slice_id' => $slice->getId(),
                     'article_id' => $slice->getArticleId(),
                     'clang_id' => $slice->getClang(),
                     'slice_revision' => $slice->getRevision(),
+                    'status' => $status,
                     'cutncopy-action' => 'cut'
                 ]));
 
@@ -349,8 +353,10 @@ class bloecks_cutncopy_backend extends bloecks_backend
                     rex_extension::registerPoint(new rex_extension_point('SLICE_INSERTED', '', [
                         'source_slice_id' => static::$clipboard_slice,
                         'before_slice_id' => rex_request('slice_id', 'int', null),
+                        'inserted_slice_id' => (int) $ep->getParam('slice_id'),
                         'clang_id' => static::$clipboard_slice->getClang(),
                         'slice_revision' => static::$clipboard_slice->getRevision(),
+                        'status' => static::getCookie('status', 'int', 1),
                         'cutncopy-action' => $action
                     ]));
 
