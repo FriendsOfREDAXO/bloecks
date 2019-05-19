@@ -201,7 +201,7 @@ class bloecks_status_backend extends bloecks_backend
     /**
      * Updates an inserted slice status
      * @param  rex_extension_point $ep [description]
-     * @return string                  the slice content
+     * @return none
      */
     public static function updateSliceStatus(rex_extension_point $ep)
     {
