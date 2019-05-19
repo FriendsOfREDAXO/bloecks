@@ -56,6 +56,10 @@
             .panel-heading {
                 &.ui-sortable-handle {
                     cursor: move;
+                    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAABECAYAAACxiwTbAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJFJREFUeNrskj0OgCAMhVtinIhXcPL+93HSKyiTg1giRgL1Z3DzveSFUF6BJh8TUS1uxVbsxKN48d5TEDOTlgnVTtzQqVncZ41FxsRbUuV7rWZNfDqVUxqLjIkzTeI1roPS+CazK8x4zKmJ7w7vZOhrPX21ugIgywEAAAAAAAAAAAAAAAAAAAAAAADADwDYBBgASa0vocoUKsUAAAAASUVORK5CYII=');
+                    background-position: 2px center;
+                    background-repeat: no-repeat;
+                    background-size: 7px; // 50%
                 }
             }
         }
@@ -65,4 +69,12 @@
         background: rgba(0,0,0,0.2);
     }
 
+}
+
+.rex-slices {
+    .ui-sortable-helper {
+        .panel {
+            box-shadow: 0 5px 7px rgba(0,0,0,0.2);
+        }
+    }
 }
