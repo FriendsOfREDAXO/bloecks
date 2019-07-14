@@ -18,9 +18,15 @@ class rex_api_content_move_slice_to extends rex_api_content_move_slice
         $insertafter = rex_request('insertafter', 'int', null);
         $insertafter_prio = null;
 
+        // get revision
+        // we keep it badass simple here: since we don’t know about a slice revision, we just
+        // check for the slice in working version (revision = 1), and if it doesn’t exist,
+        // we go for the live version (revision = 0), which is default
+        $revision = rex_article_slice::getArticleSlicebyId($slice_id, $clang_id, 1) ? 1 : 0;
+
         if($insertafter !== null && ($direction == 'moveup' || $direction == 'movedown'))
         {
-            $slice = rex_article_slice::getArticleSlicebyId($slice_id, $clang_id);
+            $slice = rex_article_slice::getArticleSlicebyId($slice_id, $clang_id, $revision);
             if($slice)
             {
                 $slice_priority = (int) $slice->getValue('priority');
@@ -28,7 +34,7 @@ class rex_api_content_move_slice_to extends rex_api_content_move_slice
                 if($insertafter > 0)
                 {
                     // insertafter is given, let's get it
-                    $insertafter_slice = rex_article_slice::getArticleSlicebyId($insertafter, $clang_id);
+                    $insertafter_slice = rex_article_slice::getArticleSlicebyId($insertafter, $clang_id, $revision);
                     if($insertafter_slice && ($insertafter_slice->getArticleId() == $slice->getArticleId()) && ($insertafter_slice->getCtype() == $slice->getCtype()))
                     {
                         // insertafter_slice exists and is within the same article and is within the same ctype,
