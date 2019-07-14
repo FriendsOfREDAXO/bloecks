@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Version 1.4.1 - 14.07.2019
+--------------------------
+
+**Bugfixes:**
+
+- Positionierung der Blöcke bei Drag & Drop korrigiert ([#68](https://github.com/FriendsOfREDAXO/bloecks/issues/68))
+- Fehler beim Cut & Copy bei aktiviertem `structure/version`-Plugin korrigiert ([#69](https://github.com/FriendsOfREDAXO/bloecks/issues/69))
+- Fehler beim Drag & Drop bei aktiviertem `structure/version`-Plugin korrigiert ([#70](https://github.com/FriendsOfREDAXO/bloecks/issues/70))
+
+
 Version 1.4.0 - 19.05.2019
 --------------------------
 
