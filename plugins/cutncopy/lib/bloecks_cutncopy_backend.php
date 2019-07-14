@@ -135,6 +135,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
         {
             $is_copied = (int) $ep->getParam('slice_id') === static::getCookie('slice_id', 'int', null);
             $action = static::getCookie('action', 'string', null);
+            $revision = static::getValueOfSlice($ep->getParam('slice_id'), 'revision', 0);
 
             foreach(['copy', 'cut'] as $type)
             {
@@ -148,6 +149,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
                         'slice_id' => $ep->getParam('slice_id'),
                         'clang' => $ep->getParam('clang'),
                         'ctype' => $ep->getParam('ctype'),
+                        'revision' => $revision,
                         'cuc_action' => $type
                     ]),
                     'attributes' => [
@@ -171,6 +173,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
     {
         $function = rex_request('bloecks', 'string', null);
         $slice_id = rex_request('slice_id', 'int', 0);
+        $revision = rex_request('revision', 'int', 0);
         $action = rex_request('cuc_action', 'string', null);
 
         if($function === static::plugin()->getName())
@@ -182,7 +185,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
 
             if(method_exists('bloecks_cutncopy_backend', $action))
             {
-                $slice = rex_article_slice::getArticleSlicebyId($slice_id);
+                $slice = rex_article_slice::getArticleSlicebyId($slice_id, false, $revision);
                 if($slice)
                 {
                     $subject = $ep->getSubject();
