@@ -50,16 +50,26 @@ bloecks.addPlugin(
                 placeholder: 'rex-slice rex-slice-placeholder',
                 cancel: disabledClass,
                 // containment: $(slicewrapper),
+                helper: 'clone',
                 items: '>.rex-slice.rex-slice-draggable',
+
+                create: function (event, ui)
+                {
+                    // fix wrapper height to avoid page jumps
+                    $(slicewrapper).css({
+                        minHeight: $(slicewrapper).outerHeight()
+                    });
+                },
 
                 start : function(event, ui)
                 {
                     $(this).addClass('ui-state-sorting');
 
-                    ui.placeholder.css({
-                        height : ui.item.outerHeight(),
-                        width : ui.item.outerWidth() - 1
-                    });
+                    // refresh positions just to make sure everything is okay
+                    $(this).sortable('refreshPositions');
+
+                    // set placeholder height according to item (helper)
+                    ui.placeholder.height(ui.helper.outerHeight());
                 },
 
                 stop : function(event, ui)
@@ -73,6 +83,9 @@ bloecks.addPlugin(
                 update : function(event, ui)
                 {
                     $(this).addClass('ui-state-updated');
+
+                    // refresh items just to make sure everything is okay
+                    $(this).sortable('refresh');
 
                     var direction = ui.position.top < ui.originalPosition.top ? 'up' : 'down';
 
