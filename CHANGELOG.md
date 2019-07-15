@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 1.4.2 - 15.07.2019
+--------------------------
+
+**Bugfixes:**
+
+- Anfasser-Markierung (Handle) für Drag & Drop korrigiert ([#71](https://github.com/FriendsOfREDAXO/bloecks/issues/71))
+
+
 Version 1.4.1 - 14.07.2019
 --------------------------
 
