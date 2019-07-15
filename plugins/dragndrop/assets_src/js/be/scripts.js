@@ -46,7 +46,7 @@ bloecks.addPlugin(
 
             $(slicewrapper).sortable({
                 appendTo: document.body,
-                handle: '.panel-heading',
+                handle: '.rex-page-section>.panel>.panel-heading',
                 placeholder: 'rex-slice rex-slice-placeholder',
                 cancel: disabledClass,
                 // containment: $(slicewrapper),
