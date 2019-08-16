@@ -83,11 +83,7 @@ class bloecks_status_backend extends bloecks_backend
 
         if($function === static::plugin()->getName())
         {
-            if(static::setSliceStatus($slice_id, $clang, $revision, $status))
-            {
-                return rex_view::success(static::package()->i18n('slice_updated', static::package()->i18n($status ? 'visible' : 'invisible')));
-            }
-            else
+            if(!static::setSliceStatus($slice_id, $clang, $revision, $status))
             {
                 return rex_view::warning(static::package()->i18n('slice_not_updated', static::package()->i18n($status ? 'visible' : 'invisible')));
             }
