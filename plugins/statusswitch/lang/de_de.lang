@@ -1,0 +1,9 @@
+bloecks_statusswitch = Status Switch
+rex_cronjob_bloecks_statusswitch = Bloecks: Status Switch (Schaltet Blöcke zu definierten Zeiten on- und offline)  
+
+bloecks_statusswitch_fieldset = Status Switch Einstellungen
+bloecks_statusswitch_slice_id = Slice ID
+bloecks_statusswitch_slice_status = Slice Status
+bloecks_statusswitch_executed = ausgeführt
+bloecks_statusswitch_switchdate = Zeitpunkt der Slice Status Änderung
+bloecks_statusswitch_norowsmessage = Es gibt keine geplanten Statusänderungen!

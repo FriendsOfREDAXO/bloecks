@@ -1,0 +1,15 @@
+package: bloecks/statusswitch
+version: '1.0.0'
+author: 'Friends Of REDAXO, Manétage'
+supportpage: github.com/FriendsOfREDAXO/bloecks
+
+page:
+    title: 'translate:statusswitch'
+    icon: rex-icon fa-clock-o
+    perm: admin[]
+
+requires:
+packages:
+    cronjob: '^2.3.0'
+php:
+    version: '>=7.0'   
