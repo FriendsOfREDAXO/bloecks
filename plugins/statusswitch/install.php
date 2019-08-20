@@ -44,6 +44,6 @@ if ($cronjob->getRows() == 0) {
     $cronjob->insertOrUpdate();
     echo rex_view::success('Der Cronjob "Bloecks: Status switch" wurde angelegt. ');
   } catch (rex_sql_exception $e) {
-    echo rex_view::warning('Der Cronjob "Bloecks: Status Switch" wurde nicht angelegt.<br/>Wahrscheinlich existiert er schon.');
+    rex_logger::factory()->log('Cronjob "Bloecks: Status Switch" wurde nicht angelegt', $e);
   }
 }
