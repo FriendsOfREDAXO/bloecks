@@ -15,7 +15,9 @@ erflogreichem Ändern des Status wird der ExtensionPoint ```SLICE_STATUS_UPDATED
 Um die Funktion zu nutzen muss der Nutzer entweder ein Administrator sein oder über das Recht ```bloecks[status]```
 verfügen (im Backend als ```Blöcke an/abschalten``` beschrieben).
 
-## Bloecks-Status im Modul setzen
+## blÖcks im Modul setzen
+
+Beispiel-Code: 
 
 ```php
 if (rex::isBackend()) {
