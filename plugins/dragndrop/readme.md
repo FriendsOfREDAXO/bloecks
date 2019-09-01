@@ -1,3 +1,0 @@
-# Drag & Drop
-
-EN
