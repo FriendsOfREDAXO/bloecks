@@ -83,11 +83,7 @@ class bloecks_status_backend extends bloecks_backend
 
         if($function === static::plugin()->getName())
         {
-            if(static::setSliceStatus($slice_id, $clang, $revision, $status))
-            {
-                return rex_view::success(static::package()->i18n('slice_updated', static::package()->i18n($status ? 'visible' : 'invisible')));
-            }
-            else
+            if(!static::setSliceStatus($slice_id, $clang, $revision, $status))
             {
                 return rex_view::warning(static::package()->i18n('slice_not_updated', static::package()->i18n($status ? 'visible' : 'invisible')));
             }
@@ -193,7 +189,12 @@ class bloecks_status_backend extends bloecks_backend
         }
         if($status === false)
         {
-            return str_replace('class="rex-slice rex-slice-output"','class="rex-slice rex-slice-output rex-slice-status-off"', $subject);
+            // inject CSS status class
+            $subject = str_replace('class="rex-slice rex-slice-output"','class="rex-slice rex-slice-output rex-slice-status-off"', $subject);
+
+            // inject offline marker
+            $marker = '<span class="bloecks-offline-marker">' . static::package()->i18n('invisible') . '</span>';
+            $subject = preg_replace('/(<div class="panel-title">)(.*)(<\/div>)/imU','${1}${2}'.$marker.'${3}', $subject);
         }
         return $subject;
     }
