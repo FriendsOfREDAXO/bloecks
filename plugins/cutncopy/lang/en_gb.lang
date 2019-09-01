@@ -1,5 +1,5 @@
-bloecks_cutncopy_navigation = Cut&Copy
-bloecks_cutncopy_name = blÖcks / Cut&Copy
+bloecks_cutncopy_navigation = Cut & Copy
+bloecks_cutncopy_name = blÖcks / Cut & Copy
 bloecks_copy_slice = Copy block
 bloecks_cut_slice = Cut block
 bloecks_slice_not_copied = Block with ID #{0} could not be copied to clipboard

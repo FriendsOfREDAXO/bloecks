@@ -1,5 +1,5 @@
-bloecks_cutncopy_navigation = Cut&Copy
-bloecks_cutncopy_name = blÖcks / Cut&Copy
+bloecks_cutncopy_navigation = Cut & Copy
+bloecks_cutncopy_name = blÖcks / Cut & Copy
 bloecks_copy_slice = Kopiera avsnittet
 bloecks_cut_slice = Klipp ut avsnittet
 bloecks_slice_not_copied = Avsnittet med ID # {0} kunde inte kopieras till urklipp

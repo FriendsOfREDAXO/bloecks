@@ -4,8 +4,6 @@ author: 'Friends Of REDAXO'
 supportpage: https://github.com/FriendsOfREDAXO/bloecks
 
 page:
-  title: 'Drag&Drop'
-  icon: rex-icon
-  perm: bloecks[dragndrop]
+  title: 'translate:dragndrop_navigation'
+  perm: admin
   pjax: false
-  block: bloecks
