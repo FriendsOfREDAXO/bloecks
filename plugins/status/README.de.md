@@ -7,6 +7,10 @@ Offline-Blöcke sind ausgegraut und zeigen eine Status-Markierung an.
 <img src="https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/assets/bloecks_status_01.png" alt="Screenshot" style="width: 100%; max-width: 1000px; margin: 20px 0;">
 <br>
 
+## Benutzung
+
+Klicke auf den Knopf mit dem __Auge-Symbol__ <img src="https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/assets/bloecks_status_eye_closed.png" alt="Auge geschlossen" style="width: 32px;">, um einen Block offline zu setzen. Er wird danach ausgegraut und zeigt eine Status-Markierung an. Ein erneuter Klick auf das Auge <img src="https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/assets/bloecks_status_eye_open.png" alt="Auge geöffnet" style="width: 32px;"> bringt den Block wieder online.
+
 ## Benutzerrechte
 
 Benutzer müssen entweder Administratoren sein oder über das Recht `bloecks[status]` (»Blöcke an/abschalten«) verfügen, um den Status eines Blocks ändern zu können.
