@@ -1,6 +1,20 @@
 Changelog
 =========
 
+Version 1.5.0 - xx.xx.xxx
+--------------------------
+
+**Features:**
+
+* Offline blocks are now painted greyish and show a marker which makes them easier to distinguish from online blocks. ([#73](https://github.com/FriendsOfREDAXO/bloecks/pull/73))
+* No system message is displayed when the status of blocks has changed, since the visual feedback is now sufficient. ([#73](https://github.com/FriendsOfREDAXO/bloecks/pull/73))
+* Status icons no longer show the current status, but the target status: click on the crossed-out eye to set a block offline, and on the seeing eye to set it online. ([#73](https://github.com/FriendsOfREDAXO/bloecks/pull/73))
+* Scroll page to current block after drag and drop
+* Revised the documentation
+* Updated AddOn and PlugIn pages to show the documentation
+* Used English as primary language
+
+
 Version 1.4.2 - 15.07.2019
 --------------------------
 

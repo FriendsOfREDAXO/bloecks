@@ -1,7 +1,6 @@
 # Status
 
-Fügt Inhaltsmodulen einen Status `online` und `offline` hinzu, mit dem du sie auf deiner Website anzeigen oder verstecken kannst.
-
+Fügt Inhaltsmodulen einen Status `online` und `offline` hinzu, mit dem du sie auf deiner Website anzeigen oder verstecken kannst.  
 Offline-Blöcke sind ausgegraut und zeigen eine Status-Markierung an.
 
 <img src="https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/assets/bloecks_status_01.png" alt="Screenshot" style="width: 100%; max-width: 1000px; margin: 20px 0;">
