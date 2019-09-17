@@ -6,7 +6,7 @@ Erweitert REDAXOs Inhaltsblöcke um verschiedene Funktionen:
   Ergänzt einen Status für `online` und `offline`, um Inhaltsblöcke auf der Website entweder anzuzeigen oder zu verstecken.
 * __Drag & Drop__  
   Anfassen und verschieben von Inhaltsblöcken mit dem Mauszeiger, um die Reihenfolge innerhalb eines Artikels zu ändern.
-* __Kopieren & Einfügen__  
+* __Ausschneiden & Kopieren__  
   Inhaltsblöcke eines Artikels können ausgeschnitten oder kopiert werden, um sie in anderen Artikeln einzufügen.
 
 Weitere Informationen auf den jeweiligen PlugIn-Seiten.  
