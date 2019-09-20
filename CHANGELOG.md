@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Version 2.0.0 - xx.xx.xxx
+Version 2.0.0 - 20.09.2019
 --------------------------
 
 **Features:**
