@@ -1,11 +1,10 @@
-blÖcks / Drag & Drop
-=======================
+# Drag & Drop
 
-![Screenshot](https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/master/plugins/dragndrop/readme/screenshot.jpg)
+Anfassen und verschieben von Inhaltsblöcken mit dem Mauszeiger, um die Reihenfolge innerhalb eines Artikels zu ändern.
 
-Das AddOn ermöglicht es, einzelne Slices per Drag & Drop zu verschieben. Erstellt dazu eine neue Klasse
-```rex_api_content_move_slice_to``` die dazu die vorhandene Klasse ```rex_api_content_move_slice``` verwendet.
+<img src="https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/assets/bloecks_dragndrop_01.png" alt="Screenshot" style="width: 100%; max-width: 1000px; margin: 20px 0;">
+<br>
 
-### Rechte
-Um die Funktion zu nutzen muss der Nutzer entweder ein Administrator sein oder über das Recht ```bloecks[dragndrop]```
-verfügen (im Backend als ```Blöcke per Drag & Drop verschieben``` beschrieben).
+## Benutzerrechte
+
+Benutzer müssen entweder Administratoren sein oder über das Recht `bloecks[dragndrop]` (»Blöcke per Drag & Drop verschieben«) verfügen, um den Status eines Blocks ändern zu können.
