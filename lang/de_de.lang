@@ -1,7 +1,9 @@
 bloecks_navigation = blÖcks
 bloecks_name = blÖcks - Modulerweiterungen
+bloecks_overview = Übersicht
 bloecks_perm_description = blÖcks Einstellungen
 bloecks_no_plugin_settings_available = Keine Plugin-Einstellungen verfügbar.
 bloecks_switch_to_addons_page = Zur AddOn-Seite wechseln.
 bloecks_saved = Einstellungen gespeichert.
 bloecks_not_saved = Einstellungen wurden nicht gespeichert.
+bloecks_docs = Dokumentation

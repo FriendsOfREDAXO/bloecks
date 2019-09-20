@@ -102,6 +102,7 @@ bloecks.addPlugin(
                             url = url.replace(/(&amp;|&)direction=move(up|down)/, "$1direction=move$2$1insertafter=" + prev_id);
                             url = url.replace(/content_move_slice/, "content_move_slice_to");
                             url = url.replace(/_csrf_token=[^&]+/, "_csrf_token=" + ui.item.data('csrf-token'));
+                            url += '#slice' + this_id;
                         }
                         else
                         {

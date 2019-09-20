@@ -1,89 +1,100 @@
 @padding: 2px;
 
-.rex-slice {
-    &.rex-slice-select {
-        .is--editing & {
+// slice select
+.rex-slice-select {
+
+    // hide all selects, if edit mode is active
+    .is--editing & {
+        display: none;
+    }
+}
+
+// draggable slices
+.rex-slice-draggable {
+    position: relative;
+
+    // hide sort buttons (config)
+    &.has--no-sortbuttons {
+        *[href*="direction=move"] {
             display: none;
         }
     }
-    &.rex-slice-draggable {
-        position: relative;
 
-        &.has--no-sortbuttons {
-            *[href*="direction=move"] {
-                display: none;
-            }
+    // compact mode (config)
+    &.is--compact {
+        .rex-slice-output {
+            position: relative;
+            z-index: 5;
         }
 
-        &.is--compact {
-            .rex-slice-output {
-                position: relative;
-                z-index: 5;
-            }
+        // slice select
+        // use absolute positioning in compact mode
+        .rex-slice-select {
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: -20px 0 0 0;
+            height: 20px; // fit the gap between slices
 
-            .rex-slice-select {
-                > .dropdown {
-                    display: block;
-                    position: absolute;
-                    width: 100%;
-                    top: 0;
-                    left: 0;
-                    margin: 0;
-                    z-index: 1;
-                    opacity: 0;
-                    transition: all .2s;
-
-                    box-shadow: 0 2px 10px 0px rgba(0,0,0,0.5);
-                }
-            }
-
-            &:hover .rex-slice-select > .dropdown,
-            .rex-slice-select > .dropdown.open {
-                transform: translateY(-75%);
-                opacity: 1;
+            > .dropdown {
+                display: block;
+                position: absolute;
+                top: 50%;
+                left: 5%;
+                right: 5%;
+                width: auto;
+                margin: 0;
+                box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.5);
                 z-index: 10;
-            }
-            .ui-state-sorting &:hover .rex-slice-select > .dropdown {
-                transform: translateY(0);
+
                 opacity: 0;
-                z-index: 1;
+                transform: translateY(-25%);
+                transition: transform 300ms ease-out, opacity 300ms ease-out, max-height 0ms linear 300ms;
             }
         }
-    }
 
-    &.rex-slice-output {
-        .ui-sortable & {
-            .panel-heading {
-                &.ui-sortable-handle {
-                    cursor: move;
-                    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAABECAYAAACxiwTbAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJFJREFUeNrskj0OgCAMhVtinIhXcPL+93HSKyiTg1giRgL1Z3DzveSFUF6BJh8TUS1uxVbsxKN48d5TEDOTlgnVTtzQqVncZ41FxsRbUuV7rWZNfDqVUxqLjIkzTeI1roPS+CazK8x4zKmJ7w7vZOhrPX21ugIgywEAAAAAAAAAAAAAAAAAAAAAAADADwDYBBgASa0vocoUKsUAAAAASUVORK5CYII=');
-                    background-position: 2px center;
-                    background-repeat: no-repeat;
-                    background-size: 7px; // 50%
-                }
-            }
-        }
-    }
-
-    &.rex-slice-placeholder {
-        background: rgba(0,0,0,0.2);
-    }
-
-}
-
-.rex-slices {
-    .ui-sortable-helper {
-        .panel {
-            box-shadow: 0 5px 7px rgba(0,0,0,0.2);
+        // hover + active / open
+        &:hover .rex-slice-select > .dropdown,
+        .rex-slice-select > .dropdown.open {
+            opacity: 1;
+            transform: translateY(-50%);
+            transition: transform 300ms ease-out, opacity 300ms ease-out, max-height 0ms linear 0ms;
         }
     }
 }
 
-// clear sortable helper (which is the clone of an item when dragged)
+// placeholder
+.rex-slice-placeholder {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+// all draggable panel headings (both in list and when dragged)
+// use specific selector to avoid styling unrelated panels, like accordions
+.rex-slice-draggable {
+    .rex-page-section > .panel > .panel-heading.ui-sortable-handle {
+        cursor: grab;
+        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAABECAYAAACxiwTbAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJFJREFUeNrskj0OgCAMhVtinIhXcPL+93HSKyiTg1giRgL1Z3DzveSFUF6BJh8TUS1uxVbsxKN48d5TEDOTlgnVTtzQqVncZ41FxsRbUuV7rWZNfDqVUxqLjIkzTeI1roPS+CazK8x4zKmJ7w7vZOhrPX21ugIgywEAAAAAAAAAAAAAAAAAAAAAAADADwDYBBgASa0vocoUKsUAAAAASUVORK5CYII=');
+        background-position: 2px center;
+        background-repeat: no-repeat;
+        background-size: 7px; // 50%
+    }
+
+    &.ui-sortable-helper {
+        .rex-page-section > .panel > .panel-heading.ui-sortable-handle {
+            cursor: grabbing;
+        }
+    }
+}
+
+// sortable helper (which is the clone of an item when dragged)
 .rex-slice-draggable.ui-sortable-helper {
     list-style: none;
-    margin-top: 0;
-    margin-bottom: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    .panel {
+        box-shadow: 0 5px 7px 0 rgba(0, 0, 0, 0.2);
+    }
 
     .rex-slice-select {
         display: none;
