@@ -37,6 +37,7 @@
             height: 20px; // fit the gap between slices
 
             > .dropdown {
+                display: block;
                 position: absolute;
                 top: 50%;
                 left: 5%;
@@ -45,32 +46,19 @@
                 margin: 0;
                 box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.5);
                 z-index: 10;
-                //overflow: hidden;
 
-                //max-height: 0;
                 opacity: 0;
                 transform: translateY(-25%);
                 transition: transform 300ms ease-out, opacity 300ms ease-out, max-height 0ms linear 300ms;
-
-                &.open {
-                    overflow: auto;
-                    max-height: none;
-                }
             }
         }
 
+        // hover + active / open
         &:hover .rex-slice-select > .dropdown,
         .rex-slice-select > .dropdown.open {
-            //max-height: 5em;
             opacity: 1;
             transform: translateY(-50%);
             transition: transform 300ms ease-out, opacity 300ms ease-out, max-height 0ms linear 0ms;
-        }
-
-        .ui-state-sorting &:hover .rex-slice-select > .dropdown {
-            transform: translateY(0);
-            opacity: 0;
-            z-index: 1;
         }
     }
 }
