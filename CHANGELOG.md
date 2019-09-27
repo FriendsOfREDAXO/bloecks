@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 2.0.1 - 27.09.2019
+--------------------------
+
+**Bugfixes:**
+
+- Fix dropdown layer issues on hover ([#80](https://github.com/FriendsOfREDAXO/bloecks/issues/80))
+
+
 Version 2.0.0 - 20.09.2019
 --------------------------
 
