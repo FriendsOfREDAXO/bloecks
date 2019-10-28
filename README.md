@@ -2,7 +2,8 @@
 
 Adds several features to REDAXO’s content modules:
 
-<img src="https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/assets/bloecks_01.png" alt="Screenshot" style="width: 100%; max-width: 1000px;">
+<img src="https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/assets/bloecks_01.png" alt="Screenshot" style="width: 100%; max-width: 1000px; margin: 10px 0;">
+<br>
 
 * __Status__  
   Implements `online` and `offline` status for blocks so you can show or hide them on your website.

@@ -2,7 +2,8 @@
 
 Erweitert REDAXOs Inhaltsblöcke um verschiedene Funktionen:
 
-<img src="https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/assets/bloecks_01.png" alt="Screenshot" style="width: 100%; max-width: 1000px;">
+<img src="https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/assets/bloecks_01.png" alt="Screenshot" style="width: 100%; max-width: 1000px; margin: 10px 0;">
+<br>
 
 * __Status__  
   Ergänzt einen Status für `online` und `offline`, um Inhaltsblöcke auf der Website entweder anzuzeigen oder zu verstecken.
