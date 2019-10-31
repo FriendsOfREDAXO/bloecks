@@ -2,6 +2,7 @@ module.exports = function (grunt) {
 
     require('load-grunt-tasks')(grunt);
 
+    var production = !!grunt.option('production');
     var pkg = grunt.file.readJSON('package.json');
 
     // setting browser compatibility
@@ -16,11 +17,11 @@ module.exports = function (grunt) {
         less: {
             default: {
                 options: {
-                    compress: true,
-                    yuicompress: true,
+                    compress: production,
+                    yuicompress: production,
                     optimization: 2,
-                    sourceMap: true,
-//                    sourceMapURL : './styles.css.map',
+                    sourceMap: production,
+                    sourceMapURL: 'styles.css.map',
                     plugins: [
                         new (require('less-plugin-autoprefix'))({browsers: pkg.supportedBrowsers})
                     ]
@@ -43,20 +44,20 @@ module.exports = function (grunt) {
         concat: {
             options: {
                 separator: ';\n',
-                stripBanners: true,
-                sourceMap: true
+                stripBanners: production,
+                sourceMap: production
             }
         },
 
         uglify: {
             options: {
-                sourceMap: true,
-                sourceMapIncludeSources: true,
+                sourceMap: production,
+                sourceMapIncludeSources: production,
                 sourceMapIn: function (path) {
                     return path.replace(/\.js/, "\.js\.map")
                 },
                 compress: {
-                    drop_console: true
+                    drop_console: production
                 }
             }
         },
@@ -137,6 +138,9 @@ module.exports = function (grunt) {
         grunt.config.set('watch', watch);
     });
 
-    grunt.registerTask('default', ['concat', 'uglify', 'less', 'shell', 'watch']);
-
+    if (production) {
+        grunt.registerTask('default', ['concat', 'uglify', 'less', 'shell']);
+    } else {
+        grunt.registerTask('default', ['concat', 'less', 'shell', 'watch']);
+    }
 };
