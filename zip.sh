@@ -10,4 +10,8 @@ if [ -f "$NAME.zip" ];then
     rm -f "$NAME.zip";
 fi;
 
+# build for production
+grunt --production
+
+# generate release zip file
 zip -r "$NAME.zip" "./$NAME/" -x "*node_modules*" "*.git*" "rsync*" "*Gruntfile*" "*package.json" "*assets_src*" "*.sh" "*.exclude" "*.DS*" "*._*"
