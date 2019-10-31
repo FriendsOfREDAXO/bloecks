@@ -20,7 +20,7 @@ module.exports = function (grunt) {
                     compress: production,
                     yuicompress: production,
                     optimization: 2,
-                    sourceMap: production,
+                    sourceMap: !production,
                     sourceMapURL: 'styles.css.map',
                     plugins: [
                         new (require('less-plugin-autoprefix'))({browsers: pkg.supportedBrowsers})
@@ -45,14 +45,14 @@ module.exports = function (grunt) {
             options: {
                 separator: ';\n',
                 stripBanners: production,
-                sourceMap: production
+                sourceMap: !production
             }
         },
 
         uglify: {
             options: {
-                sourceMap: production,
-                sourceMapIncludeSources: production,
+                sourceMap: !production,
+                sourceMapIncludeSources: !production,
                 sourceMapIn: function (path) {
                     return path.replace(/\.js/, "\.js\.map")
                 },
