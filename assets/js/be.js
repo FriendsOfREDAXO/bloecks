@@ -237,3 +237,5 @@ var bloecks = {
 }
 
 $(document).on('rex:ready', $.proxy(bloecks.init, bloecks));
+
+//# sourceMappingURL=be.js.map
