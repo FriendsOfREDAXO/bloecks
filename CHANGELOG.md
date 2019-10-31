@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 2.1.1 - 31.10.2019
+--------------------------
+
+**Bugfixes:**
+
+- Fix sourcemaps flow: do NOT generate for production (messed this up before, sry)
+- Fix release flow
+
+
 Version 2.1.0 - 31.10.2019
 --------------------------
 
