@@ -1,6 +1,18 @@
 Changelog
 =========
 
+Version 2.1.0 - 31.10.2019
+--------------------------
+
+**Features:**
+
+- Grunt: implement production workflow and use it for releases
+
+**Bugfixes:**
+
+- Fix missing sourcemaps ([#79](https://github.com/FriendsOfREDAXO/bloecks/issues/79))
+
+
 Version 2.0.1 - 27.09.2019
 --------------------------
 
