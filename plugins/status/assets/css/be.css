@@ -47,9 +47,9 @@
   z-index: 100;
   background: rgba(107, 124, 148, 0.5);
 }
-.rex-slice-status-off .bloecks-offline-marker {
+.bloecks-offline-marker {
   margin-left: 10px;
-  background: #576375;
+  background: rgba(51, 58, 69, 0.6);
   color: rgba(255, 255, 255, 0.9);
   font-size: 12px;
   padding: 2px 5px;
