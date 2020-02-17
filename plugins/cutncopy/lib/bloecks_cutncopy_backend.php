@@ -131,7 +131,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
      */
     public static function addButtons(rex_extension_point $ep)
     {
-        if(rex::getUser()->hasPerm(static::getPermName()))
+        if(rex::getUser()->hasPerm(static::getPermName()) && true === $ep->getParam('perm'))
         {
             $is_copied = (int) $ep->getParam('slice_id') === static::getCookie('slice_id', 'int', null);
             $action = static::getCookie('action', 'string', null);
@@ -205,7 +205,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
      */
     public static function copySlice(rex_article_slice $slice)
     {
-        if(rex::getUser()->hasPerm(static::getPermName()))
+        if(rex::getUser()->hasPerm(static::getPermName()) && true === rex::getUser()->getComplexPerm('modules')->hasPerm($slice->getModuleId()))
         {
             if((int) $slice->getId() === static::getCookie('slice_id', 'int', null) && 'copy' === static::getCookie('action', 'string', null))
             {
@@ -241,7 +241,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
      */
     public static function cutSlice(rex_article_slice $slice)
     {
-        if(rex::getUser()->hasPerm(static::getPermName()))
+        if(rex::getUser()->hasPerm(static::getPermName()) && true === rex::getUser()->getComplexPerm('modules')->hasPerm($slice->getModuleId()))
         {
             if((int) $slice->getId() === static::getCookie('slice_id', 'int', null) && 'cut' === static::getCookie('action', 'string', null))
             {
@@ -291,7 +291,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
                     if($action)
                     {
                         $slice = rex_article_slice::getArticleSlicebyId((int) $source_slice_id, $clang, $revision);
-                        if($slice)
+                        if($slice && true === rex::getUser()->getComplexPerm('modules')->hasPerm($slice->getModuleId()))
                         {
                             static::$clipboard_slice = $slice;
 
