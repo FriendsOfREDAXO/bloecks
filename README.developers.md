@@ -32,7 +32,9 @@ Um die Version des AddOns und der PlugIns zu erhöhen, kann das version.sh-Scrip
 
 	$ ./version.sh
 
-Das Release für den __REDAXO-Installer__ wird im Anschluss mit dem zip.sh-Script erstellt. Es führt einen Build für Production durch (`grunt --production`) und legt danach innerhalb des `/redaxo/src/addons`-Verzeichnisses eine ZIP-Datei ab:
+Jetzt nicht vergessen, die `CHANGELOG.md` zu aktualisieren und einen Git-Tag für den finalen Stand zu vergeben.
+
+Das Release für den __REDAXO-Installer__ wird mit dem zip.sh-Script erstellt. Es führt einen Build für Production durch (`grunt --production`) und legt danach innerhalb des `/redaxo/src/addons`-Verzeichnisses eine ZIP-Datei ab:
 
 	$ ./zip.sh
 
