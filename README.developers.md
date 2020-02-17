@@ -28,7 +28,11 @@ Beobachte nun die `assets` und `assets_src` Ordner und führe bei Bedarf die ent
 
 ## Release erstellen
 
-Um ein Release für den __REDAXO-Installer__ zu erstellen, kann das zip.sh-Script verwendet werden. Es führt einen Build für Production durch (`grunt --production`) und erstellt danach innerhalb des `/redaxo/src/addons`-Verzeichnisses eine ZIP-Datei:
+Um die Version des AddOns und der PlugIns zu erhöhen, kann das version.sh-Script verwendet werden:
+
+	$ ./version.sh
+
+Das Release für den __REDAXO-Installer__ wird im Anschluss mit dem zip.sh-Script erstellt. Es führt einen Build für Production durch (`grunt --production`) und legt danach innerhalb des `/redaxo/src/addons`-Verzeichnisses eine ZIP-Datei ab:
 
 	$ ./zip.sh
 
