@@ -14,4 +14,16 @@ if [ -f "$NAME.zip" ];then
 fi;
 
 # generate release zip file
-zip -r "$NAME.zip" "./$NAME/" -x "*node_modules*" "*.git*" "rsync*" "*Gruntfile*" "*package.json" "*assets_src*" "*.sh" "*.exclude" "*.DS*" "*._*" "*.css.map" "*.js.map"
+zip -r "$NAME.zip" "./$NAME/" \
+    -x "*node_modules*" \
+       "*.git*" \
+       "rsync*" \
+       "*Gruntfile*" \
+       "*package.json" \
+       "*assets_src*" \
+       "*.sh" \
+       "*.exclude" \
+       "*.DS*" \
+       "*._*" \
+       "*.css.map" \
+       "*.js.map"
