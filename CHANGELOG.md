@@ -1,6 +1,19 @@
 Changelog
 =========
 
+Version 2.1.2 - 21.02.2020
+--------------------------
+
+**Bugfixes:**
+
+- Svensk översättning ([#88](https://github.com/FriendsOfREDAXO/bloecks/pull/88), [@interweave-media](https://github.com/interweave-media))
+- Traducción en castellano ([#89](https://github.com/FriendsOfREDAXO/bloecks/pull/89), [@nandes2062](https://github.com/nandes2062))
+- Show buttons only if users got permissions ([#93](https://github.com/FriendsOfREDAXO/bloecks/pull/93), [@tbaddade](https://github.com/tbaddade))
+- Fix offline marker styles ([#83](https://github.com/FriendsOfREDAXO/bloecks/issues/83))
+- add PHP min version ([#91](https://github.com/FriendsOfREDAXO/bloecks/issues/91))
+- Update developer docs
+
+
 Version 2.1.1 - 31.10.2019
 --------------------------
 
