@@ -38,7 +38,7 @@ class bloecks_status_backend extends bloecks_backend
      */
     public static function addButtons(rex_extension_point $ep)
     {
-        if(rex::getUser()->hasPerm(static::getPermName()))
+        if(rex::getUser()->hasPerm(static::getPermName()) && true === $ep->getParam('perm'))
         {
             $status = (bool) static::getValueOfSlice($ep->getParam('slice_id'), 'status', 1);
             $mode = $status ? 'visible' : 'invisible';
