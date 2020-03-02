@@ -1,27 +1,23 @@
 <?php
 /**
- * bloecks_backend class - basic backend functions for the addon and its plugins
+ * bloecks_backend class - basic backend functions for the addon and its plugins.
  */
 class bloecks_backend extends bloecks_abstract
 {
     /**
-     * Initializes the addon in the backend
-     * @param  rex_extension_point $ep
+     * Initializes the addon in the backend.
      */
     public static function init(rex_extension_point $ep)
     {
         // only aexecute this function within the backend and when a user is logged in
-        if (rex::isBackend() && rex::getUser())
-        {
+        if (rex::isBackend() && rex::getUser()) {
             // let's register the permission for this addon / plugin
             static::addPerm();
 
-            if(strpos(rex_request('page'),'content/edit') !== false)
-            {
-                if(!static::plugin())
-                {
+            if (false !== strpos(rex_request('page'), 'content/edit')) {
+                if (!static::plugin()) {
                     // hook into SLICE_SHOW extension point so we can change the display of the slice a bit
-                    rex_extension::register('SLICE_SHOW', array('bloecks_backend', 'showSlice'), rex_extension::EARLY);
+                    rex_extension::register('SLICE_SHOW', ['bloecks_backend', 'showSlice'], rex_extension::EARLY);
                 }
 
                 // and only on content/edit pages we load the css and js files
@@ -37,23 +33,22 @@ class bloecks_backend extends bloecks_abstract
     /**
      * Retrieves the permission name by getting (a) the addon name and (b) the plugin name (if
      * this class is extending a plugin_backend class).
-     * @return (string)     e.g. "bloecks[status]" or "bloecks[]"
+     *
+     * @return (string) e.g. "bloecks[status]" or "bloecks[]"
      */
     public static function getPermName()
     {
         $perm = '';
-        if($addon = static::addon())
-        {
+        if ($addon = static::addon()) {
             $perm = $addon->getName();
 
             $suffix = '';
 
-            if($plugin = static::plugin())
-            {
+            if ($plugin = static::plugin()) {
                 $suffix = $plugin->getName() . (!empty($suffix) ? '_' : '') . $suffix;
             }
 
-            $perm.= "[" . $suffix . "]";
+            $perm .= '[' . $suffix . ']';
         }
 
         unset($addon, $plugin, $suffix);
@@ -61,19 +56,16 @@ class bloecks_backend extends bloecks_abstract
     }
 
     /**
-     * Registers a permisson in Redaxo
+     * Registers a permisson in Redaxo.
      */
     public static function addPerm()
     {
-        if($perm = static::getPermName())
-        {
-            if(!rex_perm::has($perm))
-            {
+        if ($perm = static::getPermName()) {
+            if (!rex_perm::has($perm)) {
                 $group = preg_match('/\[\]$/', $perm) ? rex_perm::GENERAL : rex_perm::OPTIONS;
 
                 $name = 'perm_description';
-                if($plugin = static::plugin())
-                {
+                if ($plugin = static::plugin()) {
                     $name = $plugin->getName() . '_' . $name;
                 }
 
@@ -87,19 +79,18 @@ class bloecks_backend extends bloecks_abstract
 
     /**
      * Checks if a user has the permission to edit a module AND if the user has the
-     * permission to use this addon / plugin
-     * @param  rex_user $user      The user to check
+     * permission to use this addon / plugin.
+     *
+     * @param rex_user $user The user to check
      * @param  (number)            the id of the module
-     * @return boolean             TRUE if the user has all neccessary rights
+     *
+     * @return bool TRUE if the user has all neccessary rights
      */
     public static function hasModulePerm(rex_user $user, $module_id)
     {
-        if(!$user->hasPerm('admin[]'))
-        {
-            if(static::getPermName())
-            {
-                if(!$user->hasPerm(static::getPermName()))
-                {
+        if (!$user->hasPerm('admin[]')) {
+            if (static::getPermName()) {
+                if (!$user->hasPerm(static::getPermName())) {
                     return false;
                 }
             }
@@ -112,8 +103,8 @@ class bloecks_backend extends bloecks_abstract
      * Wraps a LI around the slice within the backend and call
      * a custom extension point SLICE_SHOW_BLOECKS_BE we can use to hook
      * in with our plugins.
-     * @param  rex_extension_point $ep
-     * @return string                  the slice content
+     *
+     * @return string the slice content
      */
     public static function showSlice(rex_extension_point $ep)
     {

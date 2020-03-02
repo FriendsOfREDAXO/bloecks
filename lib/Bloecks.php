@@ -1,31 +1,27 @@
 <?php
 /**
- * bloecks class - basic functions for the addon and its plugins
+ * bloecks class - basic functions for the addon and its plugins.
  */
 class bloecks extends bloecks_abstract
 {
     /**
-     * Initializes the addon
-     * @param  rex_extension_point $ep
+     * Initializes the addon.
      */
     public static function init(rex_extension_point $ep)
     {
-        if (rex::isBackend() && rex::getUser())
-        {
+        if (rex::isBackend() && rex::getUser()) {
             // initialize the backend functions
             bloecks_backend::init($ep);
-        }
-        else if(!rex::isBackend())
-        {
+        } elseif (!rex::isBackend()) {
             // things to do in frontend
-            rex_extension::register('SLICE_SHOW', array('bloecks', 'showSlice'), rex_extension::EARLY);
+            rex_extension::register('SLICE_SHOW', ['bloecks', 'showSlice'], rex_extension::EARLY);
         }
     }
 
     /**
-     * Creates our own extension point to use in all our plugins
-     * @param  rex_extension_point $ep
-     * @return string                  slice content
+     * Creates our own extension point to use in all our plugins.
+     *
+     * @return string slice content
      */
     public static function showSlice(rex_extension_point $ep)
     {

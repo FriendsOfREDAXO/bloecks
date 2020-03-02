@@ -1,6 +1,6 @@
 <?php
+
     /**
-     * Initialize the plugin
+     * Initialize the plugin.
      */
-    rex_extension::register('PACKAGES_INCLUDED', array('bloecks_cutncopy', 'init'));
-?>
+    rex_extension::register('PACKAGES_INCLUDED', ['bloecks_cutncopy', 'init']);

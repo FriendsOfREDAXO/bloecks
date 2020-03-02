@@ -2,12 +2,11 @@
 
 // REDAXO <5.10 only
 if (rex_string::versionCompare(rex::getVersion(), '5.10.0-dev', '<')) {
-
     /**
-     * Let's remove the STATUS column in the database
+     * Let's remove the STATUS column in the database.
      */
     $addon_cols = [
-        'status'
+        'status',
     ];
 
     $db_cols = rex_sql::showColumns(rex::getTablePrefix().'article_slice');
@@ -22,7 +21,7 @@ if (rex_string::versionCompare(rex::getVersion(), '5.10.0-dev', '<')) {
 
         if ($found) {
             $sql = rex_sql::factory();
-            $sql->setQuery("ALTER TABLE `".rex::getTablePrefix().'article_slice'."` DROP ".$addon_col, []);
+            $sql->setQuery('ALTER TABLE `'.rex::getTablePrefix().'article_slice'.'` DROP '.$addon_col, []);
         }
     }
 
