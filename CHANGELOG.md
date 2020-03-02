@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Version 3.0.0 - 02.03.2020
+--------------------------
+
+This releases provides REDAXO 5.10 compatibility. Since online/offline status of slices is now implemented into the core system, blÖcks doesn’t need to provide this feature any more.
+
+**Breaking changes:**
+
+Status plugIn has been disabled for REDAXO >=5.10. In case you’ve built custom functions on top of this plugIn, they will most likely break.
+
+
 Version 2.1.2 - 21.02.2020
 --------------------------
 
