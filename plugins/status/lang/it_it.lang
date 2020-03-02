@@ -7,3 +7,6 @@ bloecks_slice_not_updated = Non era possibile aggiornare il blocco e metterlo a 
 bloecks_invisible = offline
 bloecks_visible = online
 bloecks_status_perm_description = Mettere on/offline il blocchi
+
+bloecks_status_deprecated_title =
+bloecks_status_deprecated_info =

@@ -5,6 +5,19 @@
 $package = rex_package::get($this->getProperty('package'));
 
 
+/* deprecation info for REDAXO >=5.10 */
+
+if (rex_string::versionCompare(rex::getVersion(), '5.10.0-dev', '>=')) {
+    $content = '';
+
+    $fragment = new rex_fragment();
+    $fragment->setVar('class', 'info', false);
+    $fragment->setVar('title', rex_i18n::msg('bloecks_status_deprecated_title'), false);
+    $fragment->setVar('body', '<p>'.rex_i18n::msg('bloecks_status_deprecated_info').'</p>', false);
+    echo $fragment->parse('core/page/section.php');
+}
+
+
 /* package info from README.md */
 
 $content = '';
