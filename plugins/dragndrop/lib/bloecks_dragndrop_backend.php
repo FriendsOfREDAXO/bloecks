@@ -33,7 +33,7 @@ class bloecks_dragndrop_backend extends bloecks_backend
         {
             $subject = $ep->getSubject();
 
-            if(preg_match('/class="rex-slice rex-slice-output"/', $subject) && preg_match('/class="rex-slice rex-slice-select"/', $subject))
+            if(preg_match('/class="rex-slice rex-slice-output/', $subject) && preg_match('/class="rex-slice rex-slice-select"/', $subject))
             {
                 // get setting 'display sort buttons' ?
                 $sortbuttons = static::settings('display_sort_buttons', false) ? '' : ' has--no-sortbuttons';
