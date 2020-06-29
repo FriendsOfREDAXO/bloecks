@@ -8,5 +8,5 @@ bloecks_invisible = Fuera de linea
 bloecks_visible = En linea
 bloecks_status_perm_description = Activar/Desactivar Bloques
 
-bloecks_status_deprecated_title =
-bloecks_status_deprecated_info =
+bloecks_status_deprecated_title = El complemento de »estado« se puede eliminar
+bloecks_status_deprecated_info = Desde REDAXO 5.10, este complemento "Estado" no tiene función porque ahora es proporcionado directamente por el sistema. ¡El complemento se puede eliminar sin dudarlo!
