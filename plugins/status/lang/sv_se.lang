@@ -8,5 +8,5 @@ bloecks_invisible = offline
 bloecks_visible = online
 bloecks_status_perm_description = Ställ på/av avsnittet
 
-bloecks_status_deprecated_title =
-bloecks_status_deprecated_info =
+bloecks_status_deprecated_title = Plugin "Status" kan raderas
+bloecks_status_deprecated_info = Sedan REDAXO 5.10 har "Status" plug-in:et ingen funktion eftersom det nu tillhandahålls direkt av systemet. Plug-in kan raderas utan att tveka!
