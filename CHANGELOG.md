@@ -1,6 +1,18 @@
 Changelog
 =========
 
+Version 3.0.2 - 11.02.2021
+--------------------------
+
+- Corrected build of assets
+
+
+Version 3.0.1 - 11.02.2021
+--------------------------
+
+- Now installable under PHP >7 
+
+
 Version 3.0.0 - 02.03.2020
 --------------------------
 
