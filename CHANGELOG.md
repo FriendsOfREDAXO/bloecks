@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## Version 3.1.0 - 02.10.2021
+
+### Features
+
+- Dressed up for new dark mode (REDAXO 5.13) 🦇
+
+
 Version 3.0.2 - 11.02.2021
 --------------------------
 
