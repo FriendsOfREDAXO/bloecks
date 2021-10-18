@@ -1,6 +1,13 @@
 Changelog
 =========
 
+## Version 3.1.1 - 18.10.2021
+
+### Bugfixes
+
+- Provides backward compatibility for Dark Mode in REDAXO 5.12 and earlier
+
+
 ## Version 3.1.0 - 02.10.2021
 
 ### Features
