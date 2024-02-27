@@ -1,1 +1,176 @@
-var bloecks_code={init:function(){},insertLinebreakAtCursor:function(e){var t,n=e.value;if(void 0!==e.selectionStart&&void 0!==e.selectionEnd){if(before=n.slice(0,e.selectionStart),matches=before.match(/(\n|^)(\t+|\s+)?[^\n]+$/),matches&&void 0!==matches[2])return this.insertTextAtCursor(e,"\n"+matches[2]),!1}else void 0!==document.selection&&void 0!==document.selection.createRange&&(e.focus(),(t=document.selection.createRange()).collapse(!1),t.select());return!0},jumpToPreviousTab:function(e){var t,n=e.value;void 0!==e.selectionStart&&void 0!==e.selectionEnd?(before=n.slice(0,e.selectionStart),matches=before.match(/(\n|^)(.*)[^\n]+$/)):void 0!==document.selection&&void 0!==document.selection.createRange&&(e.focus(),(t=document.selection.createRange()).collapse(!1),t.select())},insertTextAtCursor:function(e,t){var n,i,o=e.value;void 0!==e.selectionStart&&void 0!==e.selectionEnd?(n=e.selectionEnd,e.value=o.slice(0,e.selectionStart)+t+o.slice(n),e.selectionStart=e.selectionEnd=n+t.length):void 0!==document.selection&&void 0!==document.selection.createRange&&(e.focus(),(i=document.selection.createRange()).collapse(!1),i.text=t,i.select())}};$(document).on("ready.bloecks",$.proxy(bloecks_code.init,bloecks_code));var bloecks_fragments={init:function(){this.addToggleButtons()},addToggleButtons:function(){$(document).on({"change.bloecks":function(){bloecks_fragments.toggle(this)}},'.bloecks--setting input[type="checkbox"][name*="[active]"]')},toggle:function(e){var t=$(e).is(":checked"),n=$(e).attr("id");t?$("."+n).removeClass("is--hidden"):$("."+n).addClass("is--hidden")}};$(document).on("ready.bloecks",$.proxy(bloecks_fragments.init,bloecks_fragments)),$(document).on("rex:ready",function(){$('.bloecks--setting input[type="checkbox"][name*="[active]"]').each(function(e,t){bloecks_fragments.toggle(t)})});var bloecks={plugins:[],init:function(){for(var e=this.getPlugins(!0),t=e.length,n=0;n<t;n++)this[e[n]].init()},getSliceId:function(e){var t=null;return $(e).is(".rex-slice-output")||(e=$(e).parents(".rex-slice-output").length?$(e).parents(".rex-slice-output").first():1==$(e).find(".rex-slice-output").length?$(e).find(".rex-slice-output").first():null),e&&($(e).find('[href*="slice_id="]').length?t=parseInt($(e).find('[href*="slice_id="]').first().attr("href").replace(/.*slice_id=(\d+).*/,"$1")):$(e).attr("id")&&(t=parseInt($(e).attr("id").replace(/[^0-9]/g,"")))),t},executePjax:function(e){var t=e.match(/(#[^\?\&]+)/);t&&(e=e.replace(/(#[^\?\&]+)/,"")+t[0]),$.pjax({url:e,container:"#rex-js-page-main-content",fragment:"#rex-js-page-main-content",push:!1})},getPlugins:function(t){return t=!0===t,this.plugins.filter(function(e){return"string"==typeof e&&void 0!==bloecks[e]&&(!t||"function"==typeof bloecks[e].init)})},addPlugin:function(e,t,n){this[e]=t,n=parseInt(n),(n=Math.max(isNaN(n)?0:n,this.plugins.length))>this.plugins.length&&(this.plugins=this.plugins.concat(Array.apply(null,Array(n-this.plugins.length)))),this.plugins.splice(n,0,e)}};$(document).on("rex:ready",$.proxy(bloecks.init,bloecks));
+var bloecks_code = {
+    init: function() {
+        console.log('code initialized');
+        $(document).on('keydown.bloecks', 'textarea.bloecks--code', function(e) {
+            bloecks_code.handleKeyDown(e, this);
+        });
+    },
+
+    handleKeyDown: function(e, el) {
+        console.log(`Key pressed ${e.keyCode} (and SHIFT is ${e.shiftKey ? '' : 'not '}pressed)`);
+        switch(e.keyCode) {
+            case 9: // Tab key
+                e.preventDefault(); // Prevent the default tab behavior
+                if(e.shiftKey) {
+                    bloecks_code.jumpToPreviousTab(el);
+                } else {
+                    bloecks_code.insertTextAtCursor(el, "\t");
+                }
+                break;
+            case 13: // Enter key
+                e.preventDefault(); // Prevent the default enter key behavior
+                bloecks_code.insertLinebreakAtCursor(el);
+                break;
+            default:
+                // Handle other keys if needed
+                break;
+        }
+    },
+
+    insertLinebreakAtCursor: function(el) {
+        var val = el.value;
+        var before = val.slice(0, el.selectionStart);
+        var matches = before.match(/(\n|^)(\t+|\s+)?[^\n]*$/);
+        if(matches && matches[2] !== undefined) {
+            this.insertTextAtCursor(el, "\n" + matches[2]);
+        } else {
+            this.insertTextAtCursor(el, "\n");
+        }
+    },
+
+    jumpToPreviousTab: function(el) {
+        var val = el.value;
+        var before = val.substring(0, el.selectionStart);
+        var matches = before.match(/(\t+|\s+)$/);
+        if(matches && matches[0] !== undefined) {
+            // Remove the last tab or spaces
+            var newCaretPosition = el.selectionStart - matches[0].length;
+            el.value = val.substring(0, newCaretPosition) + val.substring(el.selectionEnd);
+            el.selectionStart = el.selectionEnd = newCaretPosition;
+        }
+    },
+
+    insertTextAtCursor: function(el, text) {
+        var val = el.value;
+        var startIndex = el.selectionStart;
+        var endIndex = el.selectionEnd;
+        el.value = val.substring(0, startIndex) + text + val.substring(endIndex);
+        var pos = startIndex + text.length;
+        el.selectionStart = pos;
+        el.selectionEnd = pos;
+    }
+}
+
+$(document).on('ready.bloecks', function() {
+    bloecks_code.init();
+});
+;
+var bloecks_fragments = {
+    init: function() {
+        console.log('fragments');
+        this.setupEventListeners();
+    },
+
+    setupEventListeners: function() {
+        // Verwende .on() direkt für bessere Performance und Klarheit
+        $(document).on('change.bloecks', '.bloecks--setting input[type="checkbox"][name*="[active]"]', function() {
+            bloecks_fragments.toggle(this);
+        });
+    },
+
+    toggle: function(el) {
+        var $el = $(el), // Cache das jQuery Objekt für wiederholte Nutzung
+            on = $el.is(':checked'),
+            id = $el.attr('id'),
+            $target = $('.' + id); // Vermeide wiederholte Selektion
+
+        if (on) {
+            $target.removeClass('is--hidden');
+        } else {
+            $target.addClass('is--hidden');
+        }
+    }
+};
+
+// Verwende die 'rex:ready' und 'ready.bloecks' Ereignisse für eine initiale Ausführung
+$(document).on('rex:ready ready.bloecks', function() {
+    bloecks_fragments.init();
+
+    // Trigger manuell die 'change' Ereignisse, um den Anfangszustand korrekt zu setzen
+    $('.bloecks--setting input[type="checkbox"][name*="[active]"]').change();
+});
+;
+var bloecks = {
+    plugins: [],
+
+    init: function() {
+        // Iterate through plugins using a more efficient loop
+        this.getPlugins(true).forEach(function(plugin) {
+            if (bloecks[plugin] && typeof bloecks[plugin].init === 'function') {
+                bloecks[plugin].init();
+            }
+        });
+    },
+
+    getSliceId: function(slice) {
+        let id = null;
+        let $slice = $(slice);
+
+        // Optimize DOM traversal and condition checks
+        if (!$slice.is('.rex-slice-output')) {
+            $slice = $slice.closest('.rex-slice-output');
+        }
+
+        if ($slice.length) {
+            let href = $slice.find('[href*="slice_id="]').first().attr('href');
+            if (href) {
+                id = parseInt(href.match(/slice_id=(\d+)/)[1], 10);
+            } else if ($slice.attr('id')) {
+                id = parseInt($slice.attr('id').replace(/\D/g, ''), 10);
+            }
+        }
+
+        return id;
+    },
+
+    executePjax: function(url) {
+        // Simplify URL manipulation
+        let cleanUrl = url.replace(/(#[^\?\&]+)/, '');
+        let hash = url.match(/(#[^\?\&]+)/) ? url.match(/(#[^\?\&]+)/)[0] : '';
+        let finalUrl = cleanUrl + hash;
+
+        console.log('PJAXing ' + finalUrl);
+
+        $.pjax({
+            url: finalUrl,
+            container: '#rex-js-page-main-content',
+            fragment: '#rex-js-page-main-content',
+            push: false
+        });
+    },
+
+    getPlugins: function(initializable) {
+        return this.plugins.filter(function(plugin) {
+            return typeof plugin === 'string' &&
+                   typeof bloecks[plugin] !== 'undefined' &&
+                   (!initializable || typeof bloecks[plugin].init === 'function');
+        });
+    },
+
+    addPlugin: function(name, object, priority) {
+        this[name] = object;
+
+        priority = isNaN(parseInt(priority)) ? this.plugins.length : Math.max(parseInt(priority), 0);
+
+        // Ensure the plugins array is large enough
+        while (this.plugins.length < priority) {
+            this.plugins.push(undefined);
+        }
+
+        this.plugins.splice(priority, 0, name);
+    }
+}
+
+$(document).on('rex:ready', function() { bloecks.init(); });
+
+//# sourceMappingURL=be.js.map

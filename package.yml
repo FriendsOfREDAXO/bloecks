@@ -1,5 +1,5 @@
 package: bloecks
-version: '3.1.1'
+version: '4.0.0-beta1'
 author: 'Friends Of REDAXO'
 supportpage: https://github.com/FriendsOfREDAXO/bloecks
 
@@ -20,8 +20,8 @@ page:
 requires:
     packages:
         structure/content: '^2.1.0'
-    redaxo: ^5.5.0
-    php: '>=7'
+    redaxo: ^5.14.1
+    php: '>=8.1'
 
 installer_ignore:
     - node_modules
