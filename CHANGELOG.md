@@ -1,6 +1,18 @@
 Changelog
 =========
 
+## Version 4.0.0 - 27.02.2023
+
+### Removed 
+
+- Status PlugIn
+
+### Coderefactor
+- PHP optmized
+- JS  optimized
+- Iconfix REDAXO 5.16.x
+
+
 ## Version 3.1.1 - 18.10.2021
 
 ### Bugfixes
