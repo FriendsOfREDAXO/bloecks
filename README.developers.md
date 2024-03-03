@@ -11,9 +11,12 @@ Auf dem System muss [Grunt CLI](https://gruntjs.com/getting-started#installing-t
 
 	$ npm install -g grunt-cli
 
-Danach kann der Build-Workflow gestartet werden:
+Danach kann der Build-Workflow gestartet werden Dev+Debugging:
 
 	$ grunt
+
+Für die Erstellung der Distributiion
+        $ grunt --production
 	
 Es werden dabei folgende Aktionen durchgeführt:
 
