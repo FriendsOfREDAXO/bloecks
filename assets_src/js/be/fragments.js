@@ -1,34 +1,39 @@
 var bloecks_fragments = {
-    init: function() {
+    init : function()
+    {
         console.log('fragments');
-        this.setupEventListeners();
+        this.addToggleButtons();
     },
 
-    setupEventListeners: function() {
-        // Verwende .on() direkt für bessere Performance und Klarheit
-        $(document).on('change.bloecks', '.bloecks--setting input[type="checkbox"][name*="[active]"]', function() {
-            bloecks_fragments.toggle(this);
-        });
+    addToggleButtons : function()
+    {
+        $(document).on({
+            'change.bloecks' : function(e)
+            {
+                bloecks_fragments.toggle(this);
+            }
+        }, '.bloecks--setting input[type="checkbox"][name*="[active]"]');
     },
 
-    toggle: function(el) {
-        var $el = $(el), // Cache das jQuery Objekt für wiederholte Nutzung
-            on = $el.is(':checked'),
-            id = $el.attr('id'),
-            $target = $('.' + id); // Vermeide wiederholte Selektion
+    toggle : function(el)
+    {
+        var on = $(el).is(':checked'),
+            id = $(el).attr('id');
 
-        if (on) {
-            $target.removeClass('is--hidden');
-        } else {
-            $target.addClass('is--hidden');
+        if(on)
+        {
+            $('.' + id).removeClass('is--hidden');
+        }
+        else
+        {
+            $('.' + id).addClass('is--hidden');
         }
     }
-};
+}
 
-// Verwende die 'rex:ready' und 'ready.bloecks' Ereignisse für eine initiale Ausführung
-$(document).on('rex:ready ready.bloecks', function() {
-    bloecks_fragments.init();
-
-    // Trigger manuell die 'change' Ereignisse, um den Anfangszustand korrekt zu setzen
-    $('.bloecks--setting input[type="checkbox"][name*="[active]"]').change();
+$(document).on('ready.bloecks', $.proxy(bloecks_fragments.init, bloecks_fragments));
+$(document).on('rex:ready', function(e){
+    $('.bloecks--setting input[type="checkbox"][name*="[active]"]').each(function(i, el){
+        bloecks_fragments.toggle(el);
+    });
 });

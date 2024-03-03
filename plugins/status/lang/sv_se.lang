@@ -1,0 +1,12 @@
+bloecks_status_navigation = Status
+bloecks_status_name = blÖcks / Status
+bloecks_toggle_status_visible = Ställ avsnittet offline
+bloecks_toggle_status_invisible = Ställ avsnittet online
+bloecks_slice_updated = Avsnittet aktualiserades och har ställts på {0}.
+bloecks_slice_not_updated = Avsnittet kunde inte aktualiseras och ställas på {0}.
+bloecks_invisible = offline
+bloecks_visible = online
+bloecks_status_perm_description = Ställ på/av avsnittet
+
+bloecks_status_deprecated_title = Plugin "Status" kan raderas
+bloecks_status_deprecated_info = Sedan REDAXO 5.10 har "Status" plug-in:et ingen funktion eftersom det nu tillhandahålls direkt av systemet. Plug-in kan raderas utan att tveka!

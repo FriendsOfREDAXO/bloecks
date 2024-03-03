@@ -1,0 +1,12 @@
+bloecks_status_navigation = Status
+bloecks_status_name = blÖcks / Status
+bloecks_toggle_status_visible = Set block offline
+bloecks_toggle_status_invisible = Set block online
+bloecks_slice_updated = Block has been updated and set to {0}.
+bloecks_slice_not_updated = Failed to update block and set it to {0}.
+bloecks_invisible = offline
+bloecks_visible = online
+bloecks_status_perm_description = Activate/Deactive blocks
+
+bloecks_status_deprecated_title = Plugin »Status« can be deleted
+bloecks_status_deprecated_info = As of REDAXO 5.10 this »Status« plugIn is without function, because it is now provided by the core system. The plugIn can be safely deleted!

@@ -1,88 +1,107 @@
 <?php
 /**
- * Abstrakte Basisklasse für das Addon und seine Plugins.
+ * bloecks abstract class - basic functions for the addon and its plugins.
  */
 abstract class bloecks_abstract
 {
     /**
-     * Enthält den Namen des Addons.
+     * contains the name of the plugin.
      *
      * @var string
      */
     protected static $addon_name = 'bloecks';
 
     /**
-     * Kann einen Plugin-Namen enthalten, wenn diese Klasse eine Plugin-Klasse erweitert.
+     * may contain a plugin name when this class is extending any plugin class.
      *
-     * @var string|null
+     * @var [type]
      */
     protected static $plugin_name;
 
     /**
-     * Gibt das aktuelle Paket zurück (entweder das Addon oder das Plugin, falls diese Klasse ein Plugin erweitert).
+     * Returns the current package (either the addon or the plugin if this is extending a plugin class).
      *
-     * @return rex_addon|rex_plugin|null
+     * @return rex_addon / rex_plugin
      */
     public static function package()
     {
-        return static::plugin() ?: static::addon();
+        if ($plugin = static::plugin()) {
+            return $plugin;
+        }
+        if ($addon = static::addon()) {
+            return $addon;
+        }
+
+        return null;
     }
 
     /**
-     * Gibt die Addon-Klasse zurück.
+     * Returns the addon class.
      *
-     * @return rex_addon|null
+     * @return rex_addon
      */
     protected static function addon()
     {
-        return !empty(static::$addon_name) && rex_addon::exists(static::$addon_name) ? rex_addon::get(static::$addon_name) : null;
+        if (!empty(static::$addon_name) && rex_addon::exists(static::$addon_name)) {
+            $addon = rex_addon::get(static::$addon_name);
+            if ($addon->isAvailable()) {
+                return $addon;
+            }
+        }
+        return null;
     }
 
     /**
-     * Gibt die Plugin-Klasse zurück, falls diese Klasse ein Plugin erweitert.
+     * Returns the plugin class if this is extending a plugin.
      *
-     * @return rex_plugin|null
+     * @return [type] [description]
      */
     protected static function plugin()
     {
         $addon = static::addon();
-        return $addon && !empty(static::$plugin_name) && $addon->pluginExists(static::$plugin_name) ? $addon->getPlugin(static::$plugin_name) : null;
+
+        if ($addon && !empty(static::$plugin_name) && $addon->pluginExists(static::$plugin_name)) {
+            $plugin = $addon->getPlugin(static::$plugin_name);
+            if ($plugin->isAvailable()) {
+                return $plugin;
+            }
+        }
+
+        return null;
     }
 
-    /**
-     * Gibt Einstellungen des Pakets zurück.
-     *
-     * @param string|null $key     Schlüssel der Einstellung
-     * @param mixed       $default Standardwert, falls der Schlüssel nicht existiert
-     *
-     * @return mixed
-     */
     public static function settings($key = null, $default = null)
     {
         return static::package()->getConfig($key, $default);
     }
 
     /**
-     * Selektiert einen Wert eines Slices aus der Datenbank.
+     * Selects a value of a slice from the database.
      *
-     * @param int    $slice_id ID des Slices
-     * @param string $key      Name des Werts
-     * @param mixed  $default  Standardwert, falls der Wert nicht vorhanden oder NULL ist
+     * @param (int)    $slice_id ID of the slice
+     * @param (string) $key      name of the value
+     * @param (mixed)  $default  if the value is not contained in the database or set to NULL return this value (default is NULL)
      *
-     * @return mixed Der Wert des Slices
+     * @return (mixed) The slice's value
      */
     public static function getValueOfSlice($slice_id, $key, $default = null)
     {
         $slice_id = (int) $slice_id;
-        if ($slice_id <= 0) {
-            return $default;
+        $value = $default;
+
+        if (!is_nan($slice_id) && $slice_id > 0) {
+            $sql = rex_sql::factory();
+            $sql->setTable(rex::getTablePrefix().'article_slice');
+            $sql->setWhere(['id' => $slice_id]);
+            $sql->select();
+
+            if ($sql->hasValue($key)) {
+                $value = $sql->getValue($key);
+            }
+
+            unset($sql);
         }
 
-        $sql = rex_sql::factory();
-        $sql->setTable(rex::getTablePrefix().'article_slice');
-        $sql->setWhere(['id' => $slice_id]);
-        $sql->select();
-
-        return $sql->hasValue($key) ? $sql->getValue($key) : $default;
+        return $value;
     }
 }

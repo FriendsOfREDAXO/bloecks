@@ -1,0 +1,12 @@
+bloecks_status_navigation = Stato
+bloecks_status_name = blÖcks / stato
+bloecks_toggle_status_visible = Mettere offline il blocco
+bloecks_toggle_status_invisible = Mettere online il blocco
+bloecks_slice_updated = Il blocco è stato attualizzato
+bloecks_slice_not_updated = Non era possibile aggiornare il blocco e metterlo a {0}
+bloecks_invisible = offline
+bloecks_visible = online
+bloecks_status_perm_description = Mettere on/offline il blocchi
+
+bloecks_status_deprecated_title =
+bloecks_status_deprecated_info =

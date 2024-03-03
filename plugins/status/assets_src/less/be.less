@@ -1,0 +1,71 @@
+.btn-visible,
+.btn-invisible {
+    color: #000;
+    background: #fff;
+    border-color: #ccc;
+}
+
+.btn-visible:hover,
+.btn-invisible:hover {
+    color: #000;
+    background: #e6e6e6;
+    border-color: #adadad;
+}
+
+.btn-visible.disabled,
+.btn-invisible.disabled {
+    opacity: 0.2;
+}
+
+.fa-visible:before,
+.rex-icon-visible:before {
+    content: "\f070";
+}
+
+.fa-invisible:before,
+.rex-icon-invisible:before {
+    content: "\f06e";
+}
+
+.rex-slice-status-off {
+    opacity: 0.8;
+
+    .panel {
+        border-color: #707d8f;
+    }
+
+    .panel-heading {
+        background-color: #707d8f;
+        border-color: #707d8f;
+        color: rgba(#ffffff, 0.9);
+    }
+
+    .panel-body {
+        pointer-events: none;
+
+        // mask
+        &::before {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+            background: rgba(#6b7c94, 0.5);
+        }
+    }
+}
+
+.bloecks-offline-marker {
+    margin-left: 10px;
+    background: rgba(#333A45, 0.6);
+    color: rgba(#ffffff, 0.9);
+    font-size: 12px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    white-space: nowrap;
+    position: relative;
+    top: -1px;
+}

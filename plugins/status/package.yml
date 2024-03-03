@@ -1,9 +1,9 @@
-package: bloecks/cutncopy
+package: bloecks/status
 version: '3.1.1'
 author: 'Friends Of REDAXO'
 supportpage: https://github.com/FriendsOfREDAXO/bloecks
 
 page:
-  title: 'translate:cutncopy_navigation'
-  perm: admin
-  pjax: false
+    title: 'translate:status_navigation'
+    perm: admin
+    pjax: false

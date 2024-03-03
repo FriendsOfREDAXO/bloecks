@@ -1,0 +1,12 @@
+bloecks_status_navigation = Estado
+bloecks_status_name = Bloques / Estado
+bloecks_toggle_status_visible = Bloquear fuera línea
+bloecks_toggle_status_invisible = Bloquear en línea
+bloecks_slice_updated = El bloque se actualizó y ajustó en {0}.
+bloecks_slice_not_updated = El bloque no se pudo actualizar y ajustar en {0}.
+bloecks_invisible = Fuera de linea
+bloecks_visible = En linea
+bloecks_status_perm_description = Activar/Desactivar Bloques
+
+bloecks_status_deprecated_title = El complemento de »estado« se puede eliminar
+bloecks_status_deprecated_info = Desde REDAXO 5.10, este complemento "Estado" no tiene función porque ahora es proporcionado directamente por el sistema. ¡El complemento se puede eliminar sin dudarlo!
