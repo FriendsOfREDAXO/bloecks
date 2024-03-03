@@ -16,7 +16,8 @@ Danach kann der Build-Workflow gestartet werden Dev+Debugging:
 	$ grunt
 
 Für die Erstellung der Distributiion
-        $ grunt --production
+        
+	$ grunt --production
 	
 Es werden dabei folgende Aktionen durchgeführt:
 
