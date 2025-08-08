@@ -1,4 +1,9 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks;
+
+use FriendsOfRedaxo\Bloecks\bloecks_backend;
+
 /**
  * bloecks class - basic functions for the addon and its plugins.
  */
@@ -14,7 +19,7 @@ class bloecks extends bloecks_abstract
             bloecks_backend::init($ep);
         } elseif (!rex::isBackend()) {
             // things to do in frontend
-            rex_extension::register('SLICE_SHOW', ['bloecks', 'showSlice'], rex_extension::EARLY);
+            rex_extension::register('SLICE_SHOW', [self::class, 'showSlice'], rex_extension::EARLY);
         }
     }
 

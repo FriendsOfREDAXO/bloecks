@@ -1,8 +1,14 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks\Dragndrop;
+
+use FriendsOfRedaxo\Bloecks\Dragndrop\bloecks_dragndrop_backend;
+use FriendsOfRedaxo\Bloecks\Dragndrop\bloecks_dragndrop;
+
 /**
  * rex_api_content class which moves a slice AFTER a given element.
  */
-class rex_api_content_move_slice_to extends rex_api_content_move_slice
+class rex_api_content_move_slice_to extends \rex_api_content_move_slice
 {
     public function execute()
     {

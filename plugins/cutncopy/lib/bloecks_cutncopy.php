@@ -1,4 +1,10 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks\Cutncopy;
+
+use FriendsOfRedaxo\Bloecks\bloecks_abstract;
+use FriendsOfRedaxo\Bloecks\Cutncopy\bloecks_cutncopy_backend;
+
 /**
  * bloecks_status class - basic functions for the plugin.
  */

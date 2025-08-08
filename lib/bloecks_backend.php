@@ -1,4 +1,7 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks;
+
 /**
  * bloecks_backend class - basic backend functions for the addon and its plugins.
  */
@@ -17,7 +20,7 @@ class bloecks_backend extends bloecks_abstract
             if (false !== strpos(rex_request('page'), 'content/edit')) {
                 if (!static::plugin()) {
                     // hook into SLICE_SHOW extension point so we can change the display of the slice a bit
-                    rex_extension::register('SLICE_SHOW', ['bloecks_backend', 'showSlice'], rex_extension::EARLY);
+                    rex_extension::register('SLICE_SHOW', [self::class, 'showSlice'], rex_extension::EARLY);
                 }
 
                 // and only on content/edit pages we load the css and js files

@@ -1,4 +1,10 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks\Dragndrop;
+
+use FriendsOfRedaxo\Bloecks\bloecks_abstract;
+use FriendsOfRedaxo\Bloecks\Dragndrop\bloecks_dragndrop_backend;
+
 /**
  * bloecks_dragndrop class - basic functions for the plugin.
  */

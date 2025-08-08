@@ -3,4 +3,4 @@
     /**
      * Initialize the plugin.
      */
-    rex_extension::register('PACKAGES_INCLUDED', ['bloecks_dragndrop', 'init'], rex_extension::EARLY);
+    rex_extension::register('PACKAGES_INCLUDED', ['FriendsOfRedaxo\Bloecks\Dragndrop\bloecks_dragndrop', 'init'], rex_extension::EARLY);

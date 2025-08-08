@@ -1,3 +1,3 @@
 <?php
 
-    rex_extension::register('PACKAGES_INCLUDED', ['bloecks', 'init'], rex_extension::EARLY);
+    rex_extension::register('PACKAGES_INCLUDED', ['FriendsOfRedaxo\Bloecks\bloecks', 'init'], rex_extension::EARLY);

@@ -1,4 +1,9 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks\Dragndrop;
+
+use FriendsOfRedaxo\Bloecks\bloecks_backend;
+
 /**
  * bloecks_dragndrop_backend class - basic backend functions for the plugin.
  */
@@ -17,7 +22,7 @@ class bloecks_dragndrop_backend extends bloecks_backend
     public static function init(rex_extension_point $ep)
     {
         // register action for display of the slice
-        rex_extension::register('SLICE_SHOW_BLOECKS_BE', ['bloecks_dragndrop_backend', 'showSlice']);
+        rex_extension::register('SLICE_SHOW_BLOECKS_BE', [self::class, 'showSlice']);
 
         // call the addon init function - see blocks_backend:init() class
         parent::init($ep);

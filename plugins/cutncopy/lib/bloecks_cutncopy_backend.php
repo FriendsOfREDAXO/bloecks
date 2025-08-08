@@ -1,4 +1,9 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks\Cutncopy;
+
+use FriendsOfRedaxo\Bloecks\bloecks_backend;
+
 /**
  * bloecks_cutncopy_backend class - basic backend functions for the plugin.
  */
@@ -34,16 +39,16 @@ class bloecks_cutncopy_backend extends bloecks_backend
             static::prepareClipboardSliceForAdding();
 
             // add buttons to slice menu
-            rex_extension::register('STRUCTURE_CONTENT_SLICE_MENU', ['bloecks_cutncopy_backend', 'addButtons']);
+            rex_extension::register('STRUCTURE_CONTENT_SLICE_MENU', [self::class, 'addButtons']);
 
             // process any cut or copy call
-            rex_extension::register('STRUCTURE_CONTENT_BEFORE_SLICES', ['bloecks_cutncopy_backend', 'process']);
+            rex_extension::register('STRUCTURE_CONTENT_BEFORE_SLICES', [self::class, 'process']);
 
             // insert the "INSERT BLOCK" link into module dropdown
-            rex_extension::register('STRUCTURE_CONTENT_MODULE_SELECT', ['bloecks_cutncopy_backend', 'addBlockToDropdown']);
+            rex_extension::register('STRUCTURE_CONTENT_MODULE_SELECT', [self::class, 'addBlockToDropdown']);
 
             // post process the clipboard after a slice is inserted into another article
-            rex_extension::register('SLICE_ADDED', ['bloecks_cutncopy_backend', 'postProcessClipboard']);
+            rex_extension::register('SLICE_ADDED', [self::class, 'postProcessClipboard']);
         } else {
             // remove cookie whenever the backend is accessed without a login
             // (so we make sure no slice is in clipboard when a user logs in)
@@ -180,7 +185,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
                 $action .= 'Slice';
             }
 
-            if (method_exists('bloecks_cutncopy_backend', $action)) {
+            if (method_exists(self::class, $action)) {
                 $slice = rex_article_slice::getArticleSlicebyId($slice_id, false, $revision);
                 if ($slice) {
                     $subject = $ep->getSubject();
