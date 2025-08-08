@@ -2,13 +2,13 @@
 
 namespace FriendsOfRedaxo\Bloecks\Dragndrop;
 
-use FriendsOfRedaxo\Bloecks\bloecks_abstract;
-use FriendsOfRedaxo\Bloecks\Dragndrop\bloecks_dragndrop_backend;
+use FriendsOfRedaxo\Bloecks\AbstractBase;
+use FriendsOfRedaxo\Bloecks\Dragndrop\Backend;
 
 /**
  * bloecks_dragndrop class - basic functions for the plugin.
  */
-class bloecks_dragndrop extends bloecks_abstract
+class Dragndrop extends AbstractBase
 {
     /**
      * The name of the plugin.
@@ -24,7 +24,7 @@ class bloecks_dragndrop extends bloecks_abstract
     {
         if (rex::isBackend() && rex::getUser()) {
             // call the backend functions
-            bloecks_dragndrop_backend::init($ep);
+            Backend::init($ep);
         }
     }
 }

@@ -2,12 +2,12 @@
 
 namespace FriendsOfRedaxo\Bloecks\Dragndrop;
 
-use FriendsOfRedaxo\Bloecks\bloecks_backend;
+use FriendsOfRedaxo\Bloecks\Backend as BaseBackend;
 
 /**
  * bloecks_dragndrop_backend class - basic backend functions for the plugin.
  */
-class bloecks_dragndrop_backend extends bloecks_backend
+class Backend extends BaseBackend
 {
     /**
      * The name of the plugin.
@@ -47,7 +47,7 @@ class bloecks_dragndrop_backend extends bloecks_backend
                 // get setting 'display in compact mode' ?
                 $compactmode = static::settings('display_compact', true) ? ' is--compact' : '';
 
-                $csrfToken = rex_csrf_token::factory(rex_api_content_move_slice_to::class)->getValue();
+                $csrfToken = rex_csrf_token::factory(\FriendsOfRedaxo\Bloecks\Dragndrop\rex_api_content_move_slice_to::class)->getValue();
 
                 $subject = '<li class="rex-slice rex-slice-draggable' . $sortbuttons . $compactmode . '" data-csrf-token="' . $csrfToken . '"><ul class="rex-slices is--undraggable">' . $subject . '</ul></li>';
 

@@ -2,8 +2,8 @@
 
 namespace FriendsOfRedaxo\Bloecks\Dragndrop;
 
-use FriendsOfRedaxo\Bloecks\Dragndrop\bloecks_dragndrop_backend;
-use FriendsOfRedaxo\Bloecks\Dragndrop\bloecks_dragndrop;
+use FriendsOfRedaxo\Bloecks\Dragndrop\Backend;
+use FriendsOfRedaxo\Bloecks\Dragndrop\Dragndrop;
 
 /**
  * rex_api_content class which moves a slice AFTER a given element.
@@ -12,7 +12,7 @@ class rex_api_content_move_slice_to extends \rex_api_content_move_slice
 {
     public function execute()
     {
-        if (!rex::getUser()->hasPerm(bloecks_dragndrop_backend::getPermName())) {
+        if (!rex::getUser()->hasPerm(Backend::getPermName())) {
             throw new rex_api_exception(rex_i18n::msg('no_rights_to_this_function'));
         }
 
@@ -68,7 +68,7 @@ class rex_api_content_move_slice_to extends \rex_api_content_move_slice
         }
 
         if (empty($result)) {
-            throw new rex_api_exception(bloecks_dragndrop::package()->i18n('something_went_wrong', bloecks_dragndrop::package()->i18n($direction)));
+            throw new rex_api_exception(Dragndrop::package()->i18n('something_went_wrong', Dragndrop::package()->i18n($direction)));
         }
 
         return $result;

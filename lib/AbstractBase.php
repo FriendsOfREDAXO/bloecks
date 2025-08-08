@@ -5,7 +5,7 @@ namespace FriendsOfRedaxo\Bloecks;
 /**
  * bloecks abstract class - basic functions for the addon and its plugins.
  */
-abstract class bloecks_abstract
+abstract class AbstractBase
 {
     /**
      * contains the name of the plugin.

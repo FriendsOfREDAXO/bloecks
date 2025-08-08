@@ -2,12 +2,12 @@
 
 namespace FriendsOfRedaxo\Bloecks\Cutncopy;
 
-use FriendsOfRedaxo\Bloecks\bloecks_backend;
+use FriendsOfRedaxo\Bloecks\Backend as BaseBackend;
 
 /**
  * bloecks_cutncopy_backend class - basic backend functions for the plugin.
  */
-class bloecks_cutncopy_backend extends bloecks_backend
+class Backend extends BaseBackend
 {
     /**
      * The name of the plugin.

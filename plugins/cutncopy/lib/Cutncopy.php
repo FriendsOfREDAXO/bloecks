@@ -2,13 +2,13 @@
 
 namespace FriendsOfRedaxo\Bloecks\Cutncopy;
 
-use FriendsOfRedaxo\Bloecks\bloecks_abstract;
-use FriendsOfRedaxo\Bloecks\Cutncopy\bloecks_cutncopy_backend;
+use FriendsOfRedaxo\Bloecks\AbstractBase;
+use FriendsOfRedaxo\Bloecks\Cutncopy\Backend;
 
 /**
  * bloecks_status class - basic functions for the plugin.
  */
-class bloecks_cutncopy extends bloecks_abstract
+class Cutncopy extends AbstractBase
 {
     /**
      * The name of the plugin.
@@ -24,7 +24,7 @@ class bloecks_cutncopy extends bloecks_abstract
     {
         if (rex::isBackend()) {
             // call the backend functions
-            bloecks_cutncopy_backend::init($ep);
+            Backend::init($ep);
         }
     }
 }

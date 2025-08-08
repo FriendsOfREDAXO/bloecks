@@ -5,7 +5,7 @@ namespace FriendsOfRedaxo\Bloecks;
 /**
  * bloecks_backend class - basic backend functions for the addon and its plugins.
  */
-class bloecks_backend extends bloecks_abstract
+class Backend extends AbstractBase
 {
     /**
      * Initializes the addon in the backend.
