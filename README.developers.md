@@ -27,11 +27,31 @@ Suche im Addon-Verzeichnis sowie in allen Plugin-Verzeichnissen nach den Dateien
 2. __JS-Dateien__  
 Suche im Addon-Verzeichnis sowie in allen Plugin-Verzeichnissen nach Dateien in den Ordnern `assets_src/js/be/` sowie `assets_src/js/fe/`, kompiliere sie zu einzelnen JS-Dateien, minimiere sie und lege sie im Ordner `assets/js` als `be.js` bzw. `fe.js` ab.
 
-3. __Synchronisiere Verzeichnisse__  
-Synchronisiere nun die `assets/`-Ordner im Addon- sowie in allen PluginVerzeichnissen mit den entsprechenden `assets/`-Ordnern im Hauptordner `/assets/addons/bloecks`.
+3. __Asset-Bereinigung__  
+Führt eine Bereinigung der Asset-Verzeichnisse durch und entfernt doppelte Dateien, die durch frühere Build-Prozesse entstanden sein könnten. Assets werden nur in den korrekten `/assets/`-Verzeichnissen gespeichert.
 
 4. __Watch__  
 Beobachte nun die `assets` und `assets_src` Ordner und führe bei Bedarf die entsprechenden Aktionen aus.
+
+## Plugin-System
+
+Das Build-System wurde vereinfacht und **löst Plugins automatisch auf**:
+
+- **Automatische Plugin-Erkennung**: Das Grunt-Build-System erkennt automatisch alle Plugins im `plugins/`-Verzeichnis und erstellt entsprechende Build-Tasks
+- **Keine manuellen Konfigurationsänderungen**: Neue Plugins können einfach hinzugefügt werden ohne Änderungen am Gruntfile.js
+- **Saubere Asset-Verwaltung**: Assets werden nur in den korrekten `./assets/`- und `./plugins/*/assets/`-Verzeichnissen gespeichert
+- **Keine Duplikate**: Das überarbeitete rsync.sh-Script verhindert die Erstellung von doppelten Asset-Dateien
+
+### Plugin hinzufügen
+
+Um ein neues Plugin hinzuzufügen:
+
+1. Erstelle den Plugin-Ordner: `plugins/meinplugin/`
+2. Erstelle die Asset-Verzeichnisse: `plugins/meinplugin/assets_src/js/be/` und `plugins/meinplugin/assets_src/less/`
+3. Füge deine Dateien hinzu (z.B. `be.less`, JS-Dateien)
+4. Führe `grunt --production` aus
+
+Das Build-System erkennt das neue Plugin automatisch und erstellt die entsprechenden Tasks.
 
 
 ## Release erstellen
