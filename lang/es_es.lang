@@ -7,3 +7,28 @@ bloecks_switch_to_addons_page = Ir a la página AddOn
 bloecks_saved = Ajustes guardados
 bloecks_not_saved = La configuración no se pudo guardar.
 bloecks_docs = Documentación
+
+# Cut & Copy functionality (previously cutncopy plugin)
+bloecks_cutncopy_navigation = Cortar Pegar
+bloecks_cutncopy_name = Bloecks / Cortar Pegar
+bloecks_copy_slice = Copiar bloque
+bloecks_cut_slice = Cortar bloque
+bloecks_slice_not_copied = El bloque {0} no se pudo copiar al portapapeles
+bloecks_slice_copied = El bloque {0} ha sido copiado al portapapeles
+bloecks_slice_not_cut = El bloque {0} no se pudo cortar y copiar en el portapapeles
+bloecks_slice_cut = El bloque {0} ha sido copiado al portapapeles
+bloecks_insert_slice = Inserta el módulo "{0}" con ID # {1} del artículo »{2}«
+bloecks_slice_removed_after_insert = El bloque "{0}" con el ID # {1} del artículo »{2}« ha sido eliminado.
+bloecks_slice_not_removed_after_insert = El bloque "{0}" con el ID # {1} del artículo »{2}« no se pudo eliminar.
+bloecks_cutncopy_perm_description = Copiar bloques
+
+# Drag & Drop functionality (previously dragndrop plugin)
+bloecks_dragndrop_navigation = Arrastrar y soltar
+bloecks_dragndrop_name = Bloecks / Arrastrar y soltar
+bloecks_dragndrop_perm_description = Mover bloques arrastrando y soltando
+bloecks_dragndrop_something_went_wrong = Se produjo un error ({0}).
+bloecks_dragndrop_moveup = cuando se mueve hacia arriba
+bloecks_dragndrop_movedown = cuando se mueve hacia abajo
+bloecks_dragndrop_display_sort_buttons = Mostrar botones de clasificación en los bloques de módulos
+bloecks_dragndrop_save = Guardar
+bloecks_dragndrop_settings = Ajustes

@@ -7,3 +7,28 @@ bloecks_switch_to_addons_page = Gå till AddOn-sidan
 bloecks_saved = Inställningarna sparades.
 bloecks_not_saved = Inställningarna sparades inte.
 bloecks_docs = Dokumentation
+
+# Cut & Copy functionality (previously cutncopy plugin)
+bloecks_cutncopy_navigation = Cut & Copy
+bloecks_cutncopy_name = blÖcks / Cut & Copy
+bloecks_copy_slice = Kopiera avsnittet
+bloecks_cut_slice = Klipp ut avsnittet
+bloecks_slice_not_copied = Avsnittet med ID # {0} kunde inte kopieras till urklipp
+bloecks_slice_copied = Avsnittet med ID # {0} har kopierats till urklipp
+bloecks_slice_not_cut = Avsnittet med ID # {0} kunde inte klippas ur och kopieras till urklipp
+bloecks_slice_cut = Avsnittet med ID # {0} har kopierats till urklipp
+bloecks_insert_slice = Modul »{0}« med ID #{1} från artikel »{2}« infoga här
+bloecks_slice_removed_after_insert = Modul »{0}« med ID #{1} från artikel »{2}« har tagits bort
+bloecks_slice_not_removed_after_insert = Modul »{0}« med ID #{1} från artikel »{2}« kunde inte tagits bort
+bloecks_cutncopy_perm_description = Kopiera avsnitt
+
+# Drag & Drop functionality (previously dragndrop plugin)
+bloecks_dragndrop_navigation = Drag & Drop
+bloecks_dragndrop_name = blÖcks / Drag & Drop
+bloecks_dragndrop_perm_description = Flytta avsnitt via dra och släpp
+bloecks_dragndrop_something_went_wrong = Ett fel uppstod ({0}).
+bloecks_dragndrop_moveup = vid förflyttning uppåt
+bloecks_dragndrop_movedown = vid förflyttning neråt
+bloecks_dragndrop_display_sort_buttons = Visa sorteringsknappar vid enskilda avsnitt
+bloecks_dragndrop_save = Spara
+bloecks_dragndrop_settings = Inställningar

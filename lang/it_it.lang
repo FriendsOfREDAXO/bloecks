@@ -7,3 +7,28 @@ bloecks_switch_to_addons_page = Andare alla pagina degli addon
 bloecks_saved = Impostazioni salvati
 bloecks_not_saved = Impostazioni non salvati
 bloecks_docs =
+
+# Cut & Copy functionality (previously cutncopy plugin)
+bloecks_cutncopy_navigation = Taglia e copia
+bloecks_cutncopy_name = blÖcks / taglia e copia
+bloecks_copy_slice = Copiare blocco
+bloecks_cut_slice = Tagliare blocco
+bloecks_slice_not_copied = Non era possibile salvare il blocco {0} nel clipboard
+bloecks_slice_copied = Blocco {0} salvato nel clipboard
+bloecks_slice_not_cut = Non era possibile salvare il blocco {0} nel clipboard e tagliarlo
+bloecks_slice_cut = Blocco {0} salvato nel clipboard
+bloecks_insert_slice = Inserire il modulo »{0}« col ID #{1} del articolo »{2}«
+bloecks_slice_removed_after_insert = Il modulo »{0}« col ID #{1} del articolo »{2}« è stato rimosso
+bloecks_slice_not_removed_after_insert = Non è stato possibile rimuovere il modulo »{0}« col ID #{1} del articolo »{2}«
+bloecks_cutncopy_perm_description = Copiare blocchi
+
+# Drag & Drop functionality (previously dragndrop plugin)
+bloecks_dragndrop_navigation = Drag & Drop
+bloecks_dragndrop_name = blÖcks / Drag & Drop
+bloecks_dragndrop_perm_description = Muovere i blocchi via Drag & Drop
+bloecks_dragndrop_something_went_wrong = È accaduto un errore ({0})
+bloecks_dragndrop_moveup = durante lo spostamento in sù
+bloecks_dragndrop_movedown = durante lo spostamento in giù
+bloecks_dragndrop_display_sort_buttons = Mostra i pulsanti di ordinamento nei singoli blocchi del modulo
+bloecks_dragndrop_save = Salva
+bloecks_dragndrop_settings = Impostazioni

@@ -11,6 +11,14 @@ page:
     subpages:
         overview:
             title: 'translate:overview'
+        cutncopy:
+            title: 'translate:cutncopy_navigation'
+            perm: admin
+            pjax: false
+        dragndrop:
+            title: 'translate:dragndrop_navigation'
+            perm: admin
+            pjax: false
         docs:
             title: translate:docs
             subPath: README.developers.md

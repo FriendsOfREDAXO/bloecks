@@ -1,16 +1,9 @@
 <?php
 /**
- * bloecks_cutncopy_backend class - basic backend functions for the plugin.
+ * bloecks_cutncopy_backend class - Cut & Copy backend functionality integrated into the main addon.
  */
 class bloecks_cutncopy_backend extends bloecks_backend
 {
-    /**
-     * The name of the plugin.
-     *
-     * @var string
-     */
-    protected static $plugin_name = 'cutncopy';
-
     /**
      * Will store the cookie once it is read.
      *

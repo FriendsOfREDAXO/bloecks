@@ -1,18 +1,11 @@
 <?php
 /**
- * bloecks_dragndrop class - basic functions for the plugin.
+ * bloecks_dragndrop class - Drag & Drop functionality integrated into the main addon.
  */
 class bloecks_dragndrop extends bloecks_abstract
 {
     /**
-     * The name of the plugin.
-     *
-     * @var string
-     */
-    protected static $plugin_name = 'dragndrop';
-
-    /**
-     * Initializes the plugin.
+     * Initializes the drag & drop functionality.
      */
     public static function init(rex_extension_point $ep)
     {

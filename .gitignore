@@ -9,10 +9,3 @@ ehthumbs.db
 Thumbs.db
 node_modules/
 src/
-
-# Build artifacts - only keep assets in proper /assets/ directories
-# Exclude rsync'd duplicate files in plugin root directories
-css/
-js/
-plugins/*/css/
-plugins/*/js/

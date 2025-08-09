@@ -1,18 +1,11 @@
 <?php
 /**
- * bloecks_status class - basic functions for the plugin.
+ * bloecks_cutncopy class - Cut & Copy functionality integrated into the main addon.
  */
 class bloecks_cutncopy extends bloecks_abstract
 {
     /**
-     * The name of the plugin.
-     *
-     * @var string
-     */
-    protected static $plugin_name = 'cutncopy';
-
-    /**
-     * Initializes the plugin.
+     * Initializes the cut & copy functionality.
      */
     public static function init(rex_extension_point $ep)
     {
