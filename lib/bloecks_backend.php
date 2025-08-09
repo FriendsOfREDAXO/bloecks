@@ -1,31 +1,34 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks;
+
 /**
- * bloecks_backend class - basic backend functions for the addon and its plugins.
+ * BlOecksBackend class - basic backend functions for the addon.
  */
-class bloecks_backend extends bloecks_abstract
+class BlOecksBackend extends BlOecksAbstract
 {
     /**
      * Initializes the addon in the backend.
      */
-    public static function init(rex_extension_point $ep)
+    public static function init(\rex_extension_point $ep)
     {
-        // only aexecute this function within the backend and when a user is logged in
-        if (rex::isBackend() && rex::getUser()) {
+        // only execute this function within the backend and when a user is logged in
+        if (\rex::isBackend() && \rex::getUser()) {
             // let's register the permission for this addon / plugin
             static::addPerm();
 
-            if (false !== strpos(rex_request('page'), 'content/edit')) {
+            if (false !== strpos(\rex_request('page'), 'content/edit')) {
                 if (!static::plugin()) {
                     // hook into SLICE_SHOW extension point so we can change the display of the slice a bit
-                    rex_extension::register('SLICE_SHOW', ['bloecks_backend', 'showSlice'], rex_extension::EARLY);
+                    \rex_extension::register('SLICE_SHOW', [BlOecksBackend::class, 'showSlice'], \rex_extension::EARLY);
                 }
 
                 // and only on content/edit pages we load the css and js files
                 $package = static::package();
 
                 // and load assets
-                rex_view::addCssFile($package->getAssetsUrl('css/be.css'));
-                rex_view::addJsFile($package->getAssetsUrl('js/be.js'));
+                \rex_view::addCssFile($package->getAssetsUrl('css/be.css'));
+                \rex_view::addJsFile($package->getAssetsUrl('js/be.js'));
             }
         }
     }
@@ -110,7 +113,7 @@ class bloecks_backend extends bloecks_abstract
     {
         $slice_content = $ep->getSubject();
 
-        $slice_content = rex_extension::registerPoint(new rex_extension_point(
+        $slice_content = \rex_extension::registerPoint(new rex_extension_point(
             'SLICE_SHOW_BLOECKS_BE',
             $slice_content,
             $ep->getParams()

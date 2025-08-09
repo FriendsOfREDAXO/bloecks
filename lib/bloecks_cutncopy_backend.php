@@ -1,8 +1,11 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks;
+
 /**
- * bloecks_cutncopy_backend class - Cut & Copy backend functionality integrated into the main addon.
+ * BlOecksCutNCopyBackend class - Cut & Copy backend functionality integrated into the main addon.
  */
-class bloecks_cutncopy_backend extends bloecks_backend
+class BlOecksCutNCopyBackend extends BlOecksBackend
 {
     /**
      * Will store the cookie once it is read.
@@ -27,16 +30,16 @@ class bloecks_cutncopy_backend extends bloecks_backend
             static::prepareClipboardSliceForAdding();
 
             // add buttons to slice menu
-            rex_extension::register('STRUCTURE_CONTENT_SLICE_MENU', ['bloecks_cutncopy_backend', 'addButtons']);
+            \rex_extension::register('STRUCTURE_CONTENT_SLICE_MENU', [BlOecksCutNCopyBackend::class, 'addButtons']);
 
             // process any cut or copy call
-            rex_extension::register('STRUCTURE_CONTENT_BEFORE_SLICES', ['bloecks_cutncopy_backend', 'process']);
+            \rex_extension::register('STRUCTURE_CONTENT_BEFORE_SLICES', [BlOecksCutNCopyBackend::class, 'process']);
 
             // insert the "INSERT BLOCK" link into module dropdown
-            rex_extension::register('STRUCTURE_CONTENT_MODULE_SELECT', ['bloecks_cutncopy_backend', 'addBlockToDropdown']);
+            \rex_extension::register('STRUCTURE_CONTENT_MODULE_SELECT', [BlOecksCutNCopyBackend::class, 'addBlockToDropdown']);
 
             // post process the clipboard after a slice is inserted into another article
-            rex_extension::register('SLICE_ADDED', ['bloecks_cutncopy_backend', 'postProcessClipboard']);
+            \rex_extension::register('SLICE_ADDED', [BlOecksCutNCopyBackend::class, 'postProcessClipboard']);
         } else {
             // remove cookie whenever the backend is accessed without a login
             // (so we make sure no slice is in clipboard when a user logs in)
@@ -131,7 +134,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
             foreach (['copy', 'cut'] as $type) {
                 static::addButton($ep, [
                     'hidden_label' => static::package()->i18n($type . '_slice'),
-                    'url' => rex_url::backendController([
+                    'url' => \rex_url::backendController([
                         'page' => 'content/edit',
                         'article_id' => $ep->getParam('article_id'),
                         'bloecks' => 'cutncopy',
@@ -163,17 +166,17 @@ class bloecks_cutncopy_backend extends bloecks_backend
      */
     public static function process(rex_extension_point $ep)
     {
-        $function = rex_request('bloecks', 'string', null);
-        $slice_id = rex_request('slice_id', 'int', 0);
-        $revision = rex_request('revision', 'int', 0);
-        $action = rex_request('cuc_action', 'string', null);
+        $function = \rex_request('bloecks', 'string', null);
+        $slice_id = \rex_request('slice_id', 'int', 0);
+        $revision = \rex_request('revision', 'int', 0);
+        $action = \rex_request('cuc_action', 'string', null);
 
         if ($function === static::plugin()->getName()) {
             if (!empty($action)) {
                 $action .= 'Slice';
             }
 
-            if (method_exists('bloecks_cutncopy_backend', $action)) {
+            if (method_exists('BlOecksCutNCopyBackend', $action)) {
                 $slice = rex_article_slice::getArticleSlicebyId($slice_id, false, $revision);
                 if ($slice) {
                     $subject = $ep->getSubject();
@@ -204,7 +207,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
             $status = static::getValueOfSlice($slice->getId(), 'status', 1);
             static::setCookie(['slice_id' => $slice->getId(), 'clang' => $slice->getClang(), 'revision' => $slice->getRevision(), 'status' => $status, 'action' => 'copy']);
 
-            rex_extension::registerPoint(new rex_extension_point('SLICE_COPIED', '', [
+            \rex_extension::registerPoint(new rex_extension_point('SLICE_COPIED', '', [
                 'slice_id' => $slice->getId(),
                 'article_id' => $slice->getArticleId(),
                 'clang_id' => $slice->getClang(),
@@ -238,7 +241,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
             $status = static::getValueOfSlice($slice->getId(), 'status', 1);
             static::setCookie(['slice_id' => $slice->getId(), 'clang' => $slice->getClang(), 'revision' => $slice->getRevision(), 'status' => $status, 'action' => 'cut']);
 
-            rex_extension::registerPoint(new rex_extension_point('SLICE_CUT', '', [
+            \rex_extension::registerPoint(new rex_extension_point('SLICE_CUT', '', [
                 'slice_id' => $slice->getId(),
                 'article_id' => $slice->getArticleId(),
                 'clang_id' => $slice->getClang(),
@@ -263,7 +266,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
     public static function prepareClipboardSliceForAdding()
     {
         if (rex::getUser()->hasPerm(static::getPermName())) {
-            $source_slice_id = rex_request('source_slice_id', 'int', null);
+            $source_slice_id = \rex_request('source_slice_id', 'int', null);
             if ($source_slice_id) {
                 if ((int) $source_slice_id === static::getCookie('slice_id', 'int', null)) {
                     $action = static::getCookie('action', 'string', '');
@@ -328,10 +331,10 @@ class bloecks_cutncopy_backend extends bloecks_backend
         if (static::$clipboard_slice instanceof rex_article_slice) {
             if ((int) static::$clipboard_slice->getId() === static::getCookie('slice_id', 'int', null)) {
                 $action = static::getCookie('action', 'string', '');
-                if ($action === rex_post('bloecks_cutncopy_action', 'string', null)) {
-                    rex_extension::registerPoint(new rex_extension_point('SLICE_INSERTED', '', [
+                if ($action === \rex_post('bloecks_cutncopy_action', 'string', null)) {
+                    \rex_extension::registerPoint(new rex_extension_point('SLICE_INSERTED', '', [
                         'source_slice_id' => static::$clipboard_slice,
-                        'before_slice_id' => rex_request('slice_id', 'int', null),
+                        'before_slice_id' => \rex_request('slice_id', 'int', null),
                         'inserted_slice_id' => (int) $ep->getParam('slice_id'),
                         'clang_id' => static::$clipboard_slice->getClang(),
                         'slice_revision' => static::$clipboard_slice->getRevision(),
@@ -355,8 +358,8 @@ class bloecks_cutncopy_backend extends bloecks_backend
 
                             $info = static::package()->i18n('slice_removed_after_insert', static::getModuleName(static::$clipboard_slice->getModuleId()), static::$clipboard_slice->getId(), static::$clipboard_slice->getArticle()->getName());
 
-                            rex_extension::registerPoint(new rex_extension_point('SLICE_DELETED', $info, $epParams));
-                            /* deprecated */ rex_extension::registerPoint(new rex_extension_point('STRUCTURE_CONTENT_SLICE_DELETED', $info, $epParams));
+                            \rex_extension::registerPoint(new rex_extension_point('SLICE_DELETED', $info, $epParams));
+                            /* deprecated */ \rex_extension::registerPoint(new rex_extension_point('STRUCTURE_CONTENT_SLICE_DELETED', $info, $epParams));
                         } else {
                             $info = static::package()->i18n('slice_not_removed_after_insert', static::getModuleName(static::$clipboard_slice->getModuleId()), static::$clipboard_slice->getId(), static::$clipboard_slice->getArticle()->getName());
                         }
@@ -419,7 +422,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
             $qry = 'SELECT `name` FROM `' . rex::getTable('module') . '` WHERE `id` = ' . $module_id;
             $sql->setQuery($qry);
             if (count($row = $sql->getArray())) {
-                return rex_i18n::translate($row[0]['name']);
+                return \rex_i18n::translate($row[0]['name']);
             }
         }
 

@@ -1,13 +1,16 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks;
+
 /**
- * rex_api_content class which moves a slice AFTER a given element.
+ * RexApiContentMoveSliceTo class - API for moving slices.
  */
-class rex_api_content_move_slice_to extends rex_api_content_move_slice
+class RexApiContentMoveSliceTo extends \rex_api_content_move_slice
 {
     public function execute()
     {
-        if (!rex::getUser()->hasPerm(bloecks_dragndrop_backend::getPermName())) {
-            throw new rex_api_exception(rex_i18n::msg('no_rights_to_this_function'));
+        if (!\rex::getUser()->hasPerm(BlOecksDragNDropBackend::getPermName())) {
+            throw new \rex_api_exception(\rex_i18n::msg('no_rights_to_this_function'));
         }
 
         $article_id = rex_request('article_id', 'int');
@@ -62,7 +65,7 @@ class rex_api_content_move_slice_to extends rex_api_content_move_slice
         }
 
         if (empty($result)) {
-            throw new rex_api_exception(bloecks_dragndrop::package()->i18n('something_went_wrong', bloecks_dragndrop::package()->i18n($direction)));
+            throw new \rex_api_exception(BlOecksDragNDrop::package()->i18n('something_went_wrong', BlOecksDragNDrop::package()->i18n($direction)));
         }
 
         return $result;

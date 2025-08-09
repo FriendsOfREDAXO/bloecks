@@ -1,8 +1,11 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks;
+
 /**
- * bloecks_dragndrop_backend class - Drag & Drop backend functionality integrated into the main addon.
+ * BlOecksDragNDropBackend class - Drag & Drop backend functionality integrated into the main addon.
  */
-class bloecks_dragndrop_backend extends bloecks_backend
+class BlOecksDragNDropBackend extends BlOecksBackend
 {
     /**
      * Initialize the drag & drop functionality in the backend.
@@ -10,7 +13,7 @@ class bloecks_dragndrop_backend extends bloecks_backend
     public static function init(rex_extension_point $ep)
     {
         // register action for display of the slice
-        rex_extension::register('SLICE_SHOW_BLOECKS_BE', ['bloecks_dragndrop_backend', 'showSlice']);
+        \rex_extension::register('SLICE_SHOW_BLOECKS_BE', [BlOecksDragNDropBackend::class, 'showSlice']);
 
         // call the addon init function - see blocks_backend:init() class
         parent::init($ep);
@@ -35,7 +38,7 @@ class bloecks_dragndrop_backend extends bloecks_backend
                 // get setting 'display in compact mode' ?
                 $compactmode = static::settings('display_compact', true) ? ' is--compact' : '';
 
-                $csrfToken = rex_csrf_token::factory(rex_api_content_move_slice_to::class)->getValue();
+                $csrfToken = \rex_csrf_token::factory(RexApiContentMoveSliceTo::class)->getValue();
 
                 $subject = '<li class="rex-slice rex-slice-draggable' . $sortbuttons . $compactmode . '" data-csrf-token="' . $csrfToken . '"><ul class="rex-slices is--undraggable">' . $subject . '</ul></li>';
 

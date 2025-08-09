@@ -9,14 +9,8 @@ page:
     pjax: false
     icon: rex-icon rex-icon-template
     subpages:
-        overview:
-            title: 'translate:overview'
-        cutncopy:
-            title: 'translate:cutncopy_navigation'
-            perm: admin
-            pjax: false
-        dragndrop:
-            title: 'translate:dragndrop_navigation'
+        config:
+            title: 'translate:config'
             perm: admin
             pjax: false
         docs:

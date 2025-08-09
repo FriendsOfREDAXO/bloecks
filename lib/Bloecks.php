@@ -1,20 +1,23 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks;
+
 /**
- * bloecks class - basic functions for the addon and its plugins.
+ * BlOecks class - basic functions for the addon.
  */
-class bloecks extends bloecks_abstract
+class BlOecks extends BlOecksAbstract
 {
     /**
      * Initializes the addon.
      */
     public static function init(rex_extension_point $ep)
     {
-        if (rex::isBackend() && rex::getUser()) {
+        if (\rex::isBackend() && \rex::getUser()) {
             // initialize the backend functions
-            bloecks_backend::init($ep);
-        } elseif (!rex::isBackend()) {
+            BlOecksBackend::init($ep);
+        } elseif (!\rex::isBackend()) {
             // things to do in frontend
-            rex_extension::register('SLICE_SHOW', ['bloecks', 'showSlice'], rex_extension::EARLY);
+            \rex_extension::register('SLICE_SHOW', [BlOecks::class, 'showSlice'], \rex_extension::EARLY);
         }
     }
 

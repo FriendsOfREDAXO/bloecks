@@ -1,8 +1,11 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks;
+
 /**
- * bloecks abstract class - basic functions for the addon and its plugins.
+ * BlOecksAbstract class - basic functions for the addon.
  */
-abstract class bloecks_abstract
+abstract class BlOecksAbstract
 {
     /**
      * contains the name of the plugin.

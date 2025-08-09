@@ -1,12 +1,15 @@
 bloecks_navigation = blÖcks
 bloecks_name = blÖcks - Module Extensions
 bloecks_overview = Overview
+bloecks_config = Configuration
 bloecks_perm_description = blÖcks settings
 bloecks_no_plugin_settings_available = No plugin settings available.
 bloecks_switch_to_addons_page = Switch to AddOn page
 bloecks_saved = Settings saved.
 bloecks_not_saved = Settings could not be saved.
 bloecks_docs = Documentation
+bloecks_cutncopy_active = Enable Cut & Copy
+bloecks_dragndrop_active = Enable Drag & Drop
 
 # Cut & Copy functionality (previously cutncopy plugin)
 bloecks_cutncopy_navigation = Cut & Copy
@@ -30,5 +33,5 @@ bloecks_dragndrop_something_went_wrong = An error occurred ({0}).
 bloecks_dragndrop_moveup = while moving up
 bloecks_dragndrop_movedown = while moving down
 bloecks_dragndrop_display_sort_buttons = Display sorting buttons in module blocks
-bloecks_dragndrop_save = Save
-bloecks_dragndrop_settings = Settings
+bloecks_save = Save
+bloecks_settings = Settings

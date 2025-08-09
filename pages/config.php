@@ -3,6 +3,8 @@
 
 if (rex_post('config-submit', 'boolean')) {
     $this->setConfig(rex_post('config', [
+        ['cutncopy_active', 'bool'],
+        ['dragndrop_active', 'bool'],
         ['display_sort_buttons', 'bool']
     ]));
 
@@ -13,9 +15,22 @@ $content = '<fieldset>';
 
 $formElements = [];
 
+// Cut & Copy activation
+$n = [];
+$n['label'] = '<label for="rex-bloecks-cutncopy-active">' . $this->i18n('cutncopy_active') . '</label>';
+$n['field'] = '<input type="checkbox" id="rex-bloecks-cutncopy-active" name="config[cutncopy_active]" value="1" ' . ($this->getConfig('cutncopy_active', true) ? ' checked="checked"' : '') . ' />';
+$formElements[] = $n;
+
+// Drag & Drop activation
+$n = [];
+$n['label'] = '<label for="rex-bloecks-dragndrop-active">' . $this->i18n('dragndrop_active') . '</label>';
+$n['field'] = '<input type="checkbox" id="rex-bloecks-dragndrop-active" name="config[dragndrop_active]" value="1" ' . ($this->getConfig('dragndrop_active', true) ? ' checked="checked"' : '') . ' />';
+$formElements[] = $n;
+
+// Display sort buttons option
 $n = [];
 $n['label'] = '<label for="rex-bloecks-dragndrop-display_sort_buttons">' . $this->i18n('display_sort_buttons') . '</label>';
-$n['field'] = '<input type="checkbox" id="rex-bloecks-dragndrop-display_sort_buttons" name="config[display_sort_buttons]" value="1" ' . ($this->getConfig('display_sort_buttons') ? ' checked="checked"' : '') . ' />';
+$n['field'] = '<input type="checkbox" id="rex-bloecks-dragndrop-display_sort_buttons" name="config[display_sort_buttons]" value="1" ' . ($this->getConfig('display_sort_buttons', true) ? ' checked="checked"' : '') . ' />';
 $formElements[] = $n;
 
 $fragment = new rex_fragment();
@@ -44,26 +59,3 @@ echo '
     <form action="' . rex_url::currentBackendPage() . '" method="post">
         ' . $content . '
     </form>';
-
-
-/* package info from README.md */
-
-$package = rex_package::get($this->getProperty('package'));
-
-$content = '';
-if (is_readable($package->getPath('README.'. rex_i18n::getLanguage() .'.md'))) {
-    $fragment = new rex_fragment();
-    $fragment->setVar('content', rex_markdown::factory()->parse(rex_file::get($package->getPath('README.'. rex_i18n::getLanguage() .'.md'))), false);
-    $content .= $fragment->parse('core/page/docs.php');
-} elseif (is_readable($package->getPath('README.md'))) {
-    $fragment = new rex_fragment();
-    $fragment->setVar('content', rex_markdown::factory()->parse(rex_file::get($package->getPath('README.md'))), false);
-    $content .= $fragment->parse('core/page/docs.php');
-}
-
-if (!empty($content)) {
-    $fragment = new rex_fragment();
-    $fragment->setVar('title', rex_i18n::msg('package_help') . ' ' . $package->getPackageId(), false);
-    $fragment->setVar('body', $content, false);
-    echo $fragment->parse('core/page/section.php');
-}
