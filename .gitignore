@@ -9,3 +9,11 @@ ehthumbs.db
 Thumbs.db
 node_modules/
 src/
+
+# Build system
+*.log
+pnpm-lock.yaml
+
+# Development files
+/tmp
+scripts/*.log

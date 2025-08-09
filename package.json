@@ -1,19 +1,38 @@
 {
-  "name": "Redaxo5_Bloecks",
-  "version": "0.1.0",
-  "author": "Thomas Goellner",
+  "name": "bloecks",
+  "version": "4.0.2",
+  "description": "REDAXO bloecks addon - modern build system",
   "private": true,
-  "description": "",
-  "devDependencies": {
-    "grunt": "*",
-    "grunt-contrib-less": "*",
-    "less-plugin-autoprefix": "*",
-    "grunt-contrib-concat": "*",
-    "grunt-contrib-uglify": "*",
-    "grunt-contrib-watch": "*",
-    "grunt-shell": "*",
-    "grunt-text-replace": "*",
-    "load-grunt-tasks": "*"
+  "type": "module",
+  "scripts": {
+    "build": "pnpm run build:css && pnpm run build:js",
+    "build:css": "postcss assets_src/css/be.css -o assets/css/be.css --verbose",
+    "build:js": "pnpm run concat:js && pnpm run minify:js",
+    "concat:js": "cat assets_src/js/be/*.js > assets/js/be.js",
+    "minify:js": "terser assets/js/be.js --output assets/js/be.js --compress --mangle",
+    "build:prod": "NODE_ENV=production pnpm run build",
+    "watch": "pnpm run build && pnpm run watch:css & pnpm run watch:js",
+    "watch:css": "chokidar 'assets_src/css/**/*.css' -c 'pnpm run build:css'",
+    "watch:js": "chokidar 'assets_src/js/**/*.js' -c 'pnpm run build:js'",
+    "clean": "rm -rf assets/css/* assets/js/*",
+    "dev": "pnpm run watch",
+    "version": "node scripts/version.js",
+    "package": "pnpm run build:prod && node scripts/package.js"
   },
-  "theme": "slicegrid"
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "chokidar-cli": "^3.0.0",
+    "postcss": "^8.4.47",
+    "postcss-cli": "^11.0.0",
+    "terser": "^5.36.0"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 5% in DE",
+    "ie 10"
+  ]
 }
