@@ -1,0 +1,27 @@
+package: bloecks
+version: '4.0.2'
+author: 'Friends Of REDAXO'
+supportpage: https://github.com/FriendsOfREDAXO/bloecks
+
+page:
+    title: translate:navigation
+    perm: bloecks[]
+    pjax: false
+    icon: rex-icon rex-icon-template
+    subpages:
+        overview:
+            title: 'translate:overview'
+        docs:
+            title: translate:docs
+            subPath: README.developers.md
+            icon: rex-icon fa-book
+            itemclass: pull-right
+
+requires:
+    packages:
+        structure/content: '^2.1.0'
+    redaxo: ^5.5.0
+    php: '>=7'
+
+installer_ignore:
+    - node_modules
