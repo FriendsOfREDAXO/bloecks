@@ -3,21 +3,26 @@
 
 ## Setup und lokale Entwicklung
 
-Die Installation der benötigten Pakete erfolgt über npm:
+Das blÖcks Addon wurde vereinfacht und benötigt **keine Build-Tools mehr**. Die CSS- und JavaScript-Dateien sind direkt im `assets/` Verzeichnis verfügbar und können direkt bearbeitet werden.
 
-	$ npm install
+### Entwicklung
 
-Auf dem System muss [Grunt CLI](https://gruntjs.com/getting-started#installing-the-cli) vorhanden sein. Dies kann mittels `grunt --version` geprüft werden. Falls es fehlt, kann es mittels npm global installiert werden:
+- **CSS**: Direkte Bearbeitung in `assets/css/be.css`
+- **JavaScript**: Direkte Bearbeitung in `assets/js/be.js` (Vanilla JavaScript, kein jQuery)
 
-	$ npm install -g grunt-cli
+### Funktionalität
 
-Danach kann der Build-Workflow gestartet werden Dev+Debugging:
+Alle vorherigen Funktionen bleiben erhalten:
+- Drag & Drop von Slices
+- Cut & Copy von Slices
+- Fragment-Verwaltung
 
-	$ grunt
+### Vorteile der Vereinfachung
 
-Für die Erstellung der Distributiion
-        
-	$ grunt --production
+- Keine Node.js/npm Abhängigkeiten
+- Kein Build-Prozess (Grunt, LESS, Uglify)
+- Einfachere Wartung und Erweiterung
+- Production-ready, unminified Assets für bessere Debugging-Erfahrung
 	
 Es werden dabei folgende Aktionen durchgeführt:
 

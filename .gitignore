@@ -7,11 +7,7 @@
 ./Icon?
 ehthumbs.db
 Thumbs.db
-node_modules/
-src/
 
-# Generated CSS/JS files in wrong locations (legacy from plugins)
+# Legacy build files (no longer used - direct CSS/JS assets now)
 css/
 js/
-plugins/*/css/
-plugins/*/js/
