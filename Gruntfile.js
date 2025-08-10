@@ -29,7 +29,7 @@ module.exports = function (grunt) {
                 files: [{
                     expand: true,     // Enable dynamic expansion.
                     cwd: './',      // Src matches are relative to this path.
-                    src: ['**/less/be.less', '**/less/fe.less'], // Actual pattern(s) to match.
+                    src: ['**/less/be.less', '**/less/fe.less', '!plugins/**/less/be.less', '!plugins/**/less/fe.less'], // Actual pattern(s) to match.
                     dest: './',   // Destination path prefix.
                     ext: '.css',   // Dest filepaths will have this extension.
                     extDot: 'last',   // Extensions in filenames begin after the first dot
@@ -70,7 +70,7 @@ module.exports = function (grunt) {
 
         watch: {
             css: {
-                files: ['**/less/**/*.less'], // which files to watch
+                files: ['**/less/**/*.less', '!plugins/**/less/**/*.less'], // which files to watch (exclude plugins)
                 tasks: ['less:default', 'shell:default']
             },
             rsync: {
@@ -80,8 +80,8 @@ module.exports = function (grunt) {
         }
     });
 
-    // get all module directories
-    grunt.file.expand('**/assets_src/js/be').forEach(function (dir) {
+    // get all module directories (excluding plugins which are now consolidated)
+    grunt.file.expand('**/assets_src/js/be', '!plugins/**/assets_src/js/be').forEach(function (dir) {
         // get the module name from the directory name
         var dirName = dir.substr(dir.lastIndexOf('/') + 1),
             taskLabel = dir.replace(/[^a-zA-Z0-9\_]/g, '_');
@@ -109,8 +109,8 @@ module.exports = function (grunt) {
         grunt.config.set('watch', watch);
     });
 
-    // get all module directories
-    grunt.file.expand('**/assets_src/js/fe').forEach(function (dir) {
+    // get all module directories (excluding plugins which are now consolidated)
+    grunt.file.expand('**/assets_src/js/fe', '!plugins/**/assets_src/js/fe').forEach(function (dir) {
         // get the module name from the directory name
         var dirName = dir.substr(dir.lastIndexOf('/') + 1),
             taskLabel = dir.replace(/[^a-zA-Z0-9\_]/g, '_');
