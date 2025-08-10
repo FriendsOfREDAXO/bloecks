@@ -9,3 +9,9 @@ ehthumbs.db
 Thumbs.db
 node_modules/
 src/
+
+# Generated CSS/JS files in wrong locations (legacy from plugins)
+css/
+js/
+plugins/*/css/
+plugins/*/js/
