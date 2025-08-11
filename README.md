@@ -63,3 +63,8 @@ npm run update-sortable
 
 ## Lizenz
 MIT
+
+#### DankeschÖn
+
+BlÖcks ist ursprünglich von [Thomas Göllner](https://github.com/tgoellner) entwickelt worden. Deshalb die Sache mit dem Ö.
+Es wird gepflegt und weiterentwickelt von den [Friends Of REDAXO](https://github.com/FriendsOfREDAXO/bloecks). Deshalb die Sache mit FOR.
