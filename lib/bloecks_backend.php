@@ -25,17 +25,12 @@ class bloecks_backend
             
             // Process copy/cut/paste actions 
             rex_extension::register('STRUCTURE_CONTENT_BEFORE_SLICES', self::process(...));
-            
-            error_log('BLOECKS: Copy/Paste extension points registered');
         }
         
         // Load assets on content edit pages ONLY if features are enabled
         if (rex_be_controller::getCurrentPagePart(1) === 'content') {
-            error_log('BLOECKS: Content page detected');
-            
             // Only load assets if at least one feature is enabled
             if ($copyPasteEnabled || $dragDropEnabled) {
-                error_log('BLOECKS: Loading assets - Copy/Paste: ' . ($copyPasteEnabled ? 'enabled' : 'disabled') . ', Drag/Drop: ' . ($dragDropEnabled ? 'enabled' : 'disabled'));
                 
                 // JS config for drag & drop ordering
                 rex_view::setJsProperty('bloecks', [
@@ -52,13 +47,7 @@ class bloecks_backend
                 
                 rex_view::addJsFile($addon->getAssetsUrl('js/bloecks.js') . '?v=' . time());
                 rex_view::addCssFile($addon->getAssetsUrl('css/bloecks.css') . '?v=' . time());
-                
-                error_log('BLOECKS: Assets loaded - JS and CSS files added');
-            } else {
-                error_log('BLOECKS: Both features disabled, no assets loaded');
             }
-        } else {
-            error_log('BLOECKS: Not on content page, current page: ' . rex_be_controller::getCurrentPagePart(1));
         }
     }
 
@@ -475,31 +464,6 @@ class bloecks_backend
     }
     
     /**
-     * Clear clipboard on login for security
-     */
-    public static function clearClipboardOnLogin(rex_extension_point $ep)
-    {
-        // Check if we're on the login page or if user just logged in
-        if (rex_be_controller::getCurrentPagePart(1) === 'login' || 
-            (rex_request('rex-api-call') === 'login' && rex::getUser())) {
-            self::clearClipboard();
-            error_log('BLOECKS: Clipboard cleared on login');
-        }
-    }
-    
-    /**
-     * Clear clipboard on logout for security  
-     */
-    public static function clearClipboardOnLogout(rex_extension_point $ep)
-    {
-        // Check if user is logging out
-        if (rex_request('logout') || rex_request('rex-api-call') === 'logout') {
-            self::clearClipboard();
-            error_log('BLOECKS: Clipboard cleared on logout');
-        }
-    }
-    
-    /**
      * Clear clipboard at session start for security
      * This ensures clipboard is cleared on login/logout/session restart
      */
@@ -509,14 +473,12 @@ class bloecks_backend
         if (!rex::getUser() || !isset($_SESSION['bloecks_session_started'])) {
             self::clearClipboard();
             $_SESSION['bloecks_session_started'] = true;
-            error_log('BLOECKS: Clipboard cleared on session start');
         }
         
         // Also clear on logout detection
         if (rex_request('logout') || rex_be_controller::getCurrentPagePart(1) === 'login') {
             self::clearClipboard();
             unset($_SESSION['bloecks_session_started']);
-            error_log('BLOECKS: Clipboard cleared on logout/login page');
         }
     }
     

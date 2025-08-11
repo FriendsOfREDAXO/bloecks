@@ -13,7 +13,6 @@ var BLOECKS = (function($) {
         // Check if drag & drop is enabled in PHP config
         var bloecksConfig = rex.bloecks || {};
         if (!bloecksConfig.enable_drag_drop) {
-            console.log('BLOECKS: Drag & Drop disabled in configuration, aborting');
             return;
         }
         
@@ -22,10 +21,8 @@ var BLOECKS = (function($) {
         
         // Check if we have drag elements
         var dragElements = mainContainer.querySelectorAll('.bloecks-dragdrop');
-        console.log('BLOECKS: Found', dragElements.length, 'drag elements in body');
         
         if (dragElements.length === 0) {
-            console.log('BLOECKS: No drag elements found, aborting');
             return;
         }
         
@@ -42,10 +39,6 @@ var BLOECKS = (function($) {
             commonParent = commonParent.parentNode;
         }
         
-        console.log('BLOECKS: Using container:', commonParent);
-        console.log('BLOECKS: Container class:', commonParent.className);
-        console.log('BLOECKS: Container tag:', commonParent.tagName);
-        
         try {
             var sortable = Sortable.create(commonParent, {
                 draggable: '.bloecks-dragdrop',
@@ -53,15 +46,13 @@ var BLOECKS = (function($) {
                 animation: 150,
                 ghostClass: 'bloecks-sortable-ghost',
                 chosenClass: 'bloecks-sortable-chosen',
-                dragClass: 'bloecks-dragging', // Fixed: Use consistent class name
+                dragClass: 'bloecks-dragging',
                 
                 onStart: function(evt) {
-                    console.log('BLOECKS: Drag started', evt.item);
                     evt.item.classList.add('bloecks-dragging');
                 },
                 
                 onEnd: function(evt) {
-                    console.log('BLOECKS: Drag ended', evt);
                     evt.item.classList.remove('bloecks-dragging');
                     
                     if (evt.oldIndex !== evt.newIndex) {
@@ -70,7 +61,6 @@ var BLOECKS = (function($) {
                 }
             });
             
-            console.log('BLOECKS: Sortable created successfully', sortable);
             sortableInstances.push(sortable);
             
         } catch (error) {
@@ -83,8 +73,6 @@ var BLOECKS = (function($) {
         var sliceId = draggedElement.getAttribute('data-slice-id');
         var articleId = draggedElement.getAttribute('data-article-id');
         var clangId = draggedElement.getAttribute('data-clang-id');
-        
-        console.log('BLOECKS: Updating order - SliceID:', sliceId, 'New position:', evt.newIndex);
         
         if (!sliceId || !articleId || !clangId) {
             console.error('BLOECKS: Missing data attributes for slice reorder');
@@ -101,8 +89,6 @@ var BLOECKS = (function($) {
             }
         });
         
-        console.log('BLOECKS: New slice order:', sliceOrder);
-        
         // AJAX request to update order using rex_api_bloecks
         $.ajax({
             url: 'index.php',
@@ -116,8 +102,6 @@ var BLOECKS = (function($) {
                 'order': JSON.stringify(sliceOrder)
             },
             success: function(response) {
-                console.log('BLOECKS: Order updated successfully', response);
-                
                 // Refresh content with PJAX if available
                 if (typeof rex !== 'undefined' && rex.backend && rex.backend.pjax) {
                     var currentScrollTop = $(window).scrollTop();
@@ -167,42 +151,13 @@ var BLOECKS = (function($) {
     
     // Initialize when DOM is ready
     $(document).ready(function() {
-        console.log('BLOECKS: DOM ready - JavaScript loaded!');
-        console.log('BLOECKS: Body classes:', document.body.className);
-        console.log('BLOECKS: Current URL:', window.location.href);
-        
-        // Initialize regardless of page class for testing
-        console.log('BLOECKS: Initializing drag & drop with wrapper support');
-        console.log('BLOECKS: Found', $('.bloecks-dragdrop').length, 'wrapper elements');
-        console.log('BLOECKS: Found', $('.bloecks-drag-handle').length, 'drag handles');
-        
-        // Log all elements to debug
-        $('.bloecks-dragdrop').each(function(i, el) {
-            console.log('BLOECKS: Wrapper', i, 'data:', el.dataset);
-        });
-        
-        // Test drag handle clicks
-        $('.bloecks-drag-handle').on('mousedown', function(e) {
-            console.log('BLOECKS: Drag handle mousedown event', e.target);
-        });
-        
-        $('.bloecks-drag-handle').on('click', function(e) {
-            console.log('BLOECKS: Drag handle clicked', e.target);
-            e.preventDefault();
-        });
-        
         initDragDrop();
     });
     
     // Reinitialize after PJAX requests
     $(document).on('rex:ready', function() {
-        console.log('BLOECKS: rex:ready event triggered');
-        console.log('BLOECKS: Body classes:', document.body.className);
-        console.log('BLOECKS: Found', $('.bloecks-dragdrop').length, 'wrapper elements after PJAX');
-        
-        // Always reinitialize on content pages, regardless of body class
+        // Always reinitialize on content pages
         if (window.location.href.includes('page=content')) {
-            console.log('BLOECKS: Reinitializing after PJAX on content page');
             destroy();
             setTimeout(function() {
                 initDragDrop();
@@ -212,9 +167,7 @@ var BLOECKS = (function($) {
     
     // Also listen for pjax:end as backup
     $(document).on('pjax:end', function() {
-        console.log('BLOECKS: pjax:end event triggered');
         if (window.location.href.includes('page=content')) {
-            console.log('BLOECKS: Backup reinitializing after pjax:end');
             destroy();
             setTimeout(function() {
                 initDragDrop();

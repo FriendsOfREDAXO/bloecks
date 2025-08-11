@@ -14,3 +14,5 @@ bloecks_feat_order = Slices per Drag & Drop sortieren
 bloecks_intro = Schlankes Tool für Copy/Paste, Ausschneiden und Drag & Drop von Slices.
 bloecks_enabled = Aktiviert
 bloecks_disabled = Deaktiviert
+bloecks_drag_move = Slice verschieben
+bloecks_drag_handle = Verschieben

@@ -14,3 +14,5 @@ bloecks_feat_order = Reorder slices via drag & drop
 bloecks_intro = Lightweight tool for copy/paste, cut and drag & drop of slices.
 bloecks_enabled = Enabled
 bloecks_disabled = Disabled
+bloecks_drag_move = Move slice
+bloecks_drag_handle = Move
