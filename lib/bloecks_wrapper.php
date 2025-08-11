@@ -1,0 +1,114 @@
+<?php
+
+class bloecks_wrapper
+{
+    /**
+     * Add drag-drop wrapper around slice content - similar to slice_columns
+     */
+    public static function addDragDropWrapper(rex_extension_point $ep)
+    {
+        $subject = $ep->getSubject();
+        $slice_id = $ep->getParam('slice_id');
+        $article_id = $ep->getParam('article_id');
+        $clang_id = $ep->getParam('clang_id');
+        $module_id = $ep->getParam('module_id');
+        
+        // Debug: Log that wrapper is being called
+        error_log("BLOECKS DEBUG: Wrapper called for slice $slice_id");
+        
+        // Get the slice object to ensure correct clang_id and module_id
+        if ($slice_id) {
+            $slice = rex_article_slice::getArticleSliceById($slice_id);
+            if ($slice) {
+                $clang_id = $slice->getClang();
+                $article_id = $slice->getArticleId();
+                $module_id = $slice->getModuleId();
+            }
+        }
+        
+        // If still no valid clang_id, use current request clang
+        if (!$clang_id || $clang_id <= 0) {
+            $clang_id = rex_request('clang', 'int', 1);
+        }
+        
+        // Check for exclusions using the backend method
+        if (bloecks_backend::isExcluded($article_id, $clang_id, $module_id)) {
+            error_log("BLOECKS DEBUG: Slice $slice_id is excluded by template/module settings");
+            return $subject;
+        }
+        
+        // Check if drag & drop is enabled
+        $addon = rex_addon::get('bloecks');
+        if (!$addon->getConfig('enable_drag_drop', false)) {
+            error_log("BLOECKS DEBUG: Drag & Drop disabled in settings");
+            return $subject;
+        }
+        
+        // Wrap ALL slices, not just slice-output
+        if (strpos($subject, 'rex-slice') !== false) {
+            // Beautiful drag handle with FontAwesome 6 grip icon - optimized position at 6px (Regular variant)
+            $dragHandle = '<div class="bloecks-drag-handle" style="position: absolute; top: 6px; left: 0px; background: #6c757d; color: white; padding: 8px; cursor: grab; z-index: 1000; border-radius: 0 4px 4px 0; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px;" title="Slice verschieben"><i class="far fa-grip-vertical" style="font-size: 12px;"></i></div>';
+            
+            // Create wrapper similar to slice_columns - remove border completely
+            $wrapper = sprintf(
+                '<li class="bloecks-dragdrop" data-slice-id="%d" data-article-id="%d" data-clang-id="%d" style="margin: 5px 0; position: relative;">
+                    %s
+                    <ul class="bloecks-slice-container">%s</ul>
+                </li>',
+                $slice_id,
+                $article_id,
+                $clang_id,
+                $dragHandle,
+                $subject
+            );
+            
+            error_log("BLOECKS DEBUG: Wrapper created for slice $slice_id with drag handle");
+            return $wrapper;
+        }
+        
+        return $subject;
+    }
+    
+    /**
+     * Add drag handle to slice menu
+     */
+    public static function addDragHandle(rex_extension_point $ep)
+    {
+        // Check if drag & drop is enabled
+        $addon = rex_addon::get('bloecks');
+        if (!$addon->getConfig('enable_drag_drop', false)) {
+            error_log("BLOECKS DEBUG: Drag & Drop disabled in settings, no drag handle added");
+            return $ep->getSubject();
+        }
+        
+        $menu_items = $ep->getSubject();
+        
+        error_log("BLOECKS DEBUG: addDragHandle called, menu_items type: " . gettype($menu_items));
+        
+        // Simple drag handle - just add HTML string for now
+        if (is_string($menu_items)) {
+            $drag_handle = '<a href="#" class="bloecks-drag-handle" style="background: red; color: white; padding: 5px; margin: 2px; display: inline-block;">DRAG</a>';
+            return $drag_handle . $menu_items;
+        }
+        
+        // If it's an array, try to add drag handle
+        if (is_array($menu_items)) {
+            $drag_handle = [
+                'label' => '<span style="background: red; color: white; padding: 3px;">DRAG</span>',
+                'url' => '#',
+                'attributes' => [
+                    'class' => ['bloecks-drag-handle'],
+                    'title' => 'Verschieben',
+                    'style' => 'cursor: grab;'
+                ]
+            ];
+            
+            array_unshift($menu_items, $drag_handle);
+            return $menu_items;
+        }
+        
+        return $menu_items;
+    }
+}
+
+?>

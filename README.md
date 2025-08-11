@@ -1,20 +1,86 @@
-# blÖcks
+# BLOECKS
 
-Adds several features to REDAXO’s content modules:
+Schlankes REDAXO AddOn für Copy / Cut / Paste und Drag & Drop Sortierung von Slices.
 
-<img src="https://raw.githubusercontent.com/FriendsOfREDAXO/bloecks/assets/bloecks_01.png" alt="Screenshot" style="width: 100%; max-width: 1000px; margin: 10px 0 30px 0;">
+## Features
+- Slice kopieren, ausschneiden (Cut) und an beliebiger Position einfügen
+- Drag & Drop Neuordnung (SortableJS v1.15.6, nur im Backend)
+- Granulare Rechte: `bloecks[]`, `bloecks[copy]`, `bloecks[order]`, `bloecks[settings]`
+- CSRF-Schutz für alle API-Operationen
+- Minimaler CSS-Footprint, orientiert sich an Core-Styles
 
-* __Status__  
-  Implements `online` and `offline` status for blocks so you can show or hide them on your website. _(Deprecated as of REDAXO 5.10)_
-* __Drag & Drop__  
-  Change the order of the content blocks within an article with your mouse pointer.
-* __Cut & Copy__  
-  Content blocks of an article can be cut or copied to paste into other articles.
+## Installation
+1. AddOn in `redaxo/src/addons` legen (oder über Installer bereitstellen)
+2. Im Backend aktivieren
+3. Alte AddOns `bloecks_legacy` und ggf. `slice_columns` deaktivieren (Konflikt wird verhindert)
 
-See plugin pages for further information.  
-🦖
+## Konfiguration
+Unter `AddOns -> BLOECKS -> Einstellungen`:
+- Copy & Paste aktivieren/deaktivieren
+- Drag & Drop aktivieren/deaktivieren
+- Templates und Module per ID ausschließen (Pipe `|` getrennt)
 
-#### Credits
+## Nutzung
+- Buttons erscheinen im Slice-Menü (Copy, Cut, Paste)
+- Drag & Drop über die Panel-Heading Fläche
+- Cut: Kopiert Slice und löscht Original beim Einfügen
+- Paste vor Ziel: Einfügen vor dem Slice dessen Menü genutzt wurde
 
-BlÖcks was originally developed by [Thomas Göllner](https://github.com/tgoellner). Hence the Ö thing.  
-It’s maintained and further developed by [Friends Of REDAXO](https://github.com/FriendsOfREDAXO/bloecks). Hence the FOR thing.
+## Sicherheit
+- CSRF Token Pflicht (`rex_csrf_token` Namespace `bloecks`)
+- Rechteprüfung in jedem API-Endpunkt
+
+## API Endpoints (intern via `rex-api-call=bloecks`)
+| Funktion        | Parameter                                        | Beschreibung |
+|-----------------|--------------------------------------------------|--------------|
+| copy_slice      | slice_id                                         | Speichert Slice-Daten in Session |
+| paste_slice     | article_id, clang, target_slice?                 | Fügt kopierten Slice ein (vor target_slice oder ans Ende) |
+| update_order    | article, clang, order (JSON Array von Slice-IDs) | Aktualisiert Reihenfolge |
+| delete_slice    | slice_id                                         | Löscht Slice (für Cut) |
+
+## Rechte-Matrix
+| Aktion              | Benötigtes Recht |
+|---------------------|------------------|
+| Copy/Cut/Paste       | bloecks[] oder bloecks[copy] |
+| Drag & Drop Sort     | bloecks[] oder bloecks[order] |
+| Einstellungen sehen  | bloecks[] oder bloecks[settings] |
+
+## Roadmap / Ideen
+- Optional: Mehrfach-Auswahl (Batch Copy)
+- Optional: Export/Import zwischen Instanzen
+- Optionale Tastaturkürzel (⌘C / ⌘V innerhalb Content-Kontext)
+- Optional: JSON Response Standardisierung mit `rex_response::sendJson`
+
+## Entwicklung
+
+### Dependencies
+- PHP >= 8.1
+- Node.js >= 16 (für SortableJS Updates)
+- SortableJS v1.15.6 (via npm)
+
+### Development Setup
+```bash
+# Im AddOn-Verzeichnis
+npm install
+npm run copy-assets
+```
+
+### SortableJS aktualisieren
+```bash
+npm run update-sortable
+```
+
+Siehe [`DEVELOPMENT.md`](DEVELOPMENT.md) für detaillierte Anweisungen.
+
+### Architektur
+- Kein Frontend-Eingriff (nur Backend Bearbeitung)
+- JS init über `rex:ready`
+- Session-basierte Zwischenablage
+- REDAXO Extension Points für nahtlose Integration
+
+## Changelog
+### 1.0.0
+Initiale schlanke Version (Copy/Cut/Paste + Drag & Drop).
+
+## Lizenz
+MIT
