@@ -7,7 +7,7 @@ class bloecks_backend
     /**
      * Initialize the backend functionality
      */
-    public static function init()
+    public static function init(): void
     {
         if (!rex::getUser()) return;
 
@@ -54,7 +54,7 @@ class bloecks_backend
     /**
      * Add copy/cut/paste buttons to slice menu
      */
-    public static function addButtons(rex_extension_point $ep)
+    public static function addButtons(rex_extension_point $ep): array
     {
         $addon = rex_addon::get('bloecks');
         $user = rex::getUser();
@@ -88,7 +88,7 @@ class bloecks_backend
             }
         }
         
-        $clipboard = $_SESSION['bloecks_clipboard'] ?? null;
+        $clipboard = rex_session('bloecks_clipboard', 'array', null);
         $isSource = $clipboard && (int)$clipboard['source_slice_id'] === (int)$sliceId;
         
         $baseParams = [
@@ -165,7 +165,7 @@ class bloecks_backend
     /**
      * Add paste button to module select menu when no slices exist yet
      */
-    public static function addPasteToModuleSelect(rex_extension_point $ep)
+    public static function addPasteToModuleSelect(rex_extension_point $ep): string
     {
         $addon = rex_addon::get('bloecks');
         $user = rex::getUser();
@@ -174,7 +174,7 @@ class bloecks_backend
         if (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]')) return $ep->getSubject();
         
         // Only show paste button if there's something in clipboard
-        $clipboard = $_SESSION['bloecks_clipboard'] ?? null;
+        $clipboard = rex_session('bloecks_clipboard', 'array', null);
         if (!$clipboard) return $ep->getSubject();
         
         $articleId = rex_request('article_id', 'int');
@@ -257,7 +257,7 @@ class bloecks_backend
     /**
      * Process copy/cut/paste actions
      */
-    public static function process(rex_extension_point $ep)
+    public static function process(rex_extension_point $ep): void
     {
         $action = rex_request('bloecks_action', 'string');
         if (!$action) return;
@@ -319,7 +319,7 @@ class bloecks_backend
                 $moduleRow = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$row['module_id']]);
                 $moduleName = $moduleRow ? $moduleRow[0]['name'] : 'Unbekanntes Modul';
                 
-                $_SESSION['bloecks_clipboard'] = [
+                rex_set_session('bloecks_clipboard', [
                     'data' => $data,
                     'source_slice_id' => $sliceId,
                     'action' => $action,
@@ -330,13 +330,14 @@ class bloecks_backend
                         'article_id' => $row['article_id'],
                         'clang_id' => $row['clang_id']
                     ]
-                ];
+                ]);
                 
                 $msg = rex_view::success('Slice ' . ($action === 'cut' ? 'ausgeschnitten' : 'kopiert'));
                 break;
                 
             case 'paste':
-                if (!isset($_SESSION['bloecks_clipboard']['data'])) {
+                $clipboard = rex_session('bloecks_clipboard', 'array', null);
+                if (!$clipboard || !isset($clipboard['data'])) {
                     $msg = rex_view::warning('Zwischenablage ist leer');
                     break;
                 }
@@ -351,7 +352,7 @@ class bloecks_backend
                     break;
                 }
                 
-                $data = $_SESSION['bloecks_clipboard']['data'];
+                $data = $clipboard['data'];
                 
                 // Check if user has content edit permissions for target article
                 if (!self::hasContentEditPermission($articleId, $clang, $data['module_id'])) {
@@ -408,12 +409,12 @@ class bloecks_backend
                     $newSliceId = $ins->getLastId();
                     
                     // If cut, delete original slice
-                    if ($_SESSION['bloecks_clipboard']['action'] === 'cut') {
-                        $srcId = (int)$_SESSION['bloecks_clipboard']['source_slice_id'];
+                    if ($clipboard['action'] === 'cut') {
+                        $srcId = (int)$clipboard['source_slice_id'];
                         if ($srcId) {
                             rex_content_service::deleteSlice($srcId);
                         }
-                        unset($_SESSION['bloecks_clipboard']);
+                        rex_unset_session('bloecks_clipboard');
                     }
                     
                     rex_article_cache::delete($articleId, $clang);
@@ -435,7 +436,7 @@ class bloecks_backend
     /**
      * Check if template or module is excluded from BLOECKS functionality
      */
-    public static function isExcluded($articleId, $clang, $moduleId)
+    public static function isExcluded($articleId, $clang, $moduleId): bool
     {
         $addon = rex_addon::get('bloecks');
         
@@ -467,36 +468,34 @@ class bloecks_backend
      * Clear clipboard at session start for security
      * This ensures clipboard is cleared on login/logout/session restart
      */
-    public static function clearClipboardOnSessionStart()
+    public static function clearClipboardOnSessionStart(): void
     {
         // Check if this is a fresh session or no user logged in
-        if (!rex::getUser() || !isset($_SESSION['bloecks_session_started'])) {
+        if (!rex::getUser() || rex_session('bloecks_session_started', 'bool', false) === false) {
             self::clearClipboard();
-            $_SESSION['bloecks_session_started'] = true;
+            rex_set_session('bloecks_session_started', true);
         }
         
         // Also clear on logout detection
         if (rex_request('logout') || rex_be_controller::getCurrentPagePart(1) === 'login') {
             self::clearClipboard();
-            unset($_SESSION['bloecks_session_started']);
+            rex_unset_session('bloecks_session_started');
         }
     }
     
     /**
      * Clear all clipboard data from session
      */
-    public static function clearClipboard()
+    public static function clearClipboard(): void
     {
-        if (isset($_SESSION['bloecks_clipboard'])) {
-            unset($_SESSION['bloecks_clipboard']);
-        }
+        rex_unset_session('bloecks_clipboard');
     }
     
     /**
      * Check if user has content edit permissions for article/template/module
      * Based on REDAXO structure content permissions
      */
-    public static function hasContentEditPermission($articleId, $clang, $moduleId = null)
+    public static function hasContentEditPermission($articleId, $clang, $moduleId = null): bool
     {
         $user = rex::getUser();
         

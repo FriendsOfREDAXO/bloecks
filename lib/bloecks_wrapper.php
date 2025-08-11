@@ -5,7 +5,7 @@ class bloecks_wrapper
     /**
      * Add drag-drop wrapper around slice content - similar to slice_columns
      */
-    public static function addDragDropWrapper(rex_extension_point $ep)
+    public static function addDragDropWrapper(rex_extension_point $ep): string
     {
         $subject = $ep->getSubject();
         $slice_id = $ep->getParam('slice_id');
@@ -66,7 +66,7 @@ class bloecks_wrapper
     /**
      * Add drag handle to slice menu
      */
-    public static function addDragHandle(rex_extension_point $ep)
+    public static function addDragHandle(rex_extension_point $ep): mixed
     {
         // Check if drag & drop is enabled
         $addon = rex_addon::get('bloecks');

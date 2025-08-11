@@ -6,7 +6,7 @@ class rex_api_bloecks extends rex_api_function
 {
     protected $published = false;  // Aufruf nur aus dem Backend
 
-    public function execute()
+    public function execute(): never
     {
         $function = rex_request('function', 'string', '');
 
