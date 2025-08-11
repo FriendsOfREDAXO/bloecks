@@ -42,11 +42,11 @@ class bloecks_wrapper
         // Wrap ALL slices, not just slice-output
         if (strpos($subject, 'rex-slice') !== false) {
             // Beautiful drag handle with FontAwesome 6 grip icon - optimized position at 6px (Regular variant)
-            $dragHandle = '<div class="bloecks-drag-handle" style="position: absolute; top: 6px; left: 0px; background: #6c757d; color: white; padding: 8px; cursor: grab; z-index: 1000; border-radius: 0 4px 4px 0; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px;" title="' . rex_i18n::msg('bloecks_drag_move') . '"><i class="far fa-grip-vertical" style="font-size: 12px;"></i></div>';
+            $dragHandle = '<div class="bloecks-drag-handle" title="' . rex_i18n::msg('bloecks_drag_move') . '"><i class="far fa-grip-vertical"></i></div>';
             
             // Create wrapper similar to slice_columns - remove border completely
             $wrapper = sprintf(
-                '<li class="bloecks-dragdrop" data-slice-id="%d" data-article-id="%d" data-clang-id="%d" style="margin: 5px 0; position: relative;">
+                '<li class="bloecks-dragdrop" data-slice-id="%d" data-article-id="%d" data-clang-id="%d">
                     %s
                     <ul class="bloecks-slice-container">%s</ul>
                 </li>',
@@ -78,19 +78,18 @@ class bloecks_wrapper
         
         // Simple drag handle - just add HTML string for now
         if (is_string($menu_items)) {
-            $drag_handle = '<a href="#" class="bloecks-drag-handle" style="background: red; color: white; padding: 5px; margin: 2px; display: inline-block;">' . rex_i18n::msg('bloecks_drag_handle') . '</a>';
+            $drag_handle = '<a href="#" class="bloecks-drag-handle-link">' . rex_i18n::msg('bloecks_drag_handle') . '</a>';
             return $drag_handle . $menu_items;
         }
         
         // If it's an array, try to add drag handle
         if (is_array($menu_items)) {
             $drag_handle = [
-                'label' => '<span style="background: red; color: white; padding: 3px;">' . rex_i18n::msg('bloecks_drag_handle') . '</span>',
+                'label' => '<span class="bloecks-drag-handle-label">' . rex_i18n::msg('bloecks_drag_handle') . '</span>',
                 'url' => '#',
                 'attributes' => [
                     'class' => ['bloecks-drag-handle'],
                     'title' => rex_i18n::msg('bloecks_drag_move'),
-                    'style' => 'cursor: grab;'
                 ]
             ];
             
