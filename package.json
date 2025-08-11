@@ -1,19 +1,31 @@
 {
-  "name": "Redaxo5_Bloecks",
-  "version": "0.1.0",
-  "author": "Thomas Goellner",
-  "private": true,
-  "description": "",
-  "devDependencies": {
-    "grunt": "*",
-    "grunt-contrib-less": "*",
-    "less-plugin-autoprefix": "*",
-    "grunt-contrib-concat": "*",
-    "grunt-contrib-uglify": "*",
-    "grunt-contrib-watch": "*",
-    "grunt-shell": "*",
-    "grunt-text-replace": "*",
-    "load-grunt-tasks": "*"
+  "name": "redaxo-bloecks-addon",
+  "version": "1.0.0",
+  "description": "REDAXO AddOn for copy/paste, cut and drag & drop of slices",
+  "main": "index.js",
+  "scripts": {
+    "install-deps": "npm install",
+    "update-sortable": "npm update sortablejs && npm run copy-assets",
+    "copy-assets": "cp node_modules/sortablejs/Sortable.min.js assets/js/sortable.min.js",
+    "build": "npm run copy-assets",
+    "dev": "npm run copy-assets && echo 'Assets copied for development'"
   },
-  "theme": "slicegrid"
+  "dependencies": {
+    "sortablejs": "^1.15.2"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "redaxo",
+    "addon",
+    "cms",
+    "drag-drop",
+    "copy-paste",
+    "slice"
+  ],
+  "author": "BLOECKS AddOn Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+  "url": "https://github.com/FriendsOfREDAXO/bloecks.git"
+  }
 }

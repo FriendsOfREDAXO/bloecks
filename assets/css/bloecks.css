@@ -1,0 +1,161 @@
+/**
+ * BLOECKS Addon - CSS Styles for Drag & Drop
+ */
+
+/* Beautiful drag handle styling */
+.bloecks-drag-handle {
+    position: absolute;
+    top: 6px;
+    left: 0px;
+    background: #6c757d;
+    color: white;
+    padding: 8px;
+    cursor: grab !important;
+    z-index: 1000;
+    border-radius: 0 4px 4px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    transition: all 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.bloecks-drag-handle i {
+    font-size: 12px;
+}
+
+.bloecks-drag-handle:hover {
+    background: #495057 !important;
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.bloecks-drag-handle:active {
+    cursor: grabbing !important;
+    transform: scale(0.95);
+}
+
+/* Alternative drag handle styles for menu items */
+.bloecks-drag-handle-link {
+    background: red;
+    color: white;
+    padding: 5px;
+    margin: 2px;
+    display: inline-block;
+    text-decoration: none;
+    border-radius: 3px;
+    cursor: grab;
+}
+
+.bloecks-drag-handle-label {
+    background: red;
+    color: white;
+    padding: 3px;
+    border-radius: 3px;
+}
+
+/* Remove drag cursor from slice titles and panels */
+.bloecks-dragdrop .panel-heading,
+.bloecks-dragdrop .panel-title,
+.bloecks-dragdrop .rex-slice-header,
+.bloecks-dragdrop .panel-heading *,
+.bloecks-dragdrop .panel-title *,
+.bloecks-dragdrop .rex-slice-header * {
+    cursor: default !important;
+}
+
+/* Wrapper styling */
+.bloecks-dragdrop {
+    margin: 5px 0;
+    position: relative;
+    transition: all 0.2s ease;
+    list-style: none;
+    padding: 0;
+}
+
+.bloecks-dragdrop:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.bloecks-slice-container {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+/* Smooth dragging effects */
+.bloecks-sortable-ghost {
+    opacity: 0.4;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    transform: none !important;
+}
+
+.bloecks-sortable-chosen {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    transform: none !important;
+}
+
+.bloecks-dragging {
+    opacity: 0.9;
+    z-index: 1001;
+    box-shadow: 0 4px 40px rgba(233, 239, 236, 0.691);
+    border: 4px solid #007bff6c;
+    transform: none !important;
+    position: relative !important;
+}
+
+/* Success/Error Feedback */
+.bloecks-feedback {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    z-index: 10000;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.bloecks-feedback-success {
+    background-color: #28a745;
+}
+
+.bloecks-feedback-error {
+    background-color: #dc3545;
+}
+
+/* FontAwesome 6 Icon Fix - ensure icons are visible (Regular variants) */
+.rex-icon-copy::before,
+.rex-icon-cut::before,
+.rex-icon-paste::before {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 5 Free", "FontAwesome" !important;
+    font-weight: 400 !important; /* Regular weight for fa-regular */
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-transform: none !important;
+    line-height: 1 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Specific icon codes for FontAwesome 6 Regular */
+.rex-icon-copy::before {
+    content: "\f0c5" !important; /* fa-regular fa-copy */
+}
+
+.rex-icon-cut::before {
+    content: "\f0c4" !important; /* fa-regular fa-scissors */
+}
+
+.rex-icon-paste::before {
+    content: "\f0ea" !important; /* fa-regular fa-paste */
+}

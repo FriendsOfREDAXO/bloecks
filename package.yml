@@ -1,27 +1,39 @@
 package: bloecks
-version: '4.0.2'
+version: '5.0.0-beta1'
 author: 'Friends Of REDAXO'
 supportpage: https://github.com/FriendsOfREDAXO/bloecks
 
 page:
-    title: translate:navigation
+    title: 'translate:bloecks_navigation'
     perm: bloecks[]
     pjax: false
-    icon: rex-icon rex-icon-template
+    icon: rex-icon fa-th-large
+    subPath: settings.php
     subpages:
-        overview:
-            title: 'translate:overview'
+        settings:
+            title: 'translate:bloecks_settings'
+            icon: rex-icon fa-cog
         docs:
-            title: translate:docs
-            subPath: README.developers.md
+            title: 'translate:bloecks_docs'
+            subPath: README.md
             icon: rex-icon fa-book
             itemclass: pull-right
 
 requires:
     packages:
         structure/content: '^2.1.0'
-    redaxo: ^5.5.0
-    php: '>=7'
+    redaxo: ^5.18
+    php: '>=8.1'
+
+default_config:
+    enable_copy_paste: false
+    enable_drag_drop: false
+    templates_exclude: ''
+    modules_exclude: ''
+
 
 installer_ignore:
     - node_modules
+    - .git
+    - .github
+    - .DS_Store
