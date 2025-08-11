@@ -1,4 +1,4 @@
-# BLOECKS
+# blÖcks
 
 Schlankes REDAXO AddOn für Copy/Cut/Paste und Drag & Drop Sortierung von Slices.
 
