@@ -1,6 +1,16 @@
 <?php
 
-class bloecks_wrapper
+namespace FriendsOfRedaxo\Bloecks;
+
+use rex_extension_point;
+use rex_request;
+use rex_addon;
+use rex_article_slice;
+use rex_i18n;
+
+use function rex_request;
+
+class Wrapper
 {
     /**
      * Add drag-drop wrapper around slice content - similar to slice_columns
@@ -29,7 +39,7 @@ class bloecks_wrapper
         }
         
         // Check for exclusions using the backend method
-        if (bloecks_backend::isExcluded($article_id, $clang_id, $module_id)) {
+        if (Backend::isExcluded($article_id, $clang_id, $module_id)) {
             return $subject;
         }
         

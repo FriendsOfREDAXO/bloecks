@@ -1,8 +1,19 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks;
+
+use rex_api_function;
+use rex_request;
+use rex_sql;
+use rex;
+use rex_plugin;
+use rex_article_slice_history;
+use rex_article_cache;
+
 /**
- * rex_api_bloecks class - API endpoint for drag & drop ordering (exactly like slice_columns sorter.php)
+ * API endpoint for drag & drop ordering (exactly like slice_columns sorter.php)
  */
-class rex_api_bloecks extends rex_api_function
+class Api extends rex_api_function
 {
     protected $published = false;  // Aufruf nur aus dem Backend
 

@@ -1,8 +1,30 @@
 <?php
+
+namespace FriendsOfRedaxo\Bloecks;
+
+use rex;
+use rex_addon;
+use rex_extension;
+use rex_extension_point;
+use rex_be_controller;
+use rex_view;
+use rex_csrf_token;
+use rex_url;
+use rex_request;
+use rex_sql;
+use rex_article;
+use rex_sql_exception;
+use rex_article_cache;
+use rex_content_service;
+
+use function rex_session;
+use function rex_set_session;
+use function rex_unset_session;
+
 /**
- * bloecks_backend class - Backend functionality for BLOECKS addon
+ * Backend functionality for BLOECKS addon
  */
-class bloecks_backend
+class Backend
 {
     /**
      * Initialize the backend functionality
