@@ -64,6 +64,10 @@ npm run update-sortable
 ## Lizenz
 MIT
 
+**Lead**
+
+[Thomas Skerbis](https://github.com/skerbis)  
+
 #### DankeschÖn
 
 BlÖcks ist ursprünglich von [Thomas Göllner](https://github.com/tgoellner) entwickelt worden. Deshalb die Sache mit dem Ö.
