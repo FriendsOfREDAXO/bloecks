@@ -525,12 +525,7 @@ class Backend
         
         // Admin users always have permission
         if ($user->isAdmin()) return true;
-        
-        // Check basic content edit permissions
-        if (!$user->hasPerm('content[]')) {
-            return false;
-        }
-        
+               
         // Check if user has structure permission for this article/category
         $article = rex_article::get($articleId, $clang);
         if (!$article) return false;
