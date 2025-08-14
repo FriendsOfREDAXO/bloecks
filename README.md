@@ -58,9 +58,9 @@ npm run update-sortable
 ## Lizenz
 MIT
 
-**Lead**
-
-[Thomas Skerbis](https://github.com/skerbis)  
+**Leads**
+- [Thomas Skerbis](https://github.com/skerbis) 
+- [Alexander Walther] (https://github.com/alxndr-w/)
 
 #### DankeschÖn
 
