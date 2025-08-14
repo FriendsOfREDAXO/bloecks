@@ -138,7 +138,6 @@
 .rex-icon-cut::before,
 .rex-icon-paste::before {
     font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 5 Free", "FontAwesome" !important;
-    font-weight: 400 !important; /* Regular weight for fa-regular */
     font-style: normal !important;
     font-variant: normal !important;
     text-transform: none !important;
