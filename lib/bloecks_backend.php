@@ -492,6 +492,11 @@ class Backend
      */
     public static function clearClipboardOnSessionStart(): void
     {
+        // Only access session if it's active to prevent "Session not started" errors
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return;
+        }
+        
         // Check if this is a fresh session or no user logged in
         if (!rex::getUser() || rex_session('bloecks_session_started', 'bool', false) === false) {
             self::clearClipboard();
@@ -510,7 +515,10 @@ class Backend
      */
     public static function clearClipboard(): void
     {
-        rex_unset_session('bloecks_clipboard');
+        // Only clear session data if session is active
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            rex_unset_session('bloecks_clipboard');
+        }
     }
     
     /**
