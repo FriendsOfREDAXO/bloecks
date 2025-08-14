@@ -22,7 +22,7 @@ bloecks_copy_slice = Copy slice
 bloecks_cut_slice = Cut slice
 bloecks_paste_slice = Paste slice (after this)
 bloecks_paste_from_clipboard = Paste slice from clipboard
-bloecks_paste_module = Paste: %s
+bloecks_paste_module = Paste: {0}
 bloecks_action_copied = Copied
 bloecks_action_cut = Cut
 bloecks_action_paste = Paste
@@ -38,7 +38,7 @@ bloecks_error_no_module_permission = No permission for this module
 bloecks_error_no_content_permission = No permission to edit this content
 bloecks_error_clipboard_empty = Clipboard is empty
 bloecks_error_missing_parameters = Missing parameters
-bloecks_error_insert_failed = Error inserting: %s
+bloecks_error_insert_failed = Error inserting: {0}
 bloecks_error_unknown_module = Unknown module
 bloecks_error_unknown_article = Unknown article
 

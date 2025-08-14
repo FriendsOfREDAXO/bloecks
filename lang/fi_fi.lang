@@ -22,7 +22,7 @@ bloecks_copy_slice = Kopioi slice
 bloecks_cut_slice = Leikkaa slice
 bloecks_paste_slice = Liitä slice (tämän jälkeen)
 bloecks_paste_from_clipboard = Liitä slice leikepöydältä
-bloecks_paste_module = Liitä: %s
+bloecks_paste_module = Liitä: {0}
 bloecks_action_copied = Kopioitu
 bloecks_action_cut = Leikattu
 bloecks_action_paste = Liitä
@@ -38,7 +38,7 @@ bloecks_error_no_module_permission = Ei käyttöoikeutta tähän moduuliin
 bloecks_error_no_content_permission = Ei käyttöoikeutta muokata tätä sisältöä
 bloecks_error_clipboard_empty = Leikepöytä on tyhjä
 bloecks_error_missing_parameters = Puuttuvat parametrit
-bloecks_error_insert_failed = Virhe lisäyksessä: %s
+bloecks_error_insert_failed = Virhe lisäyksessä: {0}
 bloecks_error_unknown_module = Tuntematon moduuli
 bloecks_error_unknown_article = Tuntematon artikkeli
 
