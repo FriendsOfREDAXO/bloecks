@@ -16,10 +16,9 @@ use rex_article;
 use rex_sql_exception;
 use rex_article_cache;
 use rex_content_service;
+use rex_exception;
 
-use function rex_session;
-use function rex_set_session;
-use function rex_unset_session;
+
 
 /**
  * Backend functionality for BLOECKS addon
@@ -110,7 +109,12 @@ class Backend
             }
         }
         
-        $clipboard = rex_session('bloecks_clipboard', 'array', null);
+        try {
+            $clipboard = rex_request::session('bloecks_clipboard', 'array', null);
+        } catch (rex_exception $e) {
+            // Session not active yet, skip clipboard functionality
+            $clipboard = null;
+        }
         $isSource = $clipboard && (int)$clipboard['source_slice_id'] === (int)$sliceId;
         
         $baseParams = [
@@ -196,7 +200,12 @@ class Backend
         if (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]')) return $ep->getSubject();
         
         // Only show paste button if there's something in clipboard
-        $clipboard = rex_session('bloecks_clipboard', 'array', null);
+        try {
+            $clipboard = rex_request::session('bloecks_clipboard', 'array', null);
+        } catch (rex_exception $e) {
+            // Session not active yet, no clipboard available
+            $clipboard = null;
+        }
         if (!$clipboard) return $ep->getSubject();
         
         $articleId = rex_request('article_id', 'int');
@@ -341,24 +350,36 @@ class Backend
                 $moduleRow = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$row['module_id']]);
                 $moduleName = $moduleRow ? $moduleRow[0]['name'] : 'Unbekanntes Modul';
                 
-                rex_set_session('bloecks_clipboard', [
-                    'data' => $data,
-                    'source_slice_id' => $sliceId,
-                    'action' => $action,
-                    'timestamp' => time(),
-                    'source_info' => [
-                        'article_name' => $sourceArticle ? $sourceArticle->getName() : 'Unbekannter Artikel',
-                        'module_name' => $moduleName,
-                        'article_id' => $row['article_id'],
-                        'clang_id' => $row['clang_id']
-                    ]
-                ]);
+                try {
+                    rex_request::setSession('bloecks_clipboard', [
+                        'data' => $data,
+                        'source_slice_id' => $sliceId,
+                        'action' => $action,
+                        'timestamp' => time(),
+                        'source_info' => [
+                            'article_name' => $sourceArticle ? $sourceArticle->getName() : 'Unbekannter Artikel',
+                            'module_name' => $moduleName,
+                            'article_id' => $row['article_id'],
+                            'clang_id' => $row['clang_id']
+                        ]
+                    ]);
+                } catch (rex_exception $e) {
+                    // Session not active, cannot save clipboard
+                    $msg = rex_view::warning('Session nicht aktiv - Zwischenablage kann nicht gespeichert werden');
+                    break;
+                }
                 
                 $msg = rex_view::success('Slice ' . ($action === 'cut' ? 'ausgeschnitten' : 'kopiert'));
                 break;
                 
             case 'paste':
-                $clipboard = rex_session('bloecks_clipboard', 'array', null);
+                try {
+                    $clipboard = rex_request::session('bloecks_clipboard', 'array', null);
+                } catch (rex_exception $e) {
+                    // Session not active, no clipboard available
+                    $msg = rex_view::warning('Session nicht aktiv - Zwischenablage ist nicht verfügbar');
+                    break;
+                }
                 if (!$clipboard || !isset($clipboard['data'])) {
                     $msg = rex_view::warning('Zwischenablage ist leer');
                     break;
@@ -436,7 +457,11 @@ class Backend
                         if ($srcId) {
                             rex_content_service::deleteSlice($srcId);
                         }
-                        rex_unset_session('bloecks_clipboard');
+                        try {
+                            rex_request::unsetSession('bloecks_clipboard');
+                        } catch (rex_exception $e) {
+                            // Session not active, cannot clear clipboard
+                        }
                     }
                     
                     rex_article_cache::delete($articleId, $clang);
@@ -492,21 +517,22 @@ class Backend
      */
     public static function clearClipboardOnSessionStart(): void
     {
-        // Only access session if it's active to prevent "Session not started" errors
-        if (session_status() !== PHP_SESSION_ACTIVE) {
+        try {
+            // Check if this is a fresh session or no user logged in
+            $sessionStarted = rex_request::session('bloecks_session_started', 'bool', false);
+            if (!rex::getUser() || $sessionStarted === false) {
+                self::clearClipboard();
+                rex_request::setSession('bloecks_session_started', true);
+            }
+            
+            // Also clear on logout detection
+            if (rex_request('logout') || rex_be_controller::getCurrentPagePart(1) === 'login') {
+                self::clearClipboard();
+                rex_request::unsetSession('bloecks_session_started');
+            }
+        } catch (rex_exception $e) {
+            // Session not started yet, nothing to clear
             return;
-        }
-        
-        // Check if this is a fresh session or no user logged in
-        if (!rex::getUser() || rex_session('bloecks_session_started', 'bool', false) === false) {
-            self::clearClipboard();
-            rex_set_session('bloecks_session_started', true);
-        }
-        
-        // Also clear on logout detection
-        if (rex_request('logout') || rex_be_controller::getCurrentPagePart(1) === 'login') {
-            self::clearClipboard();
-            rex_unset_session('bloecks_session_started');
         }
     }
     
@@ -515,9 +541,10 @@ class Backend
      */
     public static function clearClipboard(): void
     {
-        // Only clear session data if session is active
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            rex_unset_session('bloecks_clipboard');
+        try {
+            rex_request::unsetSession('bloecks_clipboard');
+        } catch (rex_exception $e) {
+            // Session not active, nothing to clear
         }
     }
     
