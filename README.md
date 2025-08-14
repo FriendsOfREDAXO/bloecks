@@ -22,7 +22,7 @@ Schlankes REDAXO AddOn für Copy/Cut/Paste und Drag & Drop Sortierung von Slices
 |----------|-------|
 | Copy/Cut/Paste | bloecks[] oder bloecks[copy] |
 | Drag & Drop | bloecks[] oder bloecks[order] |
-| Einstellungen | bloecks[] oder bloecks[settings] |
+| Einstellungen | nur Admin|
 
 ## Entwicklung
 ```bash
