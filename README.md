@@ -30,12 +30,6 @@ npm install
 npm run copy-assets
 ```
 
-## Roadmap / Ideen
-- Optional: Mehrfach-Auswahl (Batch Copy)
-- Optional: Export/Import zwischen Instanzen
-- Optionale Tastaturkürzel (⌘C / ⌘V innerhalb Content-Kontext)
-- Optional: JSON Response Standardisierung mit `rex_response::sendJson`
-
 ## Entwicklung
 
 ### Dependencies
