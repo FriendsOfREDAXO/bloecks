@@ -52,7 +52,7 @@ class Wrapper
         // Wrap ALL slices, not just slice-output
         if (strpos($subject, 'rex-slice') !== false) {
             // Beautiful drag handle with FontAwesome 6 grip icon - optimized position at 6px (Regular variant)
-            $dragHandle = '<div class="bloecks-drag-handle" title="' . rex_i18n::msg('bloecks_drag_move') . '"><i class="far fa-grip-vertical"></i></div>';
+            $dragHandle = '<div class="bloecks-drag-handle" title="' . rex_i18n::msg('bloecks_drag_move') . '"><i class="fa fa-grip-vertical"></i></div>';
             
             // Create wrapper similar to slice_columns - remove border completely
             $wrapper = sprintf(
