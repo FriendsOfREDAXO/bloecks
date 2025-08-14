@@ -38,5 +38,6 @@ jobs:
 
             # commit and push fixed files
             -   uses: stefanzweifel/git-auto-commit-action@v4
+                if: github.event_name == 'push'
                 with:
                     commit_message: Apply php-cs-fixer changes
