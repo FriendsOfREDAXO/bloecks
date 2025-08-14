@@ -6,7 +6,6 @@
 
 use FriendsOfRedaxo\Bloecks\Api;
 use FriendsOfRedaxo\Bloecks\Backend;
-use FriendsOfRedaxo\Bloecks\Wrapper;
 
 // Register API explicitly
 rex_api_function::register('bloecks', Api::class);

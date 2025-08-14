@@ -43,8 +43,8 @@ class Backend
         $dragDropEnabled = (bool) $addon->getConfig('enable_drag_drop', false);
 
         // Only register extension points if features are enabled AND user has permissions
-        if ($copyPasteEnabled && 
-            (rex::getUser()->hasPerm('bloecks[]') || rex::getUser()->hasPerm('bloecks[copy]'))) {
+        if ($copyPasteEnabled
+            && (rex::getUser()->hasPerm('bloecks[]') || rex::getUser()->hasPerm('bloecks[copy]'))) {
             // Register slice menu extensions for copy/paste
             rex_extension::register('STRUCTURE_CONTENT_SLICE_MENU', self::addButtons(...));
 
@@ -56,8 +56,8 @@ class Backend
         }
 
         // Register drag & drop extension points if enabled AND user has permissions
-        if ($dragDropEnabled && 
-            (rex::getUser()->hasPerm('bloecks[]') || rex::getUser()->hasPerm('bloecks[order]'))) {
+        if ($dragDropEnabled
+            && (rex::getUser()->hasPerm('bloecks[]') || rex::getUser()->hasPerm('bloecks[order]'))) {
             rex_extension::register('SLICE_SHOW', Wrapper::addDragDropWrapper(...), rex_extension::EARLY);
             rex_extension::register('SLICE_MENU', Wrapper::addDragHandle(...));
         }
@@ -65,10 +65,10 @@ class Backend
         // Load assets on content edit pages ONLY if features are enabled
         if ('content' === rex_be_controller::getCurrentPagePart(1)) {
             // Only load assets if at least one feature is enabled and user has permissions
-            $loadCopyPasteAssets = $copyPasteEnabled && 
-                (rex::getUser()->hasPerm('bloecks[]') || rex::getUser()->hasPerm('bloecks[copy]'));
-            $loadDragDropAssets = $dragDropEnabled && 
-                (rex::getUser()->hasPerm('bloecks[]') || rex::getUser()->hasPerm('bloecks[order]'));
+            $loadCopyPasteAssets = $copyPasteEnabled
+                && (rex::getUser()->hasPerm('bloecks[]') || rex::getUser()->hasPerm('bloecks[copy]'));
+            $loadDragDropAssets = $dragDropEnabled
+                && (rex::getUser()->hasPerm('bloecks[]') || rex::getUser()->hasPerm('bloecks[order]'));
 
             if ($loadCopyPasteAssets || $loadDragDropAssets) {
                 // JS config for drag & drop ordering
