@@ -44,4 +44,4 @@ bloecks_error_unknown_article = Unbekannter Artikel
 
 # API errors
 bloecks_api_error_missing_parameters = Fehlende Parameter
-bloecks_api_error_unknown_function = Unknown function
+bloecks_api_error_unknown_function = Unbekannte Funktion
