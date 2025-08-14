@@ -1,5 +1,7 @@
 <?php
 
+use FriendsOfRedaxo\Bloecks\Backend;
+
 /**
  * @deprecated Use FriendsOfRedaxo\Bloecks\Backend instead
  */
@@ -10,6 +12,6 @@ class bloecks
      */
     public static function init($ep = null)
     {
-        return \FriendsOfRedaxo\Bloecks\Backend::init();
+        return Backend::init();
     }
 }

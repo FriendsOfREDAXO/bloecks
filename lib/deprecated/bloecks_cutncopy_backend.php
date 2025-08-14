@@ -1,5 +1,7 @@
 <?php
 
+use FriendsOfRedaxo\Bloecks\Backend;
+
 /**
  * @deprecated cutncopy backend functionality is now integrated into FriendsOfRedaxo\Bloecks\Backend
  */
@@ -16,7 +18,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
     public static function init($ep = null)
     {
         // Cut/copy functionality is now integrated
-        return \FriendsOfRedaxo\Bloecks\Backend::init();
+        return Backend::init();
     }
 
     /**
@@ -33,7 +35,7 @@ class bloecks_cutncopy_backend extends bloecks_backend
     public static function deleteCookie()
     {
         // Cookies are no longer used - session-based clipboard now
-        \FriendsOfRedaxo\Bloecks\Backend::clearClipboard();
+        Backend::clearClipboard();
     }
 
     /**

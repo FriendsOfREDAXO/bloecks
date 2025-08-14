@@ -1,7 +1,8 @@
 <?php
+
 /** @var rex_addon $this */
 
-if(!rex::getUser()->hasPerm('bloecks[settings]')) {
+if (!rex::getUser()->hasPerm('bloecks[settings]')) {
     echo rex_view::error(rex_i18n::msg('bloecks_no_permission'));
     return;
 }
@@ -30,7 +31,7 @@ $content .= $form->getMessage();
 $content .= $form->get();
 
 $fragment = new rex_fragment();
-$fragment->setVar('class','info', false);
+$fragment->setVar('class', 'info', false);
 $fragment->setVar('title', rex_i18n::msg('bloecks_settings'), false);
 $fragment->setVar('body', $content, false);
 

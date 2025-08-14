@@ -57,7 +57,7 @@ abstract class bloecks_abstract
 
         if (!is_nan($slice_id) && $slice_id > 0) {
             $sql = rex_sql::factory();
-            $sql->setTable(rex::getTablePrefix().'article_slice');
+            $sql->setTable(rex::getTablePrefix() . 'article_slice');
             $sql->setWhere(['id' => $slice_id]);
             $sql->select();
 

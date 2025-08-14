@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Bloecks Overview Page
+ * Bloecks Overview Page.
  */
 
 // Standard-Index: Titel + Subpage laden

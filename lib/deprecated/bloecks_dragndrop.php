@@ -1,5 +1,7 @@
 <?php
 
+use FriendsOfRedaxo\Bloecks\Backend;
+
 /**
  * @deprecated dragndrop functionality is now integrated into FriendsOfRedaxo\Bloecks\Backend
  */
@@ -16,6 +18,6 @@ class bloecks_dragndrop extends bloecks_abstract
     public static function init($ep = null)
     {
         // Drag/drop functionality is now integrated
-        return \FriendsOfRedaxo\Bloecks\Backend::init();
+        return Backend::init();
     }
 }
