@@ -1,0 +1,47 @@
+bloecks_navigation = blÖcks
+bloecks_overview = Översikt
+bloecks_settings = Inställningar
+bloecks_docs = Dokumentation
+bloecks_enable_copy_paste = Aktivera Kopiera & Klistra in
+bloecks_enable_drag_drop = Aktivera Dra & Släpp
+bloecks_active = aktiv
+bloecks_templates_exclude = Uteslut mall-ID:n
+bloecks_modules_exclude = Uteslut modul-ID:n
+bloecks_csv_notice = Kommaseparerad lista med ID:n
+bloecks_no_permission = Ingen behörighet
+bloecks_feat_copy = Kopiera, klipp ut och klistra in slices
+bloecks_feat_order = Ordna om slices via dra & släpp
+bloecks_intro = Lättviktsverktyg för kopiera/klistra in, klipp ut och dra & släpp av slices.
+bloecks_enabled = Aktiverad
+bloecks_disabled = Inaktiverad
+bloecks_drag_move = Flytta slice
+bloecks_drag_handle = Flytta
+
+# Copy/Cut/Paste functionality
+bloecks_copy_slice = Kopiera slice
+bloecks_cut_slice = Klipp ut slice
+bloecks_paste_slice = Klistra in slice (efter denna)
+bloecks_paste_from_clipboard = Klistra in slice från urklipp
+bloecks_paste_module = Klistra in: {0}
+bloecks_action_copied = Kopierad
+bloecks_action_cut = Urklippt
+bloecks_action_paste = Klistra in
+
+# Success messages
+bloecks_slice_copied = Slice kopierad
+bloecks_slice_cut = Slice urklippt
+bloecks_slice_inserted = Slice infogad
+
+# Error messages
+bloecks_error_slice_not_found = Slice hittades inte
+bloecks_error_no_module_permission = Ingen behörighet för denna modul
+bloecks_error_no_content_permission = Ingen behörighet att redigera detta innehåll
+bloecks_error_clipboard_empty = Urklipp är tomt
+bloecks_error_missing_parameters = Saknade parametrar
+bloecks_error_insert_failed = Fel vid infogning: {0}
+bloecks_error_unknown_module = Okänd modul
+bloecks_error_unknown_article = Okänd artikel
+
+# API errors
+bloecks_api_error_missing_parameters = Saknade parametrar
+bloecks_api_error_unknown_function = Okänd funktion

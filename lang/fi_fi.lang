@@ -1,0 +1,47 @@
+bloecks_navigation = blÖcks
+bloecks_overview = Yleiskatsaus
+bloecks_settings = Asetukset
+bloecks_docs = Dokumentaatio
+bloecks_enable_copy_paste = Ota käyttöön Kopioi & Liitä
+bloecks_enable_drag_drop = Ota käyttöön Vedä & Pudota
+bloecks_active = aktiivinen
+bloecks_templates_exclude = Jätä pois mallien ID:t
+bloecks_modules_exclude = Jätä pois moduulien ID:t
+bloecks_csv_notice = Pilkuilla erotettu lista ID:istä
+bloecks_no_permission = Ei käyttöoikeutta
+bloecks_feat_copy = Kopioi, leikkaa ja liitä slicejä
+bloecks_feat_order = Järjestä slicejä uudelleen vetämällä ja pudottamalla
+bloecks_intro = Kevyt työkalu slicejen kopiointiin/liittämiseen, leikkaamiseen ja vetämiseen & pudottamiseen.
+bloecks_enabled = Käytössä
+bloecks_disabled = Pois käytöstä
+bloecks_drag_move = Siirrä slicea
+bloecks_drag_handle = Siirrä
+
+# Copy/Cut/Paste functionality
+bloecks_copy_slice = Kopioi slice
+bloecks_cut_slice = Leikkaa slice
+bloecks_paste_slice = Liitä slice (tämän jälkeen)
+bloecks_paste_from_clipboard = Liitä slice leikepöydältä
+bloecks_paste_module = Liitä: {0}
+bloecks_action_copied = Kopioitu
+bloecks_action_cut = Leikattu
+bloecks_action_paste = Liitä
+
+# Success messages
+bloecks_slice_copied = Slice kopioitu
+bloecks_slice_cut = Slice leikattu
+bloecks_slice_inserted = Slice lisätty
+
+# Error messages
+bloecks_error_slice_not_found = Slicea ei löydy
+bloecks_error_no_module_permission = Ei käyttöoikeutta tähän moduuliin
+bloecks_error_no_content_permission = Ei käyttöoikeutta muokata tätä sisältöä
+bloecks_error_clipboard_empty = Leikepöytä on tyhjä
+bloecks_error_missing_parameters = Puuttuvat parametrit
+bloecks_error_insert_failed = Virhe lisäyksessä: {0}
+bloecks_error_unknown_module = Tuntematon moduuli
+bloecks_error_unknown_article = Tuntematon artikkeli
+
+# API errors
+bloecks_api_error_missing_parameters = Puuttuvat parametrit
+bloecks_api_error_unknown_function = Tuntematon funktio

@@ -1,0 +1,47 @@
+bloecks_navigation = blÖcks
+bloecks_overview = Resumen
+bloecks_settings = Configuración
+bloecks_docs = Documentación
+bloecks_enable_copy_paste = Habilitar Copiar y Pegar
+bloecks_enable_drag_drop = Habilitar Arrastrar y Soltar
+bloecks_active = activo
+bloecks_templates_exclude = Excluir IDs de plantilla
+bloecks_modules_exclude = Excluir IDs de módulo
+bloecks_csv_notice = Lista de IDs separados por comas
+bloecks_no_permission = Sin permisos
+bloecks_feat_copy = Copiar, cortar y pegar slices
+bloecks_feat_order = Reordenar slices mediante arrastrar y soltar
+bloecks_intro = Herramienta ligera para copiar/pegar, cortar y arrastrar y soltar slices.
+bloecks_enabled = Habilitado
+bloecks_disabled = Deshabilitado
+bloecks_drag_move = Mover slice
+bloecks_drag_handle = Mover
+
+# Copy/Cut/Paste functionality
+bloecks_copy_slice = Copiar slice
+bloecks_cut_slice = Cortar slice
+bloecks_paste_slice = Pegar slice (después de esta)
+bloecks_paste_from_clipboard = Pegar slice desde el portapapeles
+bloecks_paste_module = Pegar: {0}
+bloecks_action_copied = Copiado
+bloecks_action_cut = Cortado
+bloecks_action_paste = Pegar
+
+# Success messages
+bloecks_slice_copied = Slice copiado
+bloecks_slice_cut = Slice cortado
+bloecks_slice_inserted = Slice insertado
+
+# Error messages
+bloecks_error_slice_not_found = Slice no encontrado
+bloecks_error_no_module_permission = Sin permisos para este módulo
+bloecks_error_no_content_permission = Sin permisos para editar este contenido
+bloecks_error_clipboard_empty = El portapapeles está vacío
+bloecks_error_missing_parameters = Faltan parámetros
+bloecks_error_insert_failed = Error al insertar: {0}
+bloecks_error_unknown_module = Módulo desconocido
+bloecks_error_unknown_article = Artículo desconocido
+
+# API errors
+bloecks_api_error_missing_parameters = Faltan parámetros
+bloecks_api_error_unknown_function = Función desconocida

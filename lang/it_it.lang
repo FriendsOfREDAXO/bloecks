@@ -1,0 +1,47 @@
+bloecks_navigation = blÖcks
+bloecks_overview = Panoramica
+bloecks_settings = Impostazioni
+bloecks_docs = Documentazione
+bloecks_enable_copy_paste = Abilita Copia & Incolla
+bloecks_enable_drag_drop = Abilita Trascina & Rilascia
+bloecks_active = attivo
+bloecks_templates_exclude = Escludi ID template
+bloecks_modules_exclude = Escludi ID modulo
+bloecks_csv_notice = Lista di ID separati da virgole
+bloecks_no_permission = Nessuna autorizzazione
+bloecks_feat_copy = Copia, taglia e incolla slice
+bloecks_feat_order = Riordina slice tramite trascinamento
+bloecks_intro = Strumento leggero per copia/incolla, taglia e trascina & rilascia di slice.
+bloecks_enabled = Abilitato
+bloecks_disabled = Disabilitato
+bloecks_drag_move = Sposta slice
+bloecks_drag_handle = Sposta
+
+# Copy/Cut/Paste functionality
+bloecks_copy_slice = Copia slice
+bloecks_cut_slice = Taglia slice
+bloecks_paste_slice = Incolla slice (dopo questa)
+bloecks_paste_from_clipboard = Incolla slice dagli appunti
+bloecks_paste_module = Incolla: {0}
+bloecks_action_copied = Copiato
+bloecks_action_cut = Tagliato
+bloecks_action_paste = Incolla
+
+# Success messages
+bloecks_slice_copied = Slice copiata
+bloecks_slice_cut = Slice tagliata
+bloecks_slice_inserted = Slice inserita
+
+# Error messages
+bloecks_error_slice_not_found = Slice non trovata
+bloecks_error_no_module_permission = Nessuna autorizzazione per questo modulo
+bloecks_error_no_content_permission = Nessuna autorizzazione per modificare questo contenuto
+bloecks_error_clipboard_empty = Gli appunti sono vuoti
+bloecks_error_missing_parameters = Parametri mancanti
+bloecks_error_insert_failed = Errore durante l'inserimento: {0}
+bloecks_error_unknown_module = Modulo sconosciuto
+bloecks_error_unknown_article = Articolo sconosciuto
+
+# API errors
+bloecks_api_error_missing_parameters = Parametri mancanti
+bloecks_api_error_unknown_function = Funzione sconosciuta

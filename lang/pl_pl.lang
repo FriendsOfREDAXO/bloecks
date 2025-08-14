@@ -1,0 +1,47 @@
+bloecks_navigation = blÖcks
+bloecks_overview = Przegląd
+bloecks_settings = Ustawienia
+bloecks_docs = Dokumentacja
+bloecks_enable_copy_paste = Włącz Kopiuj & Wklej
+bloecks_enable_drag_drop = Włącz Przeciągnij & Upuść
+bloecks_active = aktywny
+bloecks_templates_exclude = Wyklucz ID szablonów
+bloecks_modules_exclude = Wyklucz ID modułów
+bloecks_csv_notice = Lista ID oddzielonych przecinkami
+bloecks_no_permission = Brak uprawnień
+bloecks_feat_copy = Kopiuj, wycinaj i wklejaj slices
+bloecks_feat_order = Zmieniaj kolejność slices przez przeciągnij i upuść
+bloecks_intro = Lekkie narzędzie do kopiowania/wklejania, wycinania i przeciągania i upuszczania slices.
+bloecks_enabled = Włączony
+bloecks_disabled = Wyłączony
+bloecks_drag_move = Przesuń slice
+bloecks_drag_handle = Przesuń
+
+# Copy/Cut/Paste functionality
+bloecks_copy_slice = Kopiuj slice
+bloecks_cut_slice = Wytnij slice
+bloecks_paste_slice = Wklej slice (po tym)
+bloecks_paste_from_clipboard = Wklej slice ze schowka
+bloecks_paste_module = Wklej: {0}
+bloecks_action_copied = Skopiowano
+bloecks_action_cut = Wycięto
+bloecks_action_paste = Wklej
+
+# Success messages
+bloecks_slice_copied = Slice skopiowany
+bloecks_slice_cut = Slice wycięty
+bloecks_slice_inserted = Slice wstawiony
+
+# Error messages
+bloecks_error_slice_not_found = Slice nie znaleziony
+bloecks_error_no_module_permission = Brak uprawnień do tego modułu
+bloecks_error_no_content_permission = Brak uprawnień do edycji tej treści
+bloecks_error_clipboard_empty = Schowek jest pusty
+bloecks_error_missing_parameters = Brakujące parametry
+bloecks_error_insert_failed = Błąd podczas wstawiania: {0}
+bloecks_error_unknown_module = Nieznany moduł
+bloecks_error_unknown_article = Nieznany artykuł
+
+# API errors
+bloecks_api_error_missing_parameters = Brakujące parametry
+bloecks_api_error_unknown_function = Nieznana funkcja

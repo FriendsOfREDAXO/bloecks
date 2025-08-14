@@ -1,0 +1,47 @@
+bloecks_navigation = blÖcks
+bloecks_overview = Aperçu
+bloecks_settings = Paramètres
+bloecks_docs = Documentation
+bloecks_enable_copy_paste = Activer Copier & Coller
+bloecks_enable_drag_drop = Activer Glisser & Déposer
+bloecks_active = actif
+bloecks_templates_exclude = Exclure les IDs de template
+bloecks_modules_exclude = Exclure les IDs de module
+bloecks_csv_notice = Liste d'IDs séparés par des virgules
+bloecks_no_permission = Aucune autorisation
+bloecks_feat_copy = Copier, couper et coller des slices
+bloecks_feat_order = Réorganiser les slices par glisser-déposer
+bloecks_intro = Outil léger pour copier/coller, couper et glisser-déposer des slices.
+bloecks_enabled = Activé
+bloecks_disabled = Désactivé
+bloecks_drag_move = Déplacer la slice
+bloecks_drag_handle = Déplacer
+
+# Copy/Cut/Paste functionality
+bloecks_copy_slice = Copier la slice
+bloecks_cut_slice = Couper la slice
+bloecks_paste_slice = Coller la slice (après celle-ci)
+bloecks_paste_from_clipboard = Coller la slice du presse-papiers
+bloecks_paste_module = Coller: {0}
+bloecks_action_copied = Copié
+bloecks_action_cut = Coupé
+bloecks_action_paste = Coller
+
+# Success messages
+bloecks_slice_copied = Slice copiée
+bloecks_slice_cut = Slice coupée
+bloecks_slice_inserted = Slice insérée
+
+# Error messages
+bloecks_error_slice_not_found = Slice non trouvée
+bloecks_error_no_module_permission = Aucune autorisation pour ce module
+bloecks_error_no_content_permission = Aucune autorisation pour modifier ce contenu
+bloecks_error_clipboard_empty = Le presse-papiers est vide
+bloecks_error_missing_parameters = Paramètres manquants
+bloecks_error_insert_failed = Erreur lors de l'insertion: {0}
+bloecks_error_unknown_module = Module inconnu
+bloecks_error_unknown_article = Article inconnu
+
+# API errors
+bloecks_api_error_missing_parameters = Paramètres manquants
+bloecks_api_error_unknown_function = Fonction inconnue
