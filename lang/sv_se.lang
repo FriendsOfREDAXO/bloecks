@@ -22,7 +22,7 @@ bloecks_copy_slice = Kopiera slice
 bloecks_cut_slice = Klipp ut slice
 bloecks_paste_slice = Klistra in slice (efter denna)
 bloecks_paste_from_clipboard = Klistra in slice från urklipp
-bloecks_paste_module = Klistra in: {0}
+bloecks_paste_module = Klistra in: %s
 bloecks_action_copied = Kopierad
 bloecks_action_cut = Urklippt
 bloecks_action_paste = Klistra in
@@ -38,7 +38,7 @@ bloecks_error_no_module_permission = Ingen behörighet för denna modul
 bloecks_error_no_content_permission = Ingen behörighet att redigera detta innehåll
 bloecks_error_clipboard_empty = Urklipp är tomt
 bloecks_error_missing_parameters = Saknade parametrar
-bloecks_error_insert_failed = Fel vid infogning: {0}
+bloecks_error_insert_failed = Fel vid infogning: %s
 bloecks_error_unknown_module = Okänd modul
 bloecks_error_unknown_article = Okänd artikel
 

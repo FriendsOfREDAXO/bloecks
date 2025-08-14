@@ -22,7 +22,7 @@ bloecks_copy_slice = Slice kopieren
 bloecks_cut_slice = Slice ausschneiden
 bloecks_paste_slice = Slice einfügen (nach diesem)
 bloecks_paste_from_clipboard = Slice aus Zwischenablage einfügen
-bloecks_paste_module = Einfügen: {0}
+bloecks_paste_module = Einfügen: %s
 bloecks_action_copied = Kopiert
 bloecks_action_cut = Ausgeschnitten
 bloecks_action_paste = Einfügen
@@ -38,7 +38,7 @@ bloecks_error_no_module_permission = Keine Berechtigung für dieses Modul
 bloecks_error_no_content_permission = Keine Berechtigung zum Bearbeiten dieses Inhalts
 bloecks_error_clipboard_empty = Zwischenablage ist leer
 bloecks_error_missing_parameters = Fehlende Parameter
-bloecks_error_insert_failed = Fehler beim Einfügen: {0}
+bloecks_error_insert_failed = Fehler beim Einfügen: %s
 bloecks_error_unknown_module = Unbekanntes Modul
 bloecks_error_unknown_article = Unbekannter Artikel
 

@@ -22,7 +22,7 @@ bloecks_copy_slice = Copier la slice
 bloecks_cut_slice = Couper la slice
 bloecks_paste_slice = Coller la slice (après celle-ci)
 bloecks_paste_from_clipboard = Coller la slice du presse-papiers
-bloecks_paste_module = Coller: {0}
+bloecks_paste_module = Coller: %s
 bloecks_action_copied = Copié
 bloecks_action_cut = Coupé
 bloecks_action_paste = Coller
@@ -38,7 +38,7 @@ bloecks_error_no_module_permission = Aucune autorisation pour ce module
 bloecks_error_no_content_permission = Aucune autorisation pour modifier ce contenu
 bloecks_error_clipboard_empty = Le presse-papiers est vide
 bloecks_error_missing_parameters = Paramètres manquants
-bloecks_error_insert_failed = Erreur lors de l'insertion: {0}
+bloecks_error_insert_failed = Erreur lors de l'insertion: %s
 bloecks_error_unknown_module = Module inconnu
 bloecks_error_unknown_article = Article inconnu
 

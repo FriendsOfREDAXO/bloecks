@@ -22,7 +22,7 @@ bloecks_copy_slice = Copiar slice
 bloecks_cut_slice = Cortar slice
 bloecks_paste_slice = Pegar slice (después de esta)
 bloecks_paste_from_clipboard = Pegar slice desde el portapapeles
-bloecks_paste_module = Pegar: {0}
+bloecks_paste_module = Pegar: %s
 bloecks_action_copied = Copiado
 bloecks_action_cut = Cortado
 bloecks_action_paste = Pegar
@@ -38,7 +38,7 @@ bloecks_error_no_module_permission = Sin permisos para este módulo
 bloecks_error_no_content_permission = Sin permisos para editar este contenido
 bloecks_error_clipboard_empty = El portapapeles está vacío
 bloecks_error_missing_parameters = Faltan parámetros
-bloecks_error_insert_failed = Error al insertar: {0}
+bloecks_error_insert_failed = Error al insertar: %s
 bloecks_error_unknown_module = Módulo desconocido
 bloecks_error_unknown_article = Artículo desconocido
 

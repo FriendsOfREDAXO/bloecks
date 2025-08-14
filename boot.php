@@ -1,6 +1,6 @@
 <?php
 /**
- * BLOECKS - Einfaches Drag & Drop + Copy/Paste für REDAXO
+ * BLOECKS - Simple Drag & Drop + Copy/Paste for REDAXO
  */
 
 use FriendsOfRedaxo\Bloecks\Api;
