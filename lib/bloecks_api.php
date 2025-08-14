@@ -9,13 +9,14 @@ use rex;
 use rex_plugin;
 use rex_article_slice_history;
 use rex_article_cache;
+use rex_i18n;
 
 /**
  * API endpoint for drag & drop ordering (exactly like slice_columns sorter.php)
  */
 class Api extends rex_api_function
 {
-    protected $published = false;  // Aufruf nur aus dem Backend
+    protected $published = false;  // Backend calls only
 
     public function execute(): never
     {
@@ -29,7 +30,7 @@ class Api extends rex_api_function
             $order = json_decode($order);
             
             if (!$order || !$article_id) {
-                echo json_encode(['error' => 'Missing parameters']);
+                echo json_encode(['error' => rex_i18n::msg('bloecks_api_error_missing_parameters')]);
                 exit;
             }
 
@@ -49,7 +50,7 @@ class Api extends rex_api_function
             exit;
         }
 
-        echo json_encode(['error' => 'Unknown function']);
+        echo json_encode(['error' => rex_i18n::msg('bloecks_api_error_unknown_function')]);
         exit;
     }
 }

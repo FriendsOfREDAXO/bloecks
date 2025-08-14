@@ -16,6 +16,7 @@ use rex_article;
 use rex_sql_exception;
 use rex_article_cache;
 use rex_content_service;
+use rex_i18n;
 
 use function rex_session;
 use function rex_set_session;
@@ -133,7 +134,7 @@ class Backend
             'icon' => 'copy',
             'attributes' => [
                 'class' => ['btn', 'btn-default', $isSource && $clipboard['action'] === 'copy' ? 'is-copied' : ''],
-                'title' => 'Slice kopieren',
+                'title' => rex_i18n::msg('bloecks_copy_slice'),
                 'data-pjax-no-history' => 'true'
             ]
         ];
@@ -145,7 +146,7 @@ class Backend
             'icon' => 'cut',
             'attributes' => [
                 'class' => ['btn', 'btn-default', $isSource && $clipboard['action'] === 'cut' ? 'is-cut' : ''],
-                'title' => 'Slice ausschneiden',
+                'title' => rex_i18n::msg('bloecks_cut_slice'),
                 'data-pjax-no-history' => 'true'
             ]
         ];
@@ -153,10 +154,10 @@ class Backend
         // Paste button - always available in slice menu 
         if ($clipboard) {
             $sourceInfo = $clipboard['source_info'] ?? null;
-            $tooltipText = 'Slice einfügen (nach diesem)';
+            $tooltipText = rex_i18n::msg('bloecks_paste_slice');
             
             if ($sourceInfo) {
-                $actionText = $clipboard['action'] === 'cut' ? 'Ausgeschnitten' : 'Kopiert';
+                $actionText = $clipboard['action'] === 'cut' ? rex_i18n::msg('bloecks_action_cut') : rex_i18n::msg('bloecks_action_copied');
                 $tooltipText = sprintf(
                     '%s: "%s" aus "%s" (ID: %d)',
                     $actionText,
@@ -248,11 +249,11 @@ class Backend
         
         // Add paste button before module selection
         $sourceInfo = $clipboard['source_info'] ?? null;
-        $tooltipText = 'Slice aus Zwischenablage einfügen';
-        $buttonText = 'Einfügen';
+        $tooltipText = rex_i18n::msg('bloecks_paste_from_clipboard');
+        $buttonText = rex_i18n::msg('bloecks_action_paste');
         
         if ($sourceInfo) {
-            $actionText = $clipboard['action'] === 'cut' ? 'Ausgeschnitten' : 'Kopiert';
+            $actionText = $clipboard['action'] === 'cut' ? rex_i18n::msg('bloecks_action_cut') : rex_i18n::msg('bloecks_action_copied');
             $tooltipText = sprintf(
                 '%s: "%s" aus "%s" (ID: %d)',
                 $actionText,
@@ -260,7 +261,7 @@ class Backend
                 $sourceInfo['article_name'],
                 $sourceInfo['article_id']
             );
-            $buttonText = sprintf('Einfügen: %s', $sourceInfo['module_name']);
+            $buttonText = sprintf(rex_i18n::msg('bloecks_paste_module'), $sourceInfo['module_name']);
         }
         
         $pasteButton = sprintf(
@@ -299,20 +300,20 @@ class Backend
                 $row = $sql->getArray('SELECT * FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
                 
                 if (!$row) {
-                    $msg = rex_view::warning('Slice nicht gefunden');
+                    $msg = rex_view::warning(rex_i18n::msg('bloecks_error_slice_not_found'));
                     break;
                 }
                 
                 $row = $row[0];
                 
                 if (!$user->getComplexPerm('modules')->hasPerm($row['module_id'])) {
-                    $msg = rex_view::warning('Keine Berechtigung für dieses Modul');
+                    $msg = rex_view::warning(rex_i18n::msg('bloecks_error_no_module_permission'));
                     break;
                 }
                 
                 // Check if user has content edit permissions for this slice
                 if (!self::hasContentEditPermission($row['article_id'], $row['clang_id'], $row['module_id'])) {
-                    $msg = rex_view::warning('Keine Berechtigung zum Bearbeiten dieses Inhalts');
+                    $msg = rex_view::warning(rex_i18n::msg('bloecks_error_no_content_permission'));
                     break;
                 }
                 
@@ -339,7 +340,7 @@ class Backend
                 // Get module name
                 $moduleSql = rex_sql::factory();
                 $moduleRow = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$row['module_id']]);
-                $moduleName = $moduleRow ? $moduleRow[0]['name'] : 'Unbekanntes Modul';
+                $moduleName = $moduleRow ? $moduleRow[0]['name'] : rex_i18n::msg('bloecks_error_unknown_module');
                 
                 rex_set_session('bloecks_clipboard', [
                     'data' => $data,
@@ -347,20 +348,21 @@ class Backend
                     'action' => $action,
                     'timestamp' => time(),
                     'source_info' => [
-                        'article_name' => $sourceArticle ? $sourceArticle->getName() : 'Unbekannter Artikel',
+                        'article_name' => $sourceArticle ? $sourceArticle->getName() : rex_i18n::msg('bloecks_error_unknown_article'),
                         'module_name' => $moduleName,
                         'article_id' => $row['article_id'],
                         'clang_id' => $row['clang_id']
                     ]
                 ]);
                 
-                $msg = rex_view::success('Slice ' . ($action === 'cut' ? 'ausgeschnitten' : 'kopiert'));
+                $successMsg = $action === 'cut' ? rex_i18n::msg('bloecks_slice_cut') : rex_i18n::msg('bloecks_slice_copied');
+                $msg = rex_view::success($successMsg);
                 break;
                 
             case 'paste':
                 $clipboard = rex_session('bloecks_clipboard', 'array', null);
                 if (!$clipboard || !isset($clipboard['data'])) {
-                    $msg = rex_view::warning('Zwischenablage ist leer');
+                    $msg = rex_view::warning(rex_i18n::msg('bloecks_error_clipboard_empty'));
                     break;
                 }
                 
@@ -370,7 +372,7 @@ class Backend
                 $ctype = rex_request('ctype', 'int', 1);
                 
                 if (!$articleId || !$clang) {
-                    $msg = rex_view::warning('Fehlende Parameter');
+                    $msg = rex_view::warning(rex_i18n::msg('bloecks_error_missing_parameters'));
                     break;
                 }
                 
@@ -378,7 +380,7 @@ class Backend
                 
                 // Check if user has content edit permissions for target article
                 if (!self::hasContentEditPermission($articleId, $clang, $data['module_id'])) {
-                    $msg = rex_view::warning('Keine Berechtigung zum Bearbeiten dieses Inhalts');
+                    $msg = rex_view::warning(rex_i18n::msg('bloecks_error_no_content_permission'));
                     break;
                 }
                 
@@ -441,10 +443,10 @@ class Backend
                     
                     rex_article_cache::delete($articleId, $clang);
                     
-                    $msg = rex_view::success('Slice eingefügt');
+                    $msg = rex_view::success(rex_i18n::msg('bloecks_slice_inserted'));
                     
                 } catch (rex_sql_exception $e) {
-                    $msg = rex_view::warning('Fehler beim Einfügen: ' . $e->getMessage());
+                    $msg = rex_view::warning(sprintf(rex_i18n::msg('bloecks_error_insert_failed'), $e->getMessage()));
                 }
                 break;
         }
