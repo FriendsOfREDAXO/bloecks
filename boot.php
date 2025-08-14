@@ -20,12 +20,13 @@ rex_perm::register('bloecks[order]');
 if (rex::isBackend() && PHP_SAPI !== 'cli') {
     // Only run session-dependent code when not in CLI context
     rex_extension::register('PACKAGES_INCLUDED', function () {
+        $addon = rex_addon::get('bloecks');
+        
         // Clear clipboard on login/logout and session start for security
         Backend::clearClipboardOnSessionStart();
         Backend::init();
 
         // Register wrapper for slice_columns-style drag & drop only if enabled
-        $addon = rex_addon::get('bloecks');
         if ($addon->getConfig('enable_drag_drop', false)) {
             rex_extension::register('SLICE_SHOW', Wrapper::addDragDropWrapper(...), rex_extension::EARLY);
             rex_extension::register('SLICE_MENU', Wrapper::addDragHandle(...));
@@ -33,5 +34,5 @@ if (rex::isBackend() && PHP_SAPI !== 'cli') {
         } else {
             # error_log("BLOECKS DEBUG: Drag & Drop disabled, no wrapper extension points registered");
         }
-    }
+    });
 }
