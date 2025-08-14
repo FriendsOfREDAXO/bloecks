@@ -9,3 +9,7 @@ ehthumbs.db
 Thumbs.db
 node_modules/
 src/
+/.idea
+/composer.lock
+/.php-cs-fixer.cache
+/vendor
