@@ -17,6 +17,11 @@ bloecks_disabled = Disabled
 bloecks_drag_move = Move slice
 bloecks_drag_handle = Move
 
+# Permissions
+perm_general_bloecks[] = Full access to all blÖcks features
+perm_general_bloecks[copy] = Copy and paste slices
+perm_general_bloecks[order] = Reorder slices via drag & drop
+
 # Copy/Cut/Paste functionality
 bloecks_copy_slice = Copy slice
 bloecks_cut_slice = Cut slice

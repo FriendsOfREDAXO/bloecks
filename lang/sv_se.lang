@@ -2,20 +2,25 @@ bloecks_navigation = blÖcks
 bloecks_overview = Översikt
 bloecks_settings = Inställningar
 bloecks_docs = Dokumentation
-bloecks_enable_copy_paste = Aktivera Kopiera & Klistra in
-bloecks_enable_drag_drop = Aktivera Dra & Släpp
+bloecks_enable_copy_paste = Aktivera kopiera och klistra in
+bloecks_enable_drag_drop = Aktivera dra och släpp
 bloecks_active = aktiv
-bloecks_templates_exclude = Uteslut mall-ID:n
-bloecks_modules_exclude = Uteslut modul-ID:n
+bloecks_templates_exclude = Exkludera mall-ID:n
+bloecks_modules_exclude = Exkludera modul-ID:n
 bloecks_csv_notice = Kommaseparerad lista med ID:n
 bloecks_no_permission = Ingen behörighet
-bloecks_feat_copy = Kopiera, klipp ut och klistra in slices
-bloecks_feat_order = Ordna om slices via dra & släpp
-bloecks_intro = Lättviktsverktyg för kopiera/klistra in, klipp ut och dra & släpp av slices.
+bloecks_feat_copy = Kopiera, klipp ut och klistra in avsnitt
+bloecks_feat_order = Ordna om avsnitt via dra och släpp
+bloecks_intro = Lätt verktyg för kopiera/klistra in, klipp ut och dra och släpp av avsnitt.
 bloecks_enabled = Aktiverad
 bloecks_disabled = Inaktiverad
-bloecks_drag_move = Flytta slice
+bloecks_drag_move = Flytta avsnitt
 bloecks_drag_handle = Flytta
+
+# Permissions
+perm_general_bloecks[] = Full åtkomst till alla blÖcks-funktioner
+perm_general_bloecks[copy] = Kopiera och klistra in avsnitt
+perm_general_bloecks[order] = Ordna om avsnitt via dra och släpp
 
 # Copy/Cut/Paste functionality
 bloecks_copy_slice = Kopiera slice
