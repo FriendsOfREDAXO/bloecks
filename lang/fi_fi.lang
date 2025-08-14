@@ -11,6 +11,28 @@ bloecks_csv_notice = Pilkuilla erotettu lista ID:istä
 bloecks_no_permission = Ei käyttöoikeutta
 bloecks_feat_copy = Kopioi, leikkaa ja liitä slicejä
 bloecks_feat_order = Järjestä slicejä uudelleen vetämällä ja pudottamalla
+bloecks_intro = Kevyt työkalu slicejen kopiointiin/liittämiseen, leikkaamiseen ja vetämiseen/pudottamiseen.
+bloecks_enabled = Käytössä
+bloecks_disabled = Ei käytössä
+bloecks_drag_move = Siirrä slice
+bloecks_drag_handle = Siirrä
+
+# Permissions
+perm_general_bloecks[] = Täysi pääsy kaikkiin blÖcks-ominaisuuksiin
+perm_general_bloecks[copy] = Kopioi ja liitä slicejä
+perm_general_bloecks[order] = Järjestä slicejä vetämällä ja pudottamalla = blÖcks
+bloecks_overview = Yleiskatsaus
+bloecks_settings = Asetukset
+bloecks_docs = Dokumentaatio
+bloecks_enable_copy_paste = Ota käyttöön Kopioi & Liitä
+bloecks_enable_drag_drop = Ota käyttöön Vedä & Pudota
+bloecks_active = aktiivinen
+bloecks_templates_exclude = Jätä pois mallien ID:t
+bloecks_modules_exclude = Jätä pois moduulien ID:t
+bloecks_csv_notice = Pilkuilla erotettu lista ID:istä
+bloecks_no_permission = Ei käyttöoikeutta
+bloecks_feat_copy = Kopioi, leikkaa ja liitä slicejä
+bloecks_feat_order = Järjestä slicejä uudelleen vetämällä ja pudottamalla
 bloecks_intro = Kevyt työkalu slicejen kopiointiin/liittämiseen, leikkaamiseen ja vetämiseen & pudottamiseen.
 bloecks_enabled = Käytössä
 bloecks_disabled = Pois käytöstä

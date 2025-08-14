@@ -5,7 +5,7 @@ supportpage: https://github.com/FriendsOfREDAXO/bloecks
 
 page:
     title: 'translate:bloecks_navigation'
-    perm: bloecks[]
+    perm: admin
     pjax: false
     icon: rex-icon fa-th-large
     subPath: settings.php
