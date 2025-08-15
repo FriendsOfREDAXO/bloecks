@@ -3,10 +3,13 @@
 Schlankes REDAXO AddOn für Copy/Cut/Paste und Drag & Drop Sortierung von Slices.
 
 ## Features
-- Slice kopieren, ausschneiden und einfügen
+- Copy/Cut/Paste: Slices kopieren, ausschneiden und einfügen mit visueller Rückmeldung
 - Drag & Drop Neuordnung von Slices
 - Granulare Rechte: `bloecks[]`, `bloecks[copy]`, `bloecks[order]`, `bloecks[settings]`
 - CSRF-Schutz für alle Operationen
+- Einfügen: Wahlweise oberhalb oder unterhalb des aktuellen Slices 
+- Elegante Erfolgsmeldungen und Fehlermeldungen
+- Automatisches Scrollen zum eingefügten Slice nach dem Einfügen
 
 ## Installation
 1. AddOn aktivieren
