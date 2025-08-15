@@ -561,14 +561,14 @@ var BLOECKS = (function($) {
             
             var $this = $(this);
             
-            // Always show dropdown if we have any clipboard items
-            if (multiClipboard.length > 0) {
-                showClipboardDropdown($this);
+            // Check if we have any clipboard items
+            if (multiClipboard.length === 0) {
+                showToast('Zwischenablage ist leer', 'warning');
                 return;
             }
             
-            // No clipboard items - show error
-            showToast('Zwischenablage ist leer', 'warning');
+            // Always show dropdown if we have clipboard items (user can also clear clipboard)
+            showClipboardDropdown($this);
         });
     }
     
@@ -887,6 +887,20 @@ var BLOECKS = (function($) {
             return;
         }
         
+        // If multi-clipboard is NOT enabled AND we have only one item, use simple paste
+        if (!isMultiClipboardEnabled && indexes.length === 1) {
+            var params = {
+                'bloecks_target': targetSlice,
+                'article_id': articleId,
+                'clang': clangId,
+                'ctype': ctypeId
+            };
+            
+            performCopyPasteAction('paste', params);
+            return;
+        }
+        
+        // Use multi-paste for multiple items or when multi-clipboard is enabled
         // Show loading toast
         var loadingToastId = 'bloecks-multi-paste-' + Date.now();
         var loadingToast = showToastWithId('Füge ' + indexes.length + ' Elemente ein...', 'info', 30000, loadingToastId);
