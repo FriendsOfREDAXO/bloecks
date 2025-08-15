@@ -894,27 +894,6 @@ var BLOECKS = (function($) {
     }
 
     function pasteAllItems($button) {
-        // Check if we have only one item and multi-clipboard is NOT enabled
-        if (multiClipboard.length === 1 && !isMultiClipboardEnabled) {
-            // Use simple paste for single item when multi-clipboard is disabled
-            var targetSlice = $button.data('target-slice') || null;
-            var articleId = $button.data('article-id');
-            var clangId = $button.data('clang-id');
-            var ctypeId = $button.data('ctype-id') || 1;
-            
-            var params = {
-                'bloecks_target': targetSlice,
-                'article_id': articleId,
-                'clang': clangId,
-                'ctype': ctypeId
-            };
-            
-            performCopyPasteAction('paste', params);
-            hideClipboardDropdown();
-            return;
-        }
-        
-        // For multiple items or when multi-clipboard is enabled, use multi-paste
         var allIndexes = [];
         for (var i = 0; i < multiClipboard.length; i++) {
             allIndexes.push(i);
@@ -934,6 +913,20 @@ var BLOECKS = (function($) {
             return;
         }
         
+        // If multi-clipboard is NOT enabled AND we have only one item, use simple paste
+        if (!isMultiClipboardEnabled && indexes.length === 1) {
+            var params = {
+                'bloecks_target': targetSlice,
+                'article_id': articleId,
+                'clang': clangId,
+                'ctype': ctypeId
+            };
+            
+            performCopyPasteAction('paste', params);
+            return;
+        }
+        
+        // Use multi-paste for multiple items or when multi-clipboard is enabled
         // Show loading toast
         var loadingToastId = 'bloecks-multi-paste-' + Date.now();
         var loadingToast = showToastWithId('Füge ' + indexes.length + ' Elemente ein...', 'info', 30000, loadingToastId);
