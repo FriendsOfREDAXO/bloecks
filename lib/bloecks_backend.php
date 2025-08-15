@@ -163,24 +163,30 @@ class Backend
         // Copy button
         $buttons[] = [
             'hidden_label' => 'Copy Slice',
-            'url' => rex_url::backendController($baseParams + ['bloecks_action' => 'copy']),
+            'url' => '#',
             'icon' => 'copy',
             'attributes' => [
-                'class' => ['btn', 'btn-default', $isSource && 'copy' === $clipboard['action'] ? 'is-copied' : ''],
+                'class' => ['btn', 'btn-default', 'bloecks-copy', $isSource && 'copy' === $clipboard['action'] ? 'is-copied' : ''],
                 'title' => rex_i18n::msg('bloecks_copy_slice'),
-                'data-pjax-no-history' => 'true',
+                'data-slice-id' => $sliceId,
+                'data-article-id' => $articleId,
+                'data-clang-id' => $clang,
+                'data-ctype-id' => $ctype,
             ],
         ];
 
         // Cut button
         $buttons[] = [
             'hidden_label' => 'Cut Slice',
-            'url' => rex_url::backendController($baseParams + ['bloecks_action' => 'cut']),
+            'url' => '#',
             'icon' => 'cut',
             'attributes' => [
-                'class' => ['btn', 'btn-default', $isSource && 'cut' === $clipboard['action'] ? 'is-cut' : ''],
+                'class' => ['btn', 'btn-default', 'bloecks-cut', $isSource && 'cut' === $clipboard['action'] ? 'is-cut' : ''],
                 'title' => rex_i18n::msg('bloecks_cut_slice'),
-                'data-pjax-no-history' => 'true',
+                'data-slice-id' => $sliceId,
+                'data-article-id' => $articleId,
+                'data-clang-id' => $clang,
+                'data-ctype-id' => $ctype,
             ],
         ];
 
@@ -202,15 +208,15 @@ class Backend
 
             $buttons[] = [
                 'hidden_label' => 'Paste after',
-                'url' => rex_url::backendController($baseParams + [
-                    'bloecks_action' => 'paste',
-                    'bloecks_target' => $sliceId,
-                ]),
+                'url' => '#',
                 'icon' => 'paste',
                 'attributes' => [
-                    'class' => ['btn', 'btn-default'],
+                    'class' => ['btn', 'btn-default', 'bloecks-paste'],
                     'title' => $tooltipText,
-                    'data-pjax-no-history' => 'true',
+                    'data-target-slice' => $sliceId,
+                    'data-article-id' => $articleId,
+                    'data-clang-id' => $clang,
+                    'data-ctype-id' => $ctype,
                 ],
             ];
         }
@@ -343,12 +349,11 @@ class Backend
         }
 
         $pasteButton = sprintf(
-            '<div class="rex-toolbar"><div class="btn-toolbar"><a href="%s" class="btn btn-success" title="%s"><i class="rex-icon rex-icon-paste"></i> %s</a></div></div>',
-            rex_url::backendController($baseParams + [
-                'bloecks_action' => 'paste',
-                'bloecks_target' => 0,  // Insert at beginning (for empty pages this is correct)
-            ]),
+            '<div class="rex-toolbar"><div class="btn-toolbar"><a href="#" class="btn btn-success bloecks-paste" title="%s" data-target-slice="0" data-article-id="%d" data-clang-id="%d" data-ctype-id="%d"><i class="rex-icon rex-icon-paste"></i> %s</a></div></div>',
             htmlspecialchars($tooltipText),
+            $articleId,
+            $clang,
+            $ctype,
             htmlspecialchars($buttonText),
         );
 

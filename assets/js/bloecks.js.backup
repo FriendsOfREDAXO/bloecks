@@ -300,7 +300,9 @@ var BLOECKS = (function($) {
     
     // Check for scroll target after page reload
     function checkForScrollTarget() {
+        console.log('Checking for scroll target in sessionStorage');
         var scrollTarget = sessionStorage.getItem('bloecks_scroll_target');
+        console.log('Found scroll target:', scrollTarget);
         
         if (scrollTarget) {
             // Clear the target immediately to prevent repeated scrolling
@@ -308,20 +310,27 @@ var BLOECKS = (function($) {
             
             // Use shorter delays for PJAX-optimized system
             var delay = 200; // Fixed short delay for PJAX
+            console.log('Using delay:', delay + 'ms for scroll target');
             
             setTimeout(function() {
+                console.log('Looking for slice with ID:', scrollTarget);
                 var targetSlice = findSliceById(scrollTarget);
                 
                 if (targetSlice) {
+                    console.log('Found target slice, scrolling to it');
                     scrollToSlice(targetSlice);
                 } else {
+                    console.log('Target slice not found, available slices:');
                     
+                    // Debug: show all slices with their IDs
                     var allSlices = document.querySelectorAll('.rex-slice, .bloecks-dragdrop, .panel, form');
+                    console.log('Total slices found:', allSlices.length);
                     
                     for (var i = 0; i < allSlices.length; i++) {
                         var slice = allSlices[i];
                         var sliceIdInput = slice.querySelector('input[name="slice_id"]');
                         var sliceId = sliceIdInput ? sliceIdInput.value : 'no-id';
+                        console.log('Slice', i + ':', {
                             element: slice,
                             id: sliceId,
                             classes: slice.className,
@@ -331,18 +340,24 @@ var BLOECKS = (function($) {
                 }
             }, delay);
         } else {
+            console.log('No scroll target found in sessionStorage');
         }
     }    function findSliceById(sliceId) {
+        console.log('Looking for slice ID:', sliceId);
         
         // First, try to find slice_id input fields (most reliable in REDAXO)
         var sliceInputs = document.querySelectorAll('input[name="slice_id"]');
+        console.log('Found slice_id inputs:', sliceInputs.length);
         
         for (var i = 0; i < sliceInputs.length; i++) {
             var input = sliceInputs[i];
+            console.log('Checking input value:', input.value, 'against target:', sliceId);
             if (input.value == sliceId) {
+                console.log('Found matching slice_id input!');
                 // Find the parent slice container
                 var sliceContainer = input.closest('.rex-slice, .panel, .bloecks-dragdrop, form');
                 if (sliceContainer) {
+                    console.log('Found slice container:', sliceContainer);
                     return sliceContainer;
                 }
                 return input.parentNode;
@@ -360,18 +375,26 @@ var BLOECKS = (function($) {
         for (var j = 0; j < selectors.length; j++) {
             var element = document.querySelector(selectors[j]);
             if (element) {
+                console.log('Found slice with selector:', selectors[j]);
                 return element;
             }
         }
         
+        console.log('No slice found for ID:', sliceId);
         return null;
     }
     
     function scrollToSlice(sliceElement) {
         if (!sliceElement) {
+            console.log('No slice element provided for scrolling');
             return;
         }
         
+        console.log('Scrolling to slice element:', sliceElement);
+        console.log('Element tag:', sliceElement.tagName);
+        console.log('Element classes:', sliceElement.className);
+        console.log('Element is visible:', sliceElement.offsetParent !== null);
+        console.log('Element dimensions:', {
             width: sliceElement.offsetWidth,
             height: sliceElement.offsetHeight,
             top: sliceElement.offsetTop
@@ -379,6 +402,7 @@ var BLOECKS = (function($) {
         
         // Make sure the element is visible and rendered
         if (sliceElement.offsetParent === null) {
+            console.log('Element is not visible, cannot scroll');
             return;
         }
         
@@ -388,6 +412,9 @@ var BLOECKS = (function($) {
                 var rect = sliceElement.getBoundingClientRect();
                 var targetPosition = rect.top + window.pageYOffset - 100; // 100px offset from top
                 
+                console.log('Current scroll position:', window.pageYOffset);
+                console.log('Element rect:', rect);
+                console.log('Target scroll position:', targetPosition);
                 
                 // Make sure we have a valid position
                 if (targetPosition < 0) targetPosition = 0;
@@ -397,6 +424,7 @@ var BLOECKS = (function($) {
                     behavior: 'smooth'
                 });
                 
+                console.log('Scroll command executed');
                 
                 // Find the .rex-slice element inside the wrapper for animation
                 var rexSliceElement = sliceElement.querySelector('.rex-slice');
@@ -408,6 +436,7 @@ var BLOECKS = (function($) {
                 }
                 
                 if (rexSliceElement) {
+                    console.log('Animating rex-slice element:', rexSliceElement);
                     
                     // Enhanced highlight effect with zoom and glow on .rex-slice
                     rexSliceElement.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
@@ -446,6 +475,7 @@ var BLOECKS = (function($) {
                         }, 800);
                     }, 1600);
                 } else {
+                    console.log('No .rex-slice element found for animation');
                 }
                 
             } catch (e) {
@@ -456,6 +486,7 @@ var BLOECKS = (function($) {
     
     // Reinitialize after PJAX requests
     $(document).on('rex:ready', function() {
+        console.log('rex:ready event fired');
         // Always reinitialize on content pages
         if (window.location.href.includes('page=content')) {
             destroy();
@@ -470,6 +501,7 @@ var BLOECKS = (function($) {
     
     // Also listen for pjax:end as backup
     $(document).on('pjax:end', function() {
+        console.log('pjax:end event fired');
         if (window.location.href.includes('page=content')) {
             destroy();
             setTimeout(function() {
@@ -483,6 +515,7 @@ var BLOECKS = (function($) {
     
     // Listen specifically for PJAX events on the main content container
     $(document).on('pjax:success', '#rex-js-page-main-content', function(event) {
+        console.log('PJAX success on main content container');
         if (window.location.href.includes('page=content')) {
             setTimeout(function() {
                 checkForScrollTarget();
@@ -492,6 +525,7 @@ var BLOECKS = (function($) {
     
     // Listen for PJAX complete event
     $(document).on('pjax:complete', '#rex-js-page-main-content', function(event) {
+        console.log('PJAX complete on main content container');
         if (window.location.href.includes('page=content')) {
             destroy();
             setTimeout(function() {
@@ -505,6 +539,7 @@ var BLOECKS = (function($) {
     
     // Additional event listeners for real page loads (not just PJAX)
     $(document).ready(function() {
+        console.log('Document ready - checking for scroll target');
         if (window.location.href.includes('page=content')) {
             setTimeout(function() {
                 checkForScrollTarget();
@@ -514,6 +549,7 @@ var BLOECKS = (function($) {
     
     // Also listen for window load event (after all resources loaded)
     $(window).on('load', function() {
+        console.log('Window load event - checking for scroll target');
         if (window.location.href.includes('page=content')) {
             setTimeout(function() {
                 checkForScrollTarget();
@@ -524,6 +560,7 @@ var BLOECKS = (function($) {
     // Native DOM events for better compatibility
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded - checking for scroll target');
             if (window.location.href.includes('page=content')) {
                 setTimeout(function() {
                     checkForScrollTarget();
@@ -532,6 +569,7 @@ var BLOECKS = (function($) {
         });
     } else {
         // DOM already loaded
+        console.log('DOM already ready - checking for scroll target immediately');
         if (window.location.href.includes('page=content')) {
             setTimeout(function() {
                 checkForScrollTarget();
@@ -605,6 +643,7 @@ var BLOECKS = (function($) {
                 // Remove loading toast first
                 removeToast(loadingToastId);
                 
+                console.log('BLOECKS Response:', response); // Debug
                 
                 if (response.success) {
                     showToast(response.message, 'success', 3000); // Shorter duration
@@ -619,6 +658,7 @@ var BLOECKS = (function($) {
                         // Shorter delay for faster UX
                         setTimeout(function() {
                             // Use the correct PJAX method like REDAXO core does
+                            console.log('Using PJAX reload like REDAXO core');
                             $.pjax({
                                 url: window.location.href,
                                 container: '#rex-js-page-main-content',
@@ -632,6 +672,7 @@ var BLOECKS = (function($) {
                     if (action === 'copy' || action === 'cut') {
                         // Update UI to show the action was successful
                         // You can add visual feedback here if needed
+                        console.log(action + ' operation completed successfully');
                     }
                 } else {
                     showToast(response.message || 'Unbekannter Fehler', 'error');

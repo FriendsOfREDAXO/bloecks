@@ -38,14 +38,21 @@ bloecks_slice_cut = Slice ausgeschnitten
 bloecks_slice_inserted = Slice eingefügt
 
 # Error messages
+bloecks_error_no_permission = Keine Berechtigung für BLOECKS-Operationen
+bloecks_error_slice_id_missing = Slice-ID fehlt
 bloecks_error_slice_not_found = Slice nicht gefunden
 bloecks_error_no_module_permission = Keine Berechtigung für dieses Modul
 bloecks_error_no_content_permission = Keine Berechtigung zum Bearbeiten dieses Inhalts
 bloecks_error_clipboard_empty = Zwischenablage ist leer
 bloecks_error_missing_parameters = Fehlende Parameter
 bloecks_error_insert_failed = Fehler beim Einfügen: {0}
-bloecks_error_unknown_module = Unbekanntes Modul
+bloecks_unknown_module = Unbekanntes Modul
 bloecks_error_unknown_article = Unbekannter Artikel
+
+# Action texts
+bloecks_action_cut = ausgeschnittenes
+bloecks_action_copy = kopiertes
+bloecks_slice_inserted = "{0}" ({1} Slice) wurde eingefügt
 
 # API errors
 bloecks_api_error_missing_parameters = Fehlende Parameter

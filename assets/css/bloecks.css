@@ -1,6 +1,60 @@
 /**
- * BLOECKS Addon - CSS Styles for Drag & Drop
+ * BLOECKS Addon - CSS Styles for Drag & Drop and Toast Notifications
  */
+
+/* Toast notification system */
+.bloecks-toast-container {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.bloecks-toast {
+    background: #28a745;
+    color: white;
+    padding: 20px 26px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    transform: scale(0.8);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: auto;
+    cursor: pointer;
+    max-width: 500px;
+    min-width: 350px;
+    word-wrap: break-word;
+    font-size: 16px;
+    line-height: 1.5;
+    position: relative;
+    text-align: center;
+    font-weight: 500;
+}
+
+.bloecks-toast-success {
+    background: #28a745;
+}
+
+.bloecks-toast-warning {
+    background: #ffc107;
+    color: #212529;
+}
+
+.bloecks-toast-error {
+    background: #dc3545;
+}
+
+.bloecks-toast-info {
+    background: #17a2b8;
+}
+
+/* Show toast */
+.bloecks-toast.show {
+    transform: translateX(0);
+}
 
 /* Beautiful drag handle styling */
 .bloecks-drag-handle {
