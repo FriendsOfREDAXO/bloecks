@@ -87,6 +87,85 @@
     font-size: 10px;
 }
 
+/* Dark Mode Support for Multi-Clipboard Dropdown */
+@media (prefers-color-scheme: dark) {
+    .bloecks-clipboard-dropdown {
+        background: #2d3748;
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+
+    .bloecks-clipboard-dropdown .dropdown-header {
+        background: #1a202c;
+        border-bottom-color: #4a5568;
+        color: #e2e8f0;
+    }
+
+    .bloecks-clipboard-dropdown .dropdown-actions {
+        background: #2d3748;
+        border-bottom-color: #4a5568;
+    }
+
+    .bloecks-clipboard-item {
+        border-bottom-color: #4a5568;
+        color: #e2e8f0;
+    }
+
+    .bloecks-clipboard-item:hover {
+        background: #4a5568;
+    }
+
+    .bloecks-clipboard-item.selected {
+        background: #2c5282;
+    }
+
+    .bloecks-clipboard-item-meta {
+        color: #a0aec0;
+    }
+}
+
+/* Dark Mode Support for REDAXO Theme */
+body.rex-theme-dark .bloecks-clipboard-dropdown,
+html[data-bs-theme="dark"] .bloecks-clipboard-dropdown {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.rex-theme-dark .bloecks-clipboard-dropdown .dropdown-header,
+html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .dropdown-header {
+    background: #1a202c;
+    border-bottom-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.rex-theme-dark .bloecks-clipboard-dropdown .dropdown-actions,
+html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .dropdown-actions {
+    background: #2d3748;
+    border-bottom-color: #4a5568;
+}
+
+body.rex-theme-dark .bloecks-clipboard-item,
+html[data-bs-theme="dark"] .bloecks-clipboard-item {
+    border-bottom-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.rex-theme-dark .bloecks-clipboard-item:hover,
+html[data-bs-theme="dark"] .bloecks-clipboard-item:hover {
+    background: #4a5568;
+}
+
+body.rex-theme-dark .bloecks-clipboard-item.selected,
+html[data-bs-theme="dark"] .bloecks-clipboard-item.selected {
+    background: #2c5282;
+}
+
+body.rex-theme-dark .bloecks-clipboard-item-meta,
+html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
+    color: #a0aec0;
+}
+
 /* Toast improvements */
 .bloecks-toast-container {
     position: fixed;
