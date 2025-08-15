@@ -18,13 +18,50 @@
 }
 
 .bloecks-clipboard-dropdown .dropdown-header {
-    padding: 10px 15px;
-    background: #f5f5f5;
-    border-bottom: 1px solid #eee;
+    padding: 12px 15px 8px;
     font-weight: bold;
-    position: sticky;
-    top: 0;
-    z-index: 1001;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 1px solid #e5e5e5;
+    background: #f8f9fa;
+}
+
+.bloecks-clipboard-dropdown .dropdown-position-toggle {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e5e5e5;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bloecks-clipboard-dropdown .dropdown-position-toggle label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #555;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.bloecks-clipboard-dropdown .bloecks-position-select {
+    flex: 1;
+    font-size: 12px;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.bloecks-clipboard-dropdown .bloecks-position-select:focus {
+    border-color: #007cba;
+    box-shadow: 0 0 0 1px rgba(0, 124, 186, 0.2);
+}
+
+.bloecks-clipboard-dropdown .bloecks-position-select:hover {
+    border-color: #999;
 }
 
 .bloecks-clipboard-dropdown .dropdown-actions {

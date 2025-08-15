@@ -230,6 +230,7 @@ class Api extends rex_api_function
         $articleId = rex_request('article_id', 'int');
         $clang = rex_request('clang', 'int');
         $ctype = rex_request('ctype', 'int', 1);
+        $pastePosition = rex_request('paste_position', 'string', null);
 
         if (!$articleId || !$clang) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_missing_parameters')]);
@@ -255,9 +256,11 @@ class Api extends rex_api_function
             $revision = rex_article_revision::getSessionArticleRevision($articleId);
         }
 
-        // Get paste position from config
-        $addon = rex_addon::get('bloecks');
-        $pastePosition = $addon->getConfig('paste_position', 'after');
+        // Get paste position from parameter or config
+        if ($pastePosition === null) {
+            $addon = rex_addon::get('bloecks');
+            $pastePosition = $addon->getConfig('paste_position', 'after');
+        }
 
         if ($targetSlice) {
             $sql->setQuery('SELECT priority FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$targetSlice]);
@@ -370,6 +373,7 @@ class Api extends rex_api_function
         $articleId = rex_request('article_id', 'int');
         $clang = rex_request('clang', 'int');
         $ctype = rex_request('ctype', 'int', 1);
+        $pastePosition = rex_request('paste_position', 'string', 'after');
 
         if (!$articleId || !$clang) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_missing_parameters')]);
@@ -400,7 +404,7 @@ class Api extends rex_api_function
                 $clipboard = $multiClipboard[$index];
 
                 // Use same paste logic as single paste
-                $result = $this->pasteSingleItem($clipboard, $targetSlice, $articleId, $clang, $ctype);
+                $result = $this->pasteSingleItem($clipboard, $targetSlice, $articleId, $clang, $ctype, $pastePosition);
 
                 if ($result['success']) {
                     ++$insertedCount;
@@ -429,7 +433,7 @@ class Api extends rex_api_function
         }
     }
 
-    private function pasteSingleItem($clipboard, $targetSlice, $articleId, $clang, $ctype)
+    private function pasteSingleItem($clipboard, $targetSlice, $articleId, $clang, $ctype, $pastePosition = null)
     {
         $data = $clipboard['data'];
         $user = rex::getUser();
@@ -449,9 +453,11 @@ class Api extends rex_api_function
             $revision = rex_article_revision::getSessionArticleRevision($articleId);
         }
 
-        // Get paste position from config
-        $addon = rex_addon::get('bloecks');
-        $pastePosition = $addon->getConfig('paste_position', 'after');
+        // Get paste position from parameter or config
+        if ($pastePosition === null) {
+            $addon = rex_addon::get('bloecks');
+            $pastePosition = $addon->getConfig('paste_position', 'after');
+        }
 
         if ($targetSlice) {
             $sql->setQuery('SELECT priority FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$targetSlice]);

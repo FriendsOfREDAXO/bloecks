@@ -37,8 +37,13 @@ if (rex::isBackend() && PHP_SAPI !== 'cli') {
             // 1. Setting is globally enabled AND
             // 2. User has permission (admin or bloecks[multi])
             $multiClipboardAvailable = Backend::isMultiClipboardAvailable();
+            
+            // Paste position setting
+            $addon = rex_addon::get('bloecks');
+            $pastePosition = $addon->getConfig('paste_position', 'after');
 
             $jsConfig .= 'var BLOECKS_MULTI_CLIPBOARD = ' . ($multiClipboardAvailable ? 'true' : 'false') . ';';
+            $jsConfig .= 'var BLOECKS_PASTE_POSITION = ' . json_encode($pastePosition) . ';';
             $jsConfig .= '</script></head>';
 
             $content = str_replace('</head>', $jsConfig, $content);

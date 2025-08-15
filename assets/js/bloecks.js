@@ -620,7 +620,7 @@ var BLOECKS = (function($) {
                     setTimeout(function() {
                         // Use the correct PJAX method like REDAXO core does
                         $.pjax({
-                            url: window.location.href,
+                            url: getCleanUrlForReload(),
                             container: '#rex-js-page-main-content',
                             fragment: '#rex-js-page-main-content',
                             push: false // Important: don't push to history
@@ -639,11 +639,26 @@ var BLOECKS = (function($) {
         });
     }
     
+    // Helper function to get clean URL for PJAX reloads (removes edit-specific parameters)
+    function getCleanUrlForReload() {
+        var currentUrl = new URL(window.location.href);
+        var params = currentUrl.searchParams;
+        
+        // Remove problematic parameters that should not persist after paste operations
+        params.delete('function');
+        params.delete('slice_id');
+        params.delete('save');
+        params.delete('update');
+        
+        return currentUrl.toString();
+    }
+    
     // Public API
     // Multi-Clipboard functionality
     var multiClipboard = [];
     var isMultiClipboardEnabled = false;
     var activeDropdown = null;
+    var currentPastePosition = (typeof BLOECKS_PASTE_POSITION !== 'undefined') ? BLOECKS_PASTE_POSITION : 'after';
 
     function setMultiClipboardEnabled(enabled) {
         isMultiClipboardEnabled = enabled;
@@ -697,7 +712,7 @@ var BLOECKS = (function($) {
                     // Force PJAX reload to update button states
                     setTimeout(function() {
                         $.pjax({
-                            url: window.location.href,
+                            url: getCleanUrlForReload(),
                             container: '#rex-js-page-main-content',
                             fragment: '#rex-js-page-main-content',
                             push: false // Important: don't push to history
@@ -754,6 +769,17 @@ var BLOECKS = (function($) {
         // Header
         var headerText = multiClipboard.length === 1 ? 'Zwischenablage (1 Element)' : 'Zwischenablage (' + multiClipboard.length + ' Elemente)';
         $dropdown.append('<div class="dropdown-header">' + headerText + '</div>');
+        
+        // Paste Position Toggle
+        var $positionToggle = $('<div class="dropdown-position-toggle"></div>');
+        $positionToggle.append('<label>Einfügeposition:</label>');
+        
+        var $positionSelect = $('<select class="bloecks-position-select">');
+        $positionSelect.append('<option value="after"' + (currentPastePosition === 'after' ? ' selected' : '') + '>Nach unten (unterhalb)</option>');
+        $positionSelect.append('<option value="before"' + (currentPastePosition === 'before' ? ' selected' : '') + '>Nach oben (oberhalb)</option>');
+        
+        $positionToggle.append($positionSelect);
+        $dropdown.append($positionToggle);
         
         // Actions - always show for consistency
         var $actions = $('<div class="dropdown-actions"></div>');
@@ -837,6 +863,10 @@ var BLOECKS = (function($) {
             pasteAllItems($button);
         });
         
+        $dropdown.on('change', '.bloecks-position-select', function() {
+            currentPastePosition = $(this).val();
+        });
+        
         $dropdown.on('click', '.bloecks-clipboard-item', function(e) {
             if (e.target.type !== 'checkbox') {
                 var $checkbox = $(this).find('input[type="checkbox"]');
@@ -893,7 +923,8 @@ var BLOECKS = (function($) {
                 'bloecks_target': targetSlice,
                 'article_id': articleId,
                 'clang': clangId,
-                'ctype': ctypeId
+                'ctype': ctypeId,
+                'paste_position': currentPastePosition
             };
             
             performCopyPasteAction('paste', params);
@@ -912,7 +943,8 @@ var BLOECKS = (function($) {
             'bloecks_target': targetSlice,
             'article_id': articleId,
             'clang': clangId,
-            'ctype': ctypeId
+            'ctype': ctypeId,
+            'paste_position': currentPastePosition
         };
         
         $.ajax({
@@ -945,7 +977,7 @@ var BLOECKS = (function($) {
                     setTimeout(function() {
                         // Use the correct PJAX method like REDAXO core does
                         $.pjax({
-                            url: window.location.href,
+                            url: getCleanUrlForReload(),
                             container: '#rex-js-page-main-content',
                             fragment: '#rex-js-page-main-content',
                             push: false // Important: don't push to history
