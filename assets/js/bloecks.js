@@ -560,22 +560,15 @@ var BLOECKS = (function($) {
             e.preventDefault();
             
             var $this = $(this);
-            var targetSlice = $this.data('target-slice') || null;
-            var articleId = $this.data('article-id');
-            var clangId = $this.data('clang-id');
-            var ctypeId = $this.data('ctype-id') || 1;
             
-            if (!articleId || !clangId) {
-                showToast('Fehler: Artikel-Parameter fehlen', 'error');
+            // Always show dropdown if we have any clipboard items
+            if (multiClipboard.length > 0) {
+                showClipboardDropdown($this);
                 return;
             }
             
-            performCopyPasteAction('paste', {
-                bloecks_target: targetSlice,
-                article_id: articleId,
-                clang: clangId,
-                ctype: ctypeId
-            });
+            // No clipboard items - show error
+            showToast('Zwischenablage ist leer', 'warning');
         });
     }
     
@@ -606,6 +599,11 @@ var BLOECKS = (function($) {
                 
                 if (response.success) {
                     showToast(response.message, 'success', 6000); // Längere Anzeigedauer für Paste-Erfolg
+                    
+                    // Always add to multi-clipboard on successful copy/cut
+                    if ((action === 'copy' || action === 'cut') && response.clipboard_item) {
+                        addToMultiClipboard(response.clipboard_item);
+                    }
                     
                     // Scroll-Position für copy/cut speichern, für paste den Ziel-Slice
                     if (action === 'paste' && response.reload_needed) {
@@ -642,6 +640,371 @@ var BLOECKS = (function($) {
     }
     
     // Public API
+    // Multi-Clipboard functionality
+    var multiClipboard = [];
+    var isMultiClipboardEnabled = false;
+    var activeDropdown = null;
+
+    function setMultiClipboardEnabled(enabled) {
+        isMultiClipboardEnabled = enabled;
+    }
+
+    function addToMultiClipboard(item) {
+        // Check if item already exists (by slice_id)
+        var existingIndex = multiClipboard.findIndex(function(clipItem) {
+            return clipItem.source_slice_id === item.source_slice_id;
+        });
+        
+        if (existingIndex !== -1) {
+            // Update existing item
+            multiClipboard[existingIndex] = item;
+        } else {
+            // Add new item
+            multiClipboard.push(item);
+        }
+        
+        updatePasteButtons();
+    }
+
+    function removeFromMultiClipboard(sliceId) {
+        multiClipboard = multiClipboard.filter(function(item) {
+            return item.source_slice_id !== sliceId;
+        });
+        updatePasteButtons();
+    }
+
+    function clearMultiClipboard() {
+        // Clear local clipboard
+        multiClipboard = [];
+        updatePasteButtons();
+        hideClipboardDropdown();
+        
+        // Clear server-side clipboard
+        var data = {
+            'function': 'clear_clipboard',
+            'rex-api-call': 'bloecks'
+        };
+        
+        $.ajax({
+            url: 'index.php',
+            type: 'POST',
+            dataType: 'json',
+            data: data,
+            success: function(response) {
+                if (response.success) {
+                    showToast(response.message, 'success');
+                    
+                    // Force PJAX reload to update button states
+                    setTimeout(function() {
+                        $.pjax({
+                            url: window.location.href,
+                            container: '#rex-js-page-main-content',
+                            fragment: '#rex-js-page-main-content',
+                            push: false // Important: don't push to history
+                        });
+                    }, 800);
+                } else {
+                    showToast('Fehler beim Leeren der Zwischenablage', 'error');
+                }
+            },
+            error: function() {
+                showToast('Fehler beim Leeren der Zwischenablage', 'error');
+            }
+        });
+    }
+
+    function updatePasteButtons() {
+        $('.bloecks-paste').each(function() {
+            var $btn = $(this);
+            
+            if (multiClipboard.length > 1) {
+                // Multiple items - show dropdown indicator
+                $btn.addClass('has-multiple');
+                var title = $btn.attr('title');
+                if (title && !title.includes('(')) {
+                    $btn.attr('title', title + ' (' + multiClipboard.length + ' Elemente)');
+                }
+            } else if (multiClipboard.length === 1) {
+                // Single item - show detailed info
+                $btn.removeClass('has-multiple');
+                var item = multiClipboard[0];
+                if (item && item.source_info) {
+                    var actionText = item.action === 'cut' ? 'ausgeschnittenes' : 'kopiertes';
+                    var newTitle = actionText + ': "' + item.source_info.module_name + '" aus "' + item.source_info.article_name + '" (ID: ' + item.source_info.article_id + ')';
+                    $btn.attr('title', newTitle);
+                }
+            } else {
+                // No items - disable button visually
+                $btn.removeClass('has-multiple');
+                $btn.attr('title', 'Zwischenablage ist leer');
+            }
+        });
+    }
+
+    function showClipboardDropdown($button) {
+        hideClipboardDropdown();
+        
+        if (multiClipboard.length === 0) {
+            showToast('Zwischenablage ist leer', 'warning');
+            return;
+        }
+        
+        var $dropdown = $('<div class="bloecks-clipboard-dropdown"></div>');
+        
+        // Header
+        var headerText = multiClipboard.length === 1 ? 'Zwischenablage (1 Element)' : 'Zwischenablage (' + multiClipboard.length + ' Elemente)';
+        $dropdown.append('<div class="dropdown-header">' + headerText + '</div>');
+        
+        // Actions - always show for consistency
+        var $actions = $('<div class="dropdown-actions"></div>');
+        
+        // Only show selection controls if multiple items OR multi-clipboard is enabled
+        if (multiClipboard.length > 1 || isMultiClipboardEnabled) {
+            $actions.append('<button type="button" class="btn btn-xs btn-default" data-action="select-all">Alle auswählen</button>');
+            $actions.append('<button type="button" class="btn btn-xs btn-default" data-action="select-none">Auswahl aufheben</button>');
+        }
+        
+        $actions.append('<button type="button" class="btn btn-xs btn-danger" data-action="clear">Leeren</button>');
+        $dropdown.append($actions);
+        
+        // Items
+        multiClipboard.forEach(function(item, index) {
+            var $item = $('<div class="bloecks-clipboard-item"></div>');
+            
+            // Only show checkbox if multiple items OR multi-clipboard enabled
+            if (multiClipboard.length > 1 || isMultiClipboardEnabled) {
+                $item.append('<input type="checkbox" checked data-index="' + index + '">');
+            }
+            
+            var $info = $('<div class="bloecks-clipboard-item-info"></div>');
+            var moduleName = (item.source_info && item.source_info.module_name) ? item.source_info.module_name : 'Unbekanntes Modul';
+            $info.append('<div class="bloecks-clipboard-item-title">' + moduleName + '</div>');
+            if (item.source_info) {
+                var actionText = item.action === 'cut' ? 'ausgeschnitten' : 'kopiert';
+                $info.append('<div class="bloecks-clipboard-item-meta">' + actionText + ' aus: ' + item.source_info.article_name + ' (ID: ' + item.source_info.article_id + ')</div>');
+            }
+            $item.append($info);
+            
+            $dropdown.append($item);
+        });
+        
+        // Paste buttons
+        var $pasteActions = $('<div class="dropdown-actions"></div>');
+        
+        if (multiClipboard.length === 1) {
+            // Single item - simple paste
+            $pasteActions.append('<button type="button" class="btn btn-sm btn-success" data-action="paste-all">Einfügen</button>');
+        } else {
+            // Multiple items - selective paste options
+            $pasteActions.append('<button type="button" class="btn btn-sm btn-success" data-action="paste-selected">Ausgewählte einfügen</button>');
+            $pasteActions.append('<button type="button" class="btn btn-sm btn-primary" data-action="paste-all">Alle einfügen</button>');
+        }
+        
+        $dropdown.append($pasteActions);
+        
+        // Position dropdown
+        $('body').append($dropdown);
+        var buttonOffset = $button.offset();
+        $dropdown.css({
+            top: buttonOffset.top + $button.outerHeight() + 5,
+            left: Math.max(10, buttonOffset.left - ($dropdown.outerWidth() / 2) + ($button.outerWidth() / 2))
+        }).show();
+        
+        activeDropdown = $dropdown;
+        
+        // Event handlers for dropdown actions
+        setupDropdownEventHandlers($dropdown, $button);
+    }
+
+    function setupDropdownEventHandlers($dropdown, $button) {
+        $dropdown.on('click', '[data-action="select-all"]', function() {
+            $dropdown.find('input[type="checkbox"]').prop('checked', true);
+        });
+        
+        $dropdown.on('click', '[data-action="select-none"]', function() {
+            $dropdown.find('input[type="checkbox"]').prop('checked', false);
+        });
+        
+        $dropdown.on('click', '[data-action="clear"]', function() {
+            clearMultiClipboard();
+        });
+        
+        $dropdown.on('click', '[data-action="paste-selected"]', function() {
+            pasteSelectedItems($button);
+        });
+        
+        $dropdown.on('click', '[data-action="paste-all"]', function() {
+            pasteAllItems($button);
+        });
+        
+        $dropdown.on('click', '.bloecks-clipboard-item', function(e) {
+            if (e.target.type !== 'checkbox') {
+                var $checkbox = $(this).find('input[type="checkbox"]');
+                $checkbox.prop('checked', !$checkbox.prop('checked'));
+            }
+        });
+    }
+
+    function hideClipboardDropdown() {
+        if (activeDropdown) {
+            activeDropdown.remove();
+            activeDropdown = null;
+        }
+    }
+
+    function pasteSelectedItems($button) {
+        var selectedIndexes = [];
+        activeDropdown.find('input[type="checkbox"]:checked').each(function() {
+            selectedIndexes.push(parseInt($(this).data('index')));
+        });
+        
+        if (selectedIndexes.length === 0) {
+            showToast('Keine Elemente ausgewählt', 'warning');
+            return;
+        }
+        
+        pasteMultipleItems($button, selectedIndexes);
+        hideClipboardDropdown();
+    }
+
+    function pasteAllItems($button) {
+        var allIndexes = [];
+        for (var i = 0; i < multiClipboard.length; i++) {
+            allIndexes.push(i);
+        }
+        pasteMultipleItems($button, allIndexes);
+        hideClipboardDropdown();
+    }
+
+    function pasteMultipleItems($button, indexes) {
+        var targetSlice = $button.data('target-slice') || null;
+        var articleId = $button.data('article-id');
+        var clangId = $button.data('clang-id');
+        var ctypeId = $button.data('ctype-id') || 1;
+        
+        if (!articleId || !clangId) {
+            showToast('Fehler: Artikel-Parameter fehlen', 'error');
+            return;
+        }
+        
+        // Show loading toast
+        var loadingToastId = 'bloecks-multi-paste-' + Date.now();
+        var loadingToast = showToastWithId('Füge ' + indexes.length + ' Elemente ein...', 'info', 30000, loadingToastId);
+        
+        var data = {
+            'function': 'multi_paste',
+            'rex-api-call': 'bloecks',
+            'selected_items': JSON.stringify(indexes),
+            'bloecks_target': targetSlice,
+            'article_id': articleId,
+            'clang': clangId,
+            'ctype': ctypeId
+        };
+        
+        $.ajax({
+            url: 'index.php',
+            type: 'POST',
+            dataType: 'json',
+            data: data,
+            success: function(response) {
+                removeToast(loadingToastId);
+                
+                if (response.success) {
+                    showToast(response.message, 'success');
+                    
+                    // Remove inserted items from local clipboard
+                    var sortedIndexes = indexes.sort(function(a, b) { return b - a; }); // Sort descending
+                    sortedIndexes.forEach(function(index) {
+                        if (multiClipboard[index] && multiClipboard[index].action === 'cut') {
+                            multiClipboard.splice(index, 1);
+                        }
+                    });
+                    updatePasteButtons();
+                    
+                    // Set scroll target if new slices were created
+                    if (response.new_slice_ids && response.new_slice_ids.length > 0) {
+                        // Scroll to the first inserted slice
+                        sessionStorage.setItem('bloecks_scroll_target', response.new_slice_ids[0]);
+                    }
+                    
+                    // Reload page to show changes
+                    setTimeout(function() {
+                        // Use the correct PJAX method like REDAXO core does
+                        $.pjax({
+                            url: window.location.href,
+                            container: '#rex-js-page-main-content',
+                            fragment: '#rex-js-page-main-content',
+                            push: false // Important: don't push to history
+                        });
+                    }, 800);
+                } else {
+                    showToast(response.message || 'Fehler beim Einfügen der Elemente', 'error');
+                }
+            },
+            error: function() {
+                removeToast(loadingToastId);
+                showToast('Fehler beim Einfügen der Elemente', 'error');
+            }
+        });
+    }
+
+    // Re-initialize handlers after PJAX navigation
+    $(document).on('pjax:complete pjax:end', function() {
+        // Re-initialize copy/paste handlers after PJAX navigation
+        setTimeout(function() {
+            initCopyPasteHandlers();
+            
+            // Re-check multi-clipboard config after navigation
+            if (typeof BLOECKS_MULTI_CLIPBOARD !== 'undefined' && BLOECKS_MULTI_CLIPBOARD) {
+                setMultiClipboardEnabled(true);
+                loadMultiClipboardFromServer();
+            }
+        }, 100);
+    });
+    
+    function loadMultiClipboardFromServer() {
+        // Load current clipboard status from server
+        var data = {
+            'function': 'get_clipboard_status',
+            'rex-api-call': 'bloecks'
+        };
+        
+        $.ajax({
+            url: 'index.php',
+            type: 'POST',
+            dataType: 'json',
+            data: data,
+            success: function(response) {
+                if (response.success) {
+                    // Always sync multi-clipboard, regardless of setting
+                    if (response.multi_clipboard_items && response.multi_clipboard_items.length > 0) {
+                        multiClipboard = response.multi_clipboard_items;
+                    } else {
+                        multiClipboard = [];
+                    }
+                    
+                    // Set multi-clipboard mode based on server setting
+                    if (response.multi_clipboard_enabled) {
+                        setMultiClipboardEnabled(true);
+                    }
+                    
+                    updatePasteButtons();
+                }
+            },
+            error: function() {
+                // Silently fail - not critical
+                console.log('Could not load clipboard status');
+            }
+        });
+    }
+
+    // Hide dropdown when clicking outside
+    $(document).on('click', function(e) {
+        if (activeDropdown && !$(e.target).closest('.bloecks-clipboard-dropdown, .bloecks-paste').length) {
+            hideClipboardDropdown();
+        }
+    });
+
     return {
         init: initDragDrop,
         destroy: destroy,
@@ -650,7 +1013,85 @@ var BLOECKS = (function($) {
         checkForMessages: checkForMessages,
         checkForScrollTarget: checkForScrollTarget,
         initCopyPasteHandlers: initCopyPasteHandlers,
-        version: '2.4.0'
+        setMultiClipboardEnabled: setMultiClipboardEnabled,
+        addToMultiClipboard: addToMultiClipboard,
+        removeFromMultiClipboard: removeFromMultiClipboard,
+        clearMultiClipboard: clearMultiClipboard,
+        loadMultiClipboardFromServer: loadMultiClipboardFromServer,
+        version: '2.5.0'
     };
     
 })(jQuery);
+
+// Global initialization - always runs
+$(document).ready(function() {
+    // Always initialize copy/paste handlers
+    BLOECKS.initCopyPasteHandlers();
+    
+    // Initialize multi-clipboard if enabled
+    if (typeof BLOECKS_MULTI_CLIPBOARD !== 'undefined' && BLOECKS_MULTI_CLIPBOARD) {
+        BLOECKS.setMultiClipboardEnabled(true);
+    }
+});
+
+// Re-initialize after PJAX navigation
+$(document).on('pjax:complete pjax:end rex:ready', function() {
+    setTimeout(function() {
+        // Always reinitialize handlers
+        BLOECKS.initCopyPasteHandlers();
+        
+        // Always load clipboard status from server after navigation
+        if (typeof BLOECKS_MULTI_CLIPBOARD !== 'undefined' && BLOECKS_MULTI_CLIPBOARD) {
+            BLOECKS.setMultiClipboardEnabled(true);
+        }
+        
+        // Load current clipboard status to sync frontend with backend
+        BLOECKS.loadMultiClipboardFromServer();
+        
+        // Check for scroll target after PJAX navigation (important for paste operations)
+        BLOECKS.checkForScrollTarget();
+    }, 100);
+});
+
+// Fallback: Watch for new bloecks buttons being added to DOM
+if (typeof MutationObserver !== 'undefined') {
+    var observer = new MutationObserver(function(mutations) {
+        var shouldReinit = false;
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                $(mutation.addedNodes).each(function() {
+                    if ($(this).find('.bloecks-copy, .bloecks-cut, .bloecks-paste').length > 0) {
+                        shouldReinit = true;
+                        return false;
+                    }
+                });
+            }
+        });
+        
+        if (shouldReinit) {
+            setTimeout(function() {
+                BLOECKS.initCopyPasteHandlers();
+            }, 50);
+        }
+    });
+    
+    // Start observing only when document.body is available
+    function startObserving() {
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        } else {
+            // Wait for body to be available
+            setTimeout(startObserving, 50);
+        }
+    }
+    
+    // Initialize observer
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startObserving);
+    } else {
+        startObserving();
+    }
+}

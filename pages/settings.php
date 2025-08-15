@@ -24,6 +24,11 @@ $select = $field->getSelect();
 $select->addOption(rex_i18n::msg('bloecks_paste_position_after'), 'after');
 $select->addOption(rex_i18n::msg('bloecks_paste_position_before'), 'before');
 
+$field = $form->addCheckboxField('enable_multi_clipboard');
+$field->setLabel(rex_i18n::msg('bloecks_enable_multi_clipboard'));
+$field->addOption(rex_i18n::msg('bloecks_active'), 1);
+$field->setNotice(rex_i18n::msg('bloecks_multi_clipboard_notice') . '<br><strong>Hinweis:</strong> Multi-Clipboard ist nur verfügbar, wenn diese Einstellung aktiviert ist. Zusätzlich benötigen Benutzer die "bloecks[multi]"-Berechtigung (Administratoren haben automatisch Zugriff).');
+
 $field = $form->addTextField('templates_exclude');
 $field->setLabel(rex_i18n::msg('bloecks_templates_exclude'));
 $field->setNotice(rex_i18n::msg('bloecks_csv_notice'));

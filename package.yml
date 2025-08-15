@@ -28,6 +28,7 @@ requires:
 default_config:
     enable_copy_paste: false
     enable_drag_drop: false
+    enable_multi_clipboard: false
     paste_position: 'after'
     templates_exclude: ''
     modules_exclude: ''
