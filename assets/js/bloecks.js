@@ -1055,7 +1055,7 @@ $(document).on('pjax:complete pjax:end rex:ready', function() {
 
 // Fallback: Watch for new bloecks buttons being added to DOM
 if (typeof MutationObserver !== 'undefined') {
-    var observer = new MutationObserver(function(mutations) {
+    var bloecksObserver = new MutationObserver(function(mutations) {
         var shouldReinit = false;
         mutations.forEach(function(mutation) {
             if (mutation.type === 'childList') {
@@ -1078,7 +1078,7 @@ if (typeof MutationObserver !== 'undefined') {
     // Start observing only when document.body is available
     function startObserving() {
         if (document.body) {
-            observer.observe(document.body, {
+            bloecksObserver.observe(document.body, {
                 childList: true,
                 subtree: true
             });
