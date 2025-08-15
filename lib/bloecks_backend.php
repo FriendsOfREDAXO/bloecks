@@ -30,7 +30,12 @@ use function sprintf;
 class Backend
 {
     /**
-     * Initialize the backend functionality.
+     * In                    rex_article_cache::delete($articleId, $clang);
+
+                    // Create success message with hidden new slice ID embedded in the message
+                    $successMessage = rex_i18n::msg('bloecks_slice_inserted') . 
+                        '<span style="display: none;" data-bloecks-new-slice-id="' . $newSliceId . '"></span>';
+                    $msg = rex_view::success($successMessage);ze the backend functionality.
      */
     public static function init(): void
     {
@@ -124,6 +129,12 @@ class Backend
             return $ep->getSubject();
         }
 
+        // Get revision from Version plugin if available
+        $revision = 0; // Default revision (LIVE)
+        if (class_exists('rex_article_revision')) {
+            $revision = \rex_article_revision::getSessionArticleRevision($articleId);
+        }
+
         // Get category_id for proper URL construction
         $categoryId = 0;
         if ($articleId) {
@@ -144,7 +155,7 @@ class Backend
             'ctype' => $ctype,
             'slice_id' => $sliceId,
             'module_id' => $moduleId,
-            'revision' => 0,
+            'revision' => $revision,
         ];
 
         $buttons = [];
@@ -246,12 +257,18 @@ class Backend
             return $ep->getSubject();
         }
 
+        // Get revision from Version plugin if available
+        $revision = 0; // Default revision (LIVE)
+        if (class_exists('rex_article_revision')) {
+            $revision = \rex_article_revision::getSessionArticleRevision($articleId);
+        }
+
         // Check if there are already slices in this ctype - if yes, don't show button
         $sql = rex_sql::factory();
         $existingSlices = $sql->getArray(
             'SELECT id FROM ' . rex::getTablePrefix() . 'article_slice
-             WHERE article_id=? AND clang_id=? AND ctype_id=?',
-            [$articleId, $clang, $ctype],
+             WHERE article_id=? AND clang_id=? AND ctype_id=? AND revision=?',
+            [$articleId, $clang, $ctype, $revision],
         );
 
         if (count($existingSlices) > 0) {
@@ -274,24 +291,55 @@ class Backend
             'category_id' => $categoryId,
             'clang' => $clang,
             'ctype' => $ctype,
-            'revision' => 0,
+            'revision' => $revision,
         ];
 
         // Add paste button before module selection
         $sourceInfo = $clipboard['source_info'] ?? null;
-        $tooltipText = rex_i18n::msg('bloecks_paste_from_clipboard');
-        $buttonText = rex_i18n::msg('bloecks_action_paste');
-
-        if ($sourceInfo) {
-            $actionText = 'cut' === $clipboard['action'] ? rex_i18n::msg('bloecks_action_cut') : rex_i18n::msg('bloecks_action_copied');
+        
+        // Bestimme den Modulnamen für den Button-Text
+        $moduleName = '';
+        
+        if ($sourceInfo && !empty($sourceInfo['module_name'])) {
+            // Verwende module_name aus source_info wenn verfügbar
+            $moduleName = $sourceInfo['module_name'];
             $tooltipText = sprintf(
-                '%s: "%s" aus "%s" (ID: %d)',
-                $actionText,
+                'Fügt ein: "%s" aus "%s" (ID: %d)',
                 $sourceInfo['module_name'],
                 $sourceInfo['article_name'],
                 $sourceInfo['article_id'],
             );
-            $buttonText = sprintf(rex_i18n::msg('bloecks_paste_module'), $sourceInfo['module_name']);
+        } else {
+            // Fallback: Hole Modulnamen aus clipboard data
+            $moduleId = $clipboard['data']['module_id'] ?? null;
+            if ($moduleId) {
+                $moduleSql = rex_sql::factory();
+                $moduleRow = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
+                $moduleName = $moduleRow ? $moduleRow[0]['name'] : rex_i18n::msg('bloecks_error_unknown_module');
+            }
+            $tooltipText = rex_i18n::msg('bloecks_paste_from_clipboard');
+        }
+        
+        // Button-Text mit REDAXO-Sprachsystem (Parameter wird automatisch in {0} eingesetzt)
+        if (!empty($moduleName)) {
+            $buttonText = rex_i18n::msg('bloecks_paste_module', $moduleName);
+        } else {
+            $buttonText = rex_i18n::msg('bloecks_action_paste');
+        }
+        
+        // Tooltip - sollte immer "Fügt ein: ..." sein, nicht "Kopiert: ..."
+        if (!empty($moduleName)) {
+            $tooltipText = sprintf('Fügt ein: "%s"', $moduleName);
+            if ($sourceInfo) {
+                $tooltipText = sprintf(
+                    'Fügt ein: "%s" aus "%s" (ID: %d)',
+                    $sourceInfo['module_name'],
+                    $sourceInfo['article_name'],
+                    $sourceInfo['article_id'],
+                );
+            }
+        } else {
+            $tooltipText = rex_i18n::msg('bloecks_paste_from_clipboard');
         }
 
         $pasteButton = sprintf(
@@ -354,7 +402,7 @@ class Backend
                 }
 
                 // Store slice data in session
-                $fields = ['module_id'];
+                $fields = ['module_id', 'status'];
                 for ($i = 1; $i <= 20; ++$i) {
                     $fields[] = 'value' . $i;
                 }
@@ -383,6 +431,7 @@ class Backend
                 rex_set_session('bloecks_clipboard', [
                     'data' => $data,
                     'source_slice_id' => $sliceId,
+                    'source_revision' => $row['revision'] ?? 0, // Store source revision
                     'action' => $action,
                     'timestamp' => time(),
                     'source_info' => [
@@ -426,24 +475,30 @@ class Backend
                 $priority = 1;
                 $sql = rex_sql::factory();
 
+                // Get revision from Version plugin if available
+                $revision = 0; // Default revision (LIVE)
+                if (class_exists('rex_article_revision')) {
+                    $revision = \rex_article_revision::getSessionArticleRevision($articleId);
+                }
+
                 if ($targetSlice) {
                     $sql->setQuery('SELECT priority FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$targetSlice]);
                     if ($sql->getRows()) {
                         $priority = (int) $sql->getValue('priority') + 1; // Insert AFTER target slice
-                        // Shift existing slices down
+                        // Shift existing slices down (only in current revision)
                         $shift = rex_sql::factory();
                         $shift->setQuery(
                             'UPDATE ' . rex::getTablePrefix() . 'article_slice
                              SET priority = priority + 1
-                             WHERE article_id=? AND clang_id=? AND priority>=?',
-                            [$articleId, $clang, $priority],
+                             WHERE article_id=? AND clang_id=? AND revision=? AND priority>=?',
+                            [$articleId, $clang, $revision, $priority],
                         );
                     }
                 } else {
                     $priority = (int) ($sql->getArray(
                         'SELECT MAX(priority) p FROM ' . rex::getTablePrefix() . 'article_slice
-                         WHERE article_id=? AND clang_id=?',
-                        [$articleId, $clang],
+                         WHERE article_id=? AND clang_id=? AND revision=?',
+                        [$articleId, $clang, $revision],
                     )[0]['p'] ?? 0) + 1;
                 }
 
@@ -453,14 +508,11 @@ class Backend
                 $ins->setValue('article_id', $articleId);
                 $ins->setValue('clang_id', $clang);
                 $ins->setValue('ctype_id', $ctype);
-                $ins->setValue('module_id', $data['module_id']);
                 $ins->setValue('priority', $priority);
-                $ins->setValue('status', 1);
+                $ins->setValue('revision', $revision);
 
                 foreach ($data as $k => $v) {
-                    if ('module_id' !== $k) {
-                        $ins->setValue($k, $v);
-                    }
+                    $ins->setValue($k, $v);
                 }
 
                 $ins->addGlobalCreateFields();
@@ -593,5 +645,31 @@ class Backend
         }
 
         return true;
+    }
+
+    /**
+     * Selects a value of a slice from the database.
+     * Helper function similar to the old bloecks version.
+     *
+     * @param int $sliceId ID of the slice
+     * @param string $key name of the value
+     * @param mixed $default if the value is not contained in the database or set to NULL return this value (default is NULL)
+     *
+     * @return mixed The slice's value
+     */
+    protected static function getValueOfSlice($sliceId, $key, $default = null)
+    {
+        $sliceId = (int) $sliceId;
+        $value = $default;
+
+        if ($sliceId > 0) {
+            $sql = rex_sql::factory();
+            $sql->setQuery('SELECT ' . $key . ' FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
+            if ($sql->getRows() > 0 && $sql->hasValue($key)) {
+                $value = $sql->getValue($key);
+            }
+        }
+
+        return $value;
     }
 }
