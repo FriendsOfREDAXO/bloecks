@@ -107,7 +107,7 @@ class Backend
         if (!$addon->getConfig('enable_copy_paste', false)) {
             return $ep->getSubject();
         }
-        
+
         if (!$user || (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]'))) {
             return $ep->getSubject();
         }
@@ -263,7 +263,7 @@ class Backend
         if (!$addon->getConfig('enable_copy_paste', false)) {
             return $ep->getSubject();
         }
-        
+
         if (!$user || (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]'))) {
             return $ep->getSubject();
         }
