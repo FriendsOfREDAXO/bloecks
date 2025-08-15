@@ -561,14 +561,40 @@ var BLOECKS = (function($) {
             
             var $this = $(this);
             
-            // Always show dropdown if we have any clipboard items
-            if (multiClipboard.length > 0) {
-                showClipboardDropdown($this);
+            // Check if we have any clipboard items
+            if (multiClipboard.length === 0) {
+                showToast('Zwischenablage ist leer', 'warning');
                 return;
             }
             
-            // No clipboard items - show error
-            showToast('Zwischenablage ist leer', 'warning');
+            // If multi-clipboard is not enabled or only one item exists, do direct paste
+            if (!isMultiClipboardEnabled || multiClipboard.length === 1) {
+                // Direct paste of the (single) item
+                var targetSlice = $this.data('target-slice') || null;
+                var articleId = $this.data('article-id');
+                var clangId = $this.data('clang-id');
+                var ctypeId = $this.data('ctype-id') || 1;
+                
+                if (!articleId || !clangId) {
+                    showToast('Fehler: Artikel-Parameter fehlen', 'error');
+                    return;
+                }
+                
+                var data = {
+                    'function': 'paste',
+                    'rex-api-call': 'bloecks',
+                    'bloecks_target': targetSlice,
+                    'article_id': articleId,
+                    'clang': clangId,
+                    'ctype': ctypeId
+                };
+                
+                performCopyPasteAction('paste', data);
+                return;
+            }
+            
+            // Multi-clipboard is enabled and we have multiple items - show dropdown
+            showClipboardDropdown($this);
         });
     }
     
@@ -868,6 +894,27 @@ var BLOECKS = (function($) {
     }
 
     function pasteAllItems($button) {
+        // Check if we have only one item and multi-clipboard is NOT enabled
+        if (multiClipboard.length === 1 && !isMultiClipboardEnabled) {
+            // Use simple paste for single item when multi-clipboard is disabled
+            var targetSlice = $button.data('target-slice') || null;
+            var articleId = $button.data('article-id');
+            var clangId = $button.data('clang-id');
+            var ctypeId = $button.data('ctype-id') || 1;
+            
+            var params = {
+                'bloecks_target': targetSlice,
+                'article_id': articleId,
+                'clang': clangId,
+                'ctype': ctypeId
+            };
+            
+            performCopyPasteAction('paste', params);
+            hideClipboardDropdown();
+            return;
+        }
+        
+        // For multiple items or when multi-clipboard is enabled, use multi-paste
         var allIndexes = [];
         for (var i = 0; i < multiClipboard.length; i++) {
             allIndexes.push(i);
