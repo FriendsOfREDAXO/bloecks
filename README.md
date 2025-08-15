@@ -60,7 +60,6 @@ MIT
 
 **Leads**
 - [Thomas Skerbis](https://github.com/skerbis) 
-- [Alexander Walther](https://github.com/alxndr-w/)
 
 #### DankeschÖn
 
