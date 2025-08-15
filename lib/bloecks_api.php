@@ -257,7 +257,7 @@ class Api extends rex_api_function
         }
 
         // Get paste position from parameter or config
-        if ($pastePosition === null) {
+        if (null === $pastePosition) {
             $addon = rex_addon::get('bloecks');
             $pastePosition = $addon->getConfig('paste_position', 'after');
         }
@@ -454,7 +454,7 @@ class Api extends rex_api_function
         }
 
         // Get paste position from parameter or config
-        if ($pastePosition === null) {
+        if (null === $pastePosition) {
             $addon = rex_addon::get('bloecks');
             $pastePosition = $addon->getConfig('paste_position', 'after');
         }
