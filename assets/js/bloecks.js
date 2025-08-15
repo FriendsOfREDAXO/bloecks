@@ -301,6 +301,7 @@ var BLOECKS = (function($) {
     // Check for scroll target after page reload
     function checkForScrollTarget() {
         var scrollTarget = sessionStorage.getItem('bloecks_scroll_target');
+        var scrollPosition = sessionStorage.getItem('bloecks_scroll_position');
         
         if (scrollTarget) {
             // Clear the target immediately to prevent repeated scrolling
@@ -322,15 +323,17 @@ var BLOECKS = (function($) {
                         var slice = allSlices[i];
                         var sliceIdInput = slice.querySelector('input[name="slice_id"]');
                         var sliceId = sliceIdInput ? sliceIdInput.value : 'no-id';
-                            element: slice,
-                            id: sliceId,
-                            classes: slice.className,
-                            tag: slice.tagName
-                        });
+                        // Debug info for slice
                     }
                 }
             }, delay);
-        } else {
+        } else if (scrollPosition) {
+            // Restore scroll position für copy/cut operations
+            sessionStorage.removeItem('bloecks_scroll_position');
+            
+            setTimeout(function() {
+                window.scrollTo(0, parseInt(scrollPosition, 10));
+            }, 100); // Shorter delay for position restore
         }
     }    function findSliceById(sliceId) {
         
@@ -371,11 +374,6 @@ var BLOECKS = (function($) {
         if (!sliceElement) {
             return;
         }
-        
-            width: sliceElement.offsetWidth,
-            height: sliceElement.offsetHeight,
-            top: sliceElement.offsetTop
-        });
         
         // Make sure the element is visible and rendered
         if (sliceElement.offsetParent === null) {
@@ -607,32 +605,29 @@ var BLOECKS = (function($) {
                 
                 
                 if (response.success) {
-                    showToast(response.message, 'success', 3000); // Shorter duration
+                    showToast(response.message, 'success', 6000); // Längere Anzeigedauer für Paste-Erfolg
                     
-                    // Only reload for paste actions - copy/cut don't need reload
+                    // Scroll-Position für copy/cut speichern, für paste den Ziel-Slice
                     if (action === 'paste' && response.reload_needed) {
                         // Store scroll target in sessionStorage for after reload
                         if (response.scroll_to_slice && response.new_slice_id) {
                             sessionStorage.setItem('bloecks_scroll_target', response.new_slice_id);
                         }
-                        
-                        // Shorter delay for faster UX
-                        setTimeout(function() {
-                            // Use the correct PJAX method like REDAXO core does
-                            $.pjax({
-                                url: window.location.href,
-                                container: '#rex-js-page-main-content',
-                                fragment: '#rex-js-page-main-content',
-                                push: false // Important: don't push to history
-                            });
-                        }, 800); // Shorter wait time
+                    } else if (action === 'copy' || action === 'cut') {
+                        // Für copy/cut: aktuelle Scroll-Position speichern
+                        sessionStorage.setItem('bloecks_scroll_position', window.pageYOffset || document.documentElement.scrollTop);
                     }
                     
-                    // For copy/cut, just update the button states without reload
-                    if (action === 'copy' || action === 'cut') {
-                        // Update UI to show the action was successful
-                        // You can add visual feedback here if needed
-                    }
+                    // PJAX reload für alle Aktionen (copy/cut/paste) für Button-State Updates
+                    setTimeout(function() {
+                        // Use the correct PJAX method like REDAXO core does
+                        $.pjax({
+                            url: window.location.href,
+                            container: '#rex-js-page-main-content',
+                            fragment: '#rex-js-page-main-content',
+                            push: false // Important: don't push to history
+                        });
+                    }, 800); // Shorter wait time
                 } else {
                     showToast(response.message || 'Unbekannter Fehler', 'error');
                 }

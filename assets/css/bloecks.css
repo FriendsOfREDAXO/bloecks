@@ -212,3 +212,28 @@
 .rex-icon-paste::before {
     content: "\f0ea" !important; /* fa-regular fa-paste */
 }
+
+/* Active/Copied button states */
+.bloecks-copy.is-copied {
+    background-color: rgba(50, 64, 80, 0.5) !important;
+    border-color: rgba(50, 64, 80, 0.7) !important;
+    color: white !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+}
+
+.bloecks-copy.is-copied .rex-icon {
+    color: white !important;
+}
+
+.bloecks-cut.is-cut {
+    background-color: rgba(220, 53, 69, 0.5) !important;
+    border-color: rgba(220, 53, 69, 0.7) !important;
+    color: white !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+}
+
+.bloecks-cut.is-cut .rex-icon {
+    color: white !important;
+}
