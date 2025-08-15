@@ -2,6 +2,13 @@ bloecks_navigation = blÖcks
 bloecks_overview = Overview
 bloecks_settings = Settings
 bloecks_docs = Docs
+
+# Permissions
+perm_general_bloecks[] = bloecks[]
+perm_general_bloecks[copy] = Copy/Cut slices
+perm_general_bloecks[order] = Change slice order  
+perm_general_bloecks[multi] = Use Multi-Clipboard
+
 bloecks_enable_copy_paste = Enable Copy & Paste
 bloecks_enable_drag_drop = Enable Drag & Drop
 bloecks_paste_position = Paste Position
@@ -61,3 +68,13 @@ bloecks_slice_inserted = "{0}" ({1} slice) was inserted
 # API errors
 bloecks_api_error_missing_parameters = Missing parameters
 bloecks_api_error_unknown_function = Unknown function
+
+# Multi-Clipboard Feature
+bloecks_enable_multi_clipboard = Enable Multi-Clipboard
+bloecks_multi_clipboard_notice = Allows copying multiple slices and selective pasting
+bloecks_clipboard_items = Clipboard ({0} items)
+bloecks_paste_all = Paste all
+bloecks_paste_selected = Paste selected
+bloecks_clear_clipboard = Clipboard cleared
+bloecks_select_all = Select all
+bloecks_select_none = Deselect all

@@ -2,6 +2,13 @@ bloecks_navigation = blÖcks
 bloecks_overview = Übersicht
 bloecks_settings = Einstellungen
 bloecks_docs = Doku
+
+# Permissions
+perm_general_bloecks[] = bloecks[]
+perm_general_bloecks[copy] = Kopieren/Ausschneiden von Slices
+perm_general_bloecks[order] = Reihenfolge von Slices ändern  
+perm_general_bloecks[multi] = Multi-Clipboard verwenden
+
 bloecks_enable_copy_paste = Copy & Paste aktivieren
 bloecks_enable_drag_drop = Drag & Drop aktivieren
 bloecks_paste_position = Einfügeposition
@@ -61,3 +68,13 @@ bloecks_slice_inserted = "{0}" ({1} Slice) wurde eingefügt
 # API errors
 bloecks_api_error_missing_parameters = Fehlende Parameter
 bloecks_api_error_unknown_function = Unbekannte Funktion
+
+# Multi-Clipboard Feature
+bloecks_enable_multi_clipboard = Multi-Clipboard aktivieren
+bloecks_multi_clipboard_notice = Ermöglicht mehrere Slices gleichzeitig zu kopieren und selektiv einzufügen
+bloecks_clipboard_items = Zwischenablage ({0} Elemente)
+bloecks_paste_all = Alle einfügen
+bloecks_paste_selected = Ausgewählte einfügen
+bloecks_clear_clipboard = Zwischenablage geleert
+bloecks_select_all = Alle auswählen
+bloecks_select_none = Auswahl aufheben
