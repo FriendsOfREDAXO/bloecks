@@ -6,12 +6,16 @@ use rex;
 use rex_api_function;
 use rex_article;
 use rex_article_cache;
+use rex_article_revision;
 use rex_article_slice_history;
 use rex_content_service;
 use rex_i18n;
 use rex_plugin;
 use rex_sql;
 use rex_sql_exception;
+
+use function in_array;
+use function sprintf;
 
 /**
  * API endpoint for drag & drop ordering (exactly like slice_columns sorter.php).
@@ -61,7 +65,7 @@ class Api extends rex_api_function
         echo json_encode(['error' => rex_i18n::msg('bloecks_api_error_unknown_function')]);
         exit;
     }
-    
+
     private function handleCopyPasteAjax($action)
     {
         $user = rex::getUser();
@@ -75,7 +79,7 @@ class Api extends rex_api_function
             case 'cut':
                 $this->handleCopyOrCut($action);
                 break;
-                
+
             case 'paste':
                 $this->handlePaste();
                 break;
@@ -133,7 +137,7 @@ class Api extends rex_api_function
 
         // Get source slice info
         $sourceArticle = rex_article::get($row['article_id'], $row['clang_id']);
-        
+
         // Get module name
         $moduleSql = rex_sql::factory();
         $moduleRow = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$row['module_id']]);
@@ -154,7 +158,7 @@ class Api extends rex_api_function
         ]);
 
         $message = 'cut' === $action ? rex_i18n::msg('bloecks_slice_cut') : rex_i18n::msg('bloecks_slice_copied');
-        
+
         echo json_encode(['success' => true, 'message' => $message, 'reload_needed' => false]);
     }
 
@@ -192,7 +196,7 @@ class Api extends rex_api_function
         // Get revision from Version plugin if available
         $revision = 0; // Default revision (LIVE)
         if (class_exists('rex_article_revision')) {
-            $revision = \rex_article_revision::getSessionArticleRevision($articleId);
+            $revision = rex_article_revision::getSessionArticleRevision($articleId);
         }
 
         if ($targetSlice) {
@@ -251,17 +255,16 @@ class Api extends rex_api_function
             $sourceInfo = $clipboard['source_info'] ?? null;
             $moduleName = $sourceInfo ? $sourceInfo['module_name'] : rex_i18n::msg('bloecks_unknown_module');
             $actionText = 'cut' === $clipboard['action'] ? rex_i18n::msg('bloecks_action_cut') : rex_i18n::msg('bloecks_action_copy');
-            
+
             $message = rex_i18n::msg('bloecks_slice_inserted', $moduleName, $actionText);
 
             echo json_encode([
-                'success' => true, 
-                'message' => $message, 
+                'success' => true,
+                'message' => $message,
                 'reload_needed' => true,
                 'new_slice_id' => $newSliceId,
-                'scroll_to_slice' => true
+                'scroll_to_slice' => true,
             ]);
-            
         } catch (rex_sql_exception $e) {
             echo json_encode(['success' => false, 'message' => sprintf(rex_i18n::msg('bloecks_error_insert_failed'), $e->getMessage())]);
         }

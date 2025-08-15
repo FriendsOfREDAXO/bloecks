@@ -15,7 +15,6 @@ use rex_extension_point;
 use rex_i18n;
 use rex_sql;
 use rex_sql_exception;
-use rex_url;
 use rex_view;
 
 use function count;
