@@ -6,6 +6,7 @@ use rex;
 use rex_addon;
 use rex_article;
 use rex_article_cache;
+use rex_article_revision;
 use rex_be_controller;
 use rex_content_service;
 use rex_csrf_token;
@@ -30,12 +31,12 @@ use function sprintf;
 class Backend
 {
     /**
-     * In                    rex_article_cache::delete($articleId, $clang);
-
-                    // Create success message with hidden new slice ID embedded in the message
-                    $successMessage = rex_i18n::msg('bloecks_slice_inserted') . 
-                        '<span style="display: none;" data-bloecks-new-slice-id="' . $newSliceId . '"></span>';
-                    $msg = rex_view::success($successMessage);ze the backend functionality.
+     * In                    rex_article_cache::delete($articleId, $clang);.
+     *
+     * // Create success message with hidden new slice ID embedded in the message
+     * $successMessage = rex_i18n::msg('bloecks_slice_inserted') .
+     * '<span style="display: none;" data-bloecks-new-slice-id="' . $newSliceId . '"></span>';
+     * $msg = rex_view::success($successMessage);ze the backend functionality.
      */
     public static function init(): void
     {
@@ -132,7 +133,7 @@ class Backend
         // Get revision from Version plugin if available
         $revision = 0; // Default revision (LIVE)
         if (class_exists('rex_article_revision')) {
-            $revision = \rex_article_revision::getSessionArticleRevision($articleId);
+            $revision = rex_article_revision::getSessionArticleRevision($articleId);
         }
 
         // Get category_id for proper URL construction
@@ -266,7 +267,7 @@ class Backend
         // Get revision from Version plugin if available
         $revision = 0; // Default revision (LIVE)
         if (class_exists('rex_article_revision')) {
-            $revision = \rex_article_revision::getSessionArticleRevision($articleId);
+            $revision = rex_article_revision::getSessionArticleRevision($articleId);
         }
 
         // Check if there are already slices in this ctype - if yes, don't show button
@@ -302,10 +303,10 @@ class Backend
 
         // Add paste button before module selection
         $sourceInfo = $clipboard['source_info'] ?? null;
-        
+
         // Bestimme den Modulnamen für den Button-Text
         $moduleName = '';
-        
+
         if ($sourceInfo && !empty($sourceInfo['module_name'])) {
             // Verwende module_name aus source_info wenn verfügbar
             $moduleName = $sourceInfo['module_name'];
@@ -325,14 +326,14 @@ class Backend
             }
             $tooltipText = rex_i18n::msg('bloecks_paste_from_clipboard');
         }
-        
+
         // Button-Text mit REDAXO-Sprachsystem (Parameter wird automatisch in {0} eingesetzt)
         if (!empty($moduleName)) {
             $buttonText = rex_i18n::msg('bloecks_paste_module', $moduleName);
         } else {
             $buttonText = rex_i18n::msg('bloecks_action_paste');
         }
-        
+
         // Tooltip - sollte immer "Fügt ein: ..." sein, nicht "Kopiert: ..."
         if (!empty($moduleName)) {
             $tooltipText = sprintf('Fügt ein: "%s"', $moduleName);
@@ -483,7 +484,7 @@ class Backend
                 // Get revision from Version plugin if available
                 $revision = 0; // Default revision (LIVE)
                 if (class_exists('rex_article_revision')) {
-                    $revision = \rex_article_revision::getSessionArticleRevision($articleId);
+                    $revision = rex_article_revision::getSessionArticleRevision($articleId);
                 }
 
                 if ($targetSlice) {
