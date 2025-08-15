@@ -193,21 +193,30 @@ class Backend
         // Paste button - always available in slice menu
         if ($clipboard) {
             $sourceInfo = $clipboard['source_info'] ?? null;
-            $tooltipText = rex_i18n::msg('bloecks_paste_slice');
+            
+            // Get paste position from config
+            $pastePosition = $addon->getConfig('paste_position', 'after');
+            $isPasteBefore = $pastePosition === 'before';
+            
+            // Set tooltip text based on paste position
+            $tooltipText = $isPasteBefore ? rex_i18n::msg('bloecks_paste_slice_before') : rex_i18n::msg('bloecks_paste_slice_after');
+            $hiddenLabel = $isPasteBefore ? 'Paste before' : 'Paste after';
 
             if ($sourceInfo) {
                 $actionText = 'cut' === $clipboard['action'] ? rex_i18n::msg('bloecks_action_cut') : rex_i18n::msg('bloecks_action_copied');
+                $positionText = $isPasteBefore ? rex_i18n::msg('paste_position_before') : rex_i18n::msg('paste_position_after');
                 $tooltipText = sprintf(
-                    '%s: "%s" aus "%s" (ID: %d)',
+                    '%s: "%s" aus "%s" (ID: %d) - %s',
                     $actionText,
                     $sourceInfo['module_name'],
                     $sourceInfo['article_name'],
                     $sourceInfo['article_id'],
+                    $positionText
                 );
             }
 
             $buttons[] = [
-                'hidden_label' => 'Paste after',
+                'hidden_label' => $hiddenLabel,
                 'url' => '#',
                 'icon' => 'paste',
                 'attributes' => [
@@ -217,6 +226,7 @@ class Backend
                     'data-article-id' => $articleId,
                     'data-clang-id' => $clang,
                     'data-ctype-id' => $ctype,
+                    'data-paste-position' => $pastePosition,
                 ],
             ];
         }
@@ -302,6 +312,9 @@ class Backend
 
         // Add paste button before module selection
         $sourceInfo = $clipboard['source_info'] ?? null;
+        
+        // Get paste position from config
+        $pastePosition = $addon->getConfig('paste_position', 'after');
 
         // Bestimme den Modulnamen für den Button-Text
         $moduleName = '';
@@ -349,11 +362,12 @@ class Backend
         }
 
         $pasteButton = sprintf(
-            '<div class="rex-toolbar"><div class="btn-toolbar"><a href="#" class="btn btn-success bloecks-paste" title="%s" data-target-slice="0" data-article-id="%d" data-clang-id="%d" data-ctype-id="%d"><i class="rex-icon rex-icon-paste"></i> %s</a></div></div>',
+            '<div class="rex-toolbar"><div class="btn-toolbar"><a href="#" class="btn btn-success bloecks-paste" title="%s" data-target-slice="0" data-article-id="%d" data-clang-id="%d" data-ctype-id="%d" data-paste-position="%s"><i class="rex-icon rex-icon-paste"></i> %s</a></div></div>',
             htmlspecialchars($tooltipText),
             $articleId,
             $clang,
             $ctype,
+            $pastePosition,
             htmlspecialchars($buttonText),
         );
 

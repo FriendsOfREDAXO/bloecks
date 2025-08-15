@@ -18,6 +18,12 @@ $field = $form->addCheckboxField('enable_drag_drop');
 $field->setLabel(rex_i18n::msg('bloecks_enable_drag_drop'));
 $field->addOption(rex_i18n::msg('bloecks_active'), 1);
 
+$field = $form->addSelectField('paste_position');
+$field->setLabel(rex_i18n::msg('bloecks_paste_position'));
+$select = $field->getSelect();
+$select->addOption(rex_i18n::msg('bloecks_paste_position_after'), 'after');
+$select->addOption(rex_i18n::msg('bloecks_paste_position_before'), 'before');
+
 $field = $form->addTextField('templates_exclude');
 $field->setLabel(rex_i18n::msg('bloecks_templates_exclude'));
 $field->setNotice(rex_i18n::msg('bloecks_csv_notice'));

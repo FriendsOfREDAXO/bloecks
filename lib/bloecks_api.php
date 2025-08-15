@@ -3,6 +3,7 @@
 namespace FriendsOfRedaxo\Bloecks;
 
 use rex;
+use rex_addon;
 use rex_api_function;
 use rex_article;
 use rex_article_cache;
@@ -199,18 +200,36 @@ class Api extends rex_api_function
             $revision = rex_article_revision::getSessionArticleRevision($articleId);
         }
 
+        // Get paste position from config
+        $addon = rex_addon::get('bloecks');
+        $pastePosition = $addon->getConfig('paste_position', 'after');
+
         if ($targetSlice) {
             $sql->setQuery('SELECT priority FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$targetSlice]);
             if ($sql->getRows()) {
-                $priority = (int) $sql->getValue('priority') + 1; // Insert AFTER target slice
-                // Shift existing slices down (only in current revision)
-                $shift = rex_sql::factory();
-                $shift->setQuery(
-                    'UPDATE ' . rex::getTablePrefix() . 'article_slice
-                     SET priority = priority + 1
-                     WHERE article_id=? AND clang_id=? AND revision=? AND priority>=?',
-                    [$articleId, $clang, $revision, $priority],
-                );
+                $currentPriority = (int) $sql->getValue('priority');
+                
+                if ($pastePosition === 'before') {
+                    $priority = $currentPriority; // Insert at current priority
+                    // Shift target slice and all following slices down
+                    $shift = rex_sql::factory();
+                    $shift->setQuery(
+                        'UPDATE ' . rex::getTablePrefix() . 'article_slice
+                         SET priority = priority + 1
+                         WHERE article_id=? AND clang_id=? AND revision=? AND priority>=?',
+                        [$articleId, $clang, $revision, $priority],
+                    );
+                } else {
+                    $priority = $currentPriority + 1; // Insert AFTER target slice
+                    // Shift existing slices down (only in current revision)
+                    $shift = rex_sql::factory();
+                    $shift->setQuery(
+                        'UPDATE ' . rex::getTablePrefix() . 'article_slice
+                         SET priority = priority + 1
+                         WHERE article_id=? AND clang_id=? AND revision=? AND priority>=?',
+                        [$articleId, $clang, $revision, $priority],
+                    );
+                }
             }
         } else {
             $priority = (int) ($sql->getArray(
