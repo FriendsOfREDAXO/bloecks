@@ -208,8 +208,8 @@ class Api extends rex_api_function
             $sql->setQuery('SELECT priority FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$targetSlice]);
             if ($sql->getRows()) {
                 $currentPriority = (int) $sql->getValue('priority');
-                
-                if ($pastePosition === 'before') {
+
+                if ('before' === $pastePosition) {
                     $priority = $currentPriority; // Insert at current priority
                     // Shift target slice and all following slices down
                     $shift = rex_sql::factory();

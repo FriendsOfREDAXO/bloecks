@@ -193,11 +193,11 @@ class Backend
         // Paste button - always available in slice menu
         if ($clipboard) {
             $sourceInfo = $clipboard['source_info'] ?? null;
-            
+
             // Get paste position from config
             $pastePosition = $addon->getConfig('paste_position', 'after');
-            $isPasteBefore = $pastePosition === 'before';
-            
+            $isPasteBefore = 'before' === $pastePosition;
+
             // Set tooltip text based on paste position
             $tooltipText = $isPasteBefore ? rex_i18n::msg('bloecks_paste_slice_before') : rex_i18n::msg('bloecks_paste_slice_after');
             $hiddenLabel = $isPasteBefore ? 'Paste before' : 'Paste after';
@@ -211,7 +211,7 @@ class Backend
                     $sourceInfo['module_name'],
                     $sourceInfo['article_name'],
                     $sourceInfo['article_id'],
-                    $positionText
+                    $positionText,
                 );
             }
 
@@ -312,7 +312,7 @@ class Backend
 
         // Add paste button before module selection
         $sourceInfo = $clipboard['source_info'] ?? null;
-        
+
         // Get paste position from config
         $pastePosition = $addon->getConfig('paste_position', 'after');
 
