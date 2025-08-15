@@ -11,7 +11,7 @@ perm_general_bloecks[multi] = Multi-Clipboard verwenden
 
 bloecks_enable_copy_paste = Copy & Paste aktivieren
 bloecks_enable_drag_drop = Drag & Drop aktivieren
-bloecks_paste_position = Einfügeposition
+bloecks_paste_position = Standard-Einfügeposition
 bloecks_paste_position_after = Nach unten (unterhalb)
 bloecks_paste_position_before = Nach oben (oberhalb)
 bloecks_active = aktiv
