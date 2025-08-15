@@ -201,16 +201,16 @@ class Backend
             // Check multi-clipboard status
             $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);
             $clipboardCount = count($multiClipboard);
-            
+
             // Build tooltip based on clipboard content
             if ($clipboardCount > 1) {
                 // Multiple items
-                $tooltipText = sprintf('Zwischenablage (%d Elemente) - %s', 
-                    $clipboardCount, 
-                    $isPasteBefore ? 'vor dem Slice einfügen' : 'nach dem Slice einfügen'
+                $tooltipText = sprintf('Zwischenablage (%d Elemente) - %s',
+                    $clipboardCount,
+                    $isPasteBefore ? 'vor dem Slice einfügen' : 'nach dem Slice einfügen',
                 );
                 $buttonClass = ['btn', 'btn-default', 'bloecks-paste', 'has-multiple'];
-            } elseif ($clipboardCount === 1 && $sourceInfo) {
+            } elseif (1 === $clipboardCount && $sourceInfo) {
                 // Single item with detailed info
                 $actionText = 'cut' === $clipboard['action'] ? rex_i18n::msg('bloecks_action_cut') : rex_i18n::msg('bloecks_action_copied');
                 $positionText = $isPasteBefore ? rex_i18n::msg('paste_position_before') : rex_i18n::msg('paste_position_after');
@@ -711,40 +711,40 @@ class Backend
     /**
      * Check if user has Multi-Clipboard permission.
      */
-     public static function hasMultiClipboardPermission(): bool
-     {
-         $user = rex::getUser();
-         
-         // Admin can always use multi-clipboard
-         if ($user->isAdmin()) {
-             return true;
-         }
-         
-         // Check if user has specific multi-clipboard permission
-         if ($user->hasPerm('bloecks[multi]')) {
-             return true;
-         }
-         
-         return false;
-     }
-     
-     /**
-      * Check if multi-clipboard is available for current user.
-      * Requires BOTH: global setting enabled AND user permission
-      */
-     public static function isMultiClipboardAvailable(): bool
-     {
-         $addon = rex_addon::get('bloecks');
-         
-         // Feature must be globally enabled first
-         if (!$addon->getConfig('enable_multi_clipboard', false)) {
-             return false;
-         }
-         
-         // Then user needs permission
-         return self::hasMultiClipboardPermission();
-     }
-     
+    public static function hasMultiClipboardPermission(): bool
+    {
+        $user = rex::getUser();
+
+        // Admin can always use multi-clipboard
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        // Check if user has specific multi-clipboard permission
+        if ($user->hasPerm('bloecks[multi]')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if multi-clipboard is available for current user.
+     * Requires BOTH: global setting enabled AND user permission.
+     */
+    public static function isMultiClipboardAvailable(): bool
+    {
+        $addon = rex_addon::get('bloecks');
+
+        // Feature must be globally enabled first
+        if (!$addon->getConfig('enable_multi_clipboard', false)) {
+            return false;
+        }
+
+        // Then user needs permission
+        return self::hasMultiClipboardPermission();
+    }
+
     /**
      * Output JavaScript configuration variables.
      */
@@ -752,7 +752,7 @@ class Backend
     {
         $addon = rex_addon::get('bloecks');
         $multiClipboardEnabled = $addon->getConfig('enable_multi_clipboard', false);
-        
+
         echo '<script type="text/javascript">';
         echo 'var BLOECKS_MULTI_CLIPBOARD = ' . ($multiClipboardEnabled ? 'true' : 'false') . ';';
         echo '</script>';

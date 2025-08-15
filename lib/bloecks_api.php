@@ -15,7 +15,9 @@ use rex_plugin;
 use rex_sql;
 use rex_sql_exception;
 
+use function count;
 use function in_array;
+use function is_array;
 use function sprintf;
 
 /**
@@ -84,15 +86,15 @@ class Api extends rex_api_function
             case 'paste':
                 $this->handlePaste();
                 break;
-                
+
             case 'clear_clipboard':
                 $this->handleClearClipboard();
                 break;
-                
+
             case 'multi_paste':
                 $this->handleMultiPaste();
                 break;
-                
+
             case 'get_clipboard_status':
                 $this->handleGetClipboardStatus();
                 break;
@@ -176,7 +178,7 @@ class Api extends rex_api_function
 
         // Always use multi-clipboard system now
         $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);
-        
+
         // Check if item already exists (by slice_id)
         $existingIndex = -1;
         foreach ($multiClipboard as $index => $item) {
@@ -185,15 +187,15 @@ class Api extends rex_api_function
                 break;
             }
         }
-        
-        if ($existingIndex !== -1) {
+
+        if (-1 !== $existingIndex) {
             // Update existing item
             $multiClipboard[$existingIndex] = $clipboardItem;
         } else {
             // Add new item or replace if single-clipboard mode
             // Multi-clipboard is available if setting is enabled AND user has permission
             $isMultiClipboardAvailable = Backend::isMultiClipboardAvailable();
-            
+
             if (!$isMultiClipboardAvailable) {
                 // Single clipboard mode - replace all items
                 $multiClipboard = [$clipboardItem];
@@ -202,17 +204,17 @@ class Api extends rex_api_function
                 $multiClipboard[] = $clipboardItem;
             }
         }
-        
+
         rex_set_session('bloecks_multi_clipboard', $multiClipboard);
 
         $message = 'cut' === $action ? rex_i18n::msg('bloecks_slice_cut') : rex_i18n::msg('bloecks_slice_copied');
 
         // Return clipboard item for JavaScript multi-clipboard
         echo json_encode([
-            'success' => true, 
-            'message' => $message, 
+            'success' => true,
+            'message' => $message,
             'reload_needed' => false,
-            'clipboard_item' => $clipboardItem
+            'clipboard_item' => $clipboardItem,
         ]);
     }
 
@@ -347,11 +349,11 @@ class Api extends rex_api_function
         // Clear both regular and multi clipboard
         rex_unset_session('bloecks_clipboard');
         rex_unset_session('bloecks_multi_clipboard');
-        
+
         echo json_encode([
             'success' => true,
             'message' => rex_i18n::msg('bloecks_clear_clipboard'),
-            'reload_needed' => false
+            'reload_needed' => false,
         ]);
     }
 
@@ -362,7 +364,7 @@ class Api extends rex_api_function
             echo json_encode(['success' => false, 'message' => 'Multi-Clipboard nicht verfügbar']);
             return;
         }
-        
+
         $selectedItems = rex_request('selected_items', 'string', '');
         $targetSlice = rex_request('bloecks_target', 'int');
         $articleId = rex_request('article_id', 'int');
@@ -391,17 +393,19 @@ class Api extends rex_api_function
 
         try {
             foreach ($selectedIndices as $index) {
-                if (!isset($multiClipboard[$index])) continue;
-                
+                if (!isset($multiClipboard[$index])) {
+                    continue;
+                }
+
                 $clipboard = $multiClipboard[$index];
-                
+
                 // Use same paste logic as single paste
                 $result = $this->pasteSingleItem($clipboard, $targetSlice, $articleId, $clang, $ctype);
-                
+
                 if ($result['success']) {
-                    $insertedCount++;
+                    ++$insertedCount;
                     $newSliceIds[] = $result['new_slice_id'];
-                    
+
                     // If cut, remove from multi-clipboard
                     if ('cut' === $clipboard['action']) {
                         unset($multiClipboard[$index]);
@@ -418,9 +422,8 @@ class Api extends rex_api_function
                 'message' => sprintf('%d von %d Elementen eingefügt', $insertedCount, count($selectedIndices)),
                 'reload_needed' => true,
                 'inserted_count' => $insertedCount,
-                'new_slice_ids' => $newSliceIds
+                'new_slice_ids' => $newSliceIds,
             ]);
-
         } catch (rex_sql_exception $e) {
             echo json_encode(['success' => false, 'message' => sprintf(rex_i18n::msg('bloecks_error_insert_failed'), $e->getMessage())]);
         }
@@ -454,8 +457,8 @@ class Api extends rex_api_function
             $sql->setQuery('SELECT priority FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$targetSlice]);
             if ($sql->getRows()) {
                 $currentPriority = (int) $sql->getValue('priority');
-                
-                if ($pastePosition === 'before') {
+
+                if ('before' === $pastePosition) {
                     $priority = $currentPriority; // Insert at current priority
                     // Shift target slice and all following slices down
                     $shift = rex_sql::factory();
@@ -519,16 +522,16 @@ class Api extends rex_api_function
     {
         $clipboard = rex_session('bloecks_clipboard', 'array', null);
         $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);
-        
+
         // Multi-clipboard is available if setting is enabled AND user has permission
         $isMultiClipboardAvailable = Backend::isMultiClipboardAvailable();
-        
+
         echo json_encode([
             'success' => true,
             'has_clipboard' => !empty($clipboard),
             'multi_clipboard_enabled' => $isMultiClipboardAvailable,
             'multi_clipboard_count' => count($multiClipboard),
-            'multi_clipboard_items' => $multiClipboard
+            'multi_clipboard_items' => $multiClipboard,
         ]);
     }
 }
