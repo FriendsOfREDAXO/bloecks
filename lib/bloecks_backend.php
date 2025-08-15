@@ -39,7 +39,8 @@ class Backend
      */
     public static function init(): void
     {
-        if (!rex::getUser()) {
+        $user = rex::getUser();
+        if (!$user) {
             return;
         }
 
@@ -49,7 +50,7 @@ class Backend
 
         // Only register extension points if features are enabled AND user has permissions
         if ($copyPasteEnabled
-            && (rex::getUser()->hasPerm('bloecks[]') || rex::getUser()->hasPerm('bloecks[copy]'))) {
+            && ($user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[copy]'))) {
             // Register slice menu extensions for copy/paste
             rex_extension::register('STRUCTURE_CONTENT_SLICE_MENU', self::addButtons(...));
 
@@ -62,7 +63,7 @@ class Backend
 
         // Register drag & drop extension points if enabled AND user has permissions
         if ($dragDropEnabled
-            && (rex::getUser()->hasPerm('bloecks[]') || rex::getUser()->hasPerm('bloecks[order]'))) {
+            && ($user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[order]'))) {
             rex_extension::register('SLICE_SHOW', Wrapper::addDragDropWrapper(...), rex_extension::EARLY);
             rex_extension::register('SLICE_MENU', Wrapper::addDragHandle(...));
         }
@@ -71,15 +72,15 @@ class Backend
         if ('content' === rex_be_controller::getCurrentPagePart(1)) {
             // Only load assets if at least one feature is enabled and user has permissions
             $loadCopyPasteAssets = $copyPasteEnabled
-                && (rex::getUser()->hasPerm('bloecks[]') || rex::getUser()->hasPerm('bloecks[copy]'));
+                && ($user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[copy]'));
             $loadDragDropAssets = $dragDropEnabled
-                && (rex::getUser()->hasPerm('bloecks[]') || rex::getUser()->hasPerm('bloecks[order]'));
+                && ($user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[order]'));
 
             if ($loadCopyPasteAssets || $loadDragDropAssets) {
                 // JS config for drag & drop ordering
                 rex_view::setJsProperty('bloecks', [
                     'token' => rex_csrf_token::factory('bloecks')->getValue(),
-                    'perm_order' => rex::getUser()->hasPerm('bloecks[]') || rex::getUser()->hasPerm('bloecks[order]'),
+                    'perm_order' => $user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[order]'),
                     'enable_copy_paste' => $loadCopyPasteAssets,
                     'enable_drag_drop' => $loadDragDropAssets,
                 ]);
@@ -106,7 +107,8 @@ class Backend
         if (!$addon->getConfig('enable_copy_paste', false)) {
             return $ep->getSubject();
         }
-        if (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]')) {
+        
+        if (!$user || (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]'))) {
             return $ep->getSubject();
         }
         if (!$ep->getParam('perm')) {
@@ -261,7 +263,8 @@ class Backend
         if (!$addon->getConfig('enable_copy_paste', false)) {
             return $ep->getSubject();
         }
-        if (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]')) {
+        
+        if (!$user || (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]'))) {
             return $ep->getSubject();
         }
 
@@ -401,7 +404,7 @@ class Backend
         }
 
         $user = rex::getUser();
-        if (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]')) {
+        if (!$user || (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]'))) {
             return;
         }
 
@@ -714,6 +717,11 @@ class Backend
     public static function hasMultiClipboardPermission(): bool
     {
         $user = rex::getUser();
+
+        // Check if user is logged in
+        if (!$user) {
+            return false;
+        }
 
         // Admin can always use multi-clipboard
         if ($user->isAdmin()) {
