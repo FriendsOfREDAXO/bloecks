@@ -567,33 +567,7 @@ var BLOECKS = (function($) {
                 return;
             }
             
-            // If multi-clipboard is not enabled or only one item exists, do direct paste
-            if (!isMultiClipboardEnabled || multiClipboard.length === 1) {
-                // Direct paste of the (single) item
-                var targetSlice = $this.data('target-slice') || null;
-                var articleId = $this.data('article-id');
-                var clangId = $this.data('clang-id');
-                var ctypeId = $this.data('ctype-id') || 1;
-                
-                if (!articleId || !clangId) {
-                    showToast('Fehler: Artikel-Parameter fehlen', 'error');
-                    return;
-                }
-                
-                var data = {
-                    'function': 'paste',
-                    'rex-api-call': 'bloecks',
-                    'bloecks_target': targetSlice,
-                    'article_id': articleId,
-                    'clang': clangId,
-                    'ctype': ctypeId
-                };
-                
-                performCopyPasteAction('paste', data);
-                return;
-            }
-            
-            // Multi-clipboard is enabled and we have multiple items - show dropdown
+            // Always show dropdown if we have clipboard items (user can also clear clipboard)
             showClipboardDropdown($this);
         });
     }
