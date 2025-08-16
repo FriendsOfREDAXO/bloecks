@@ -4,7 +4,6 @@ namespace FriendsOfRedaxo\Bloecks;
 
 use rex;
 use rex_article;
-use rex_be_controller;
 use rex_i18n;
 use rex_sql;
 

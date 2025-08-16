@@ -6,6 +6,7 @@
 
 use FriendsOfRedaxo\Bloecks\Api;
 use FriendsOfRedaxo\Bloecks\Backend;
+use FriendsOfRedaxo\Bloecks\ClipboardUtility;
 
 // Register API explicitly
 rex_api_function::register('bloecks', Api::class);
@@ -56,7 +57,7 @@ if (rex::isBackend() && PHP_SAPI !== 'cli' && is_object(rex::getUser())) {
     // Only run session-dependent code when not in CLI context
     rex_extension::register('PACKAGES_INCLUDED', static function () {
         // Clear clipboard on login/logout and session start for security
-        \FriendsOfRedaxo\Bloecks\ClipboardUtility::clearClipboardOnSessionStart();
+        ClipboardUtility::clearClipboardOnSessionStart();
         Backend::init();
     });
 }
