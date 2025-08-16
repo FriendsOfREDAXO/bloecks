@@ -14,11 +14,11 @@ use rex_i18n;
 use rex_plugin;
 use rex_sql;
 use rex_sql_exception;
-use FriendsOfRedaxo\Bloecks\PermissionUtility;
 
 use function count;
 use function in_array;
 use function is_array;
+use function is_string;
 use function sprintf;
 
 /**
@@ -89,10 +89,10 @@ class Api extends rex_api_function
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_permission')]);
             return;
         }
-        
+
         $hasBloecksPermission = $user->hasPerm('bloecks[]');
         $hasCopyPermission = $user->hasPerm('bloecks[copy]');
-        
+
         if (!$hasBloecksPermission && !$hasCopyPermission) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_permission')]);
             return;
@@ -143,10 +143,10 @@ class Api extends rex_api_function
         }
 
         $user = rex::getUser();
-        
+
         $modulePerm = $user ? $user->getComplexPerm('modules') : null;
         $moduleId = is_numeric($row['module_id']) ? (int) $row['module_id'] : 0;
-        
+
         if (!$user || !$modulePerm || !method_exists($modulePerm, 'hasPerm') || !$modulePerm->hasPerm($moduleId)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_module_permission')]);
             return;
@@ -155,7 +155,7 @@ class Api extends rex_api_function
         // Check if user has content edit permissions for this slice
         $articleId = is_numeric($row['article_id']) ? (int) $row['article_id'] : 0;
         $clangId = is_numeric($row['clang_id']) ? (int) $row['clang_id'] : 0;
-        
+
         if (!PermissionUtility::hasContentEditPermission($articleId, $clangId, $moduleId)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_content_permission')]);
             return;
@@ -177,7 +177,7 @@ class Api extends rex_api_function
 
         $data = [];
         foreach ($fields as $field) {
-            $data[$field] = isset($row[$field]) ? $row[$field] : null;
+            $data[$field] = $row[$field] ?? null;
         }
 
         // Get source slice info
@@ -187,8 +187,8 @@ class Api extends rex_api_function
         $moduleSql = rex_sql::factory();
         $moduleResult = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
         $moduleRow = is_array($moduleResult) && !empty($moduleResult) ? $moduleResult[0] : null;
-        $moduleName = (is_array($moduleRow) && isset($moduleRow['name']) && is_string($moduleRow['name'])) 
-            ? $moduleRow['name'] 
+        $moduleName = (is_array($moduleRow) && isset($moduleRow['name']) && is_string($moduleRow['name']))
+            ? $moduleRow['name']
             : rex_i18n::msg('bloecks_error_unknown_module');
 
         // Create clipboard item

@@ -2,9 +2,10 @@
 
 namespace FriendsOfRedaxo\Bloecks;
 
+use rex;
 use rex_article_revision;
 use rex_sql;
-use rex;
+
 use function class_exists;
 
 /**
@@ -64,7 +65,7 @@ class SliceUtility
 
         $sql = rex_sql::factory();
         $sql->setQuery('SELECT ' . $sql->escapeIdentifier($key) . ' FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
-        
+
         if ($sql->getRows() > 0 && $sql->hasValue($key)) {
             return $sql->getValue($key);
         }

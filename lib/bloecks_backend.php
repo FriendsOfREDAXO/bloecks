@@ -11,16 +11,13 @@ use rex_csrf_token;
 use rex_extension;
 use rex_extension_point;
 use rex_i18n;
-use rex_request;
 use rex_sql;
 use rex_sql_exception;
-use rex_unset_session;
 use rex_url;
 use rex_view;
-use FriendsOfRedaxo\Bloecks\ButtonUtility;
-use FriendsOfRedaxo\Bloecks\ClipboardUtility;
-use FriendsOfRedaxo\Bloecks\PermissionUtility;
-use FriendsOfRedaxo\Bloecks\SliceUtility;
+
+use function is_array;
+use function is_string;
 use function sprintf;
 
 /**
@@ -91,7 +88,7 @@ class Backend
         self::loadJavaScriptAndCSS($loadDragDropAssets);
     }
 
-        /**
+    /**
      * Set JavaScript configuration via rex_view::setJsProperty.
      */
     private static function setJavaScriptConfig(bool $copyPasteEnabled, bool $dragDropEnabled): void
@@ -100,7 +97,7 @@ class Backend
         if (!$user) {
             return;
         }
-        
+
         rex_view::setJsProperty('bloecks', [
             'token' => rex_csrf_token::factory('bloecks')->getValue(),
             'perm_order' => $user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[order]'),
@@ -114,8 +111,8 @@ class Backend
                 'copy_success' => rex_i18n::msg('bloecks_copy_success'),
                 'paste_success' => rex_i18n::msg('bloecks_paste_success'),
                 'order_success' => rex_i18n::msg('bloecks_order_success'),
-                'confirm_clear_clipboard' => rex_i18n::msg('bloecks_confirm_clear_clipboard')
-            ]
+                'confirm_clear_clipboard' => rex_i18n::msg('bloecks_confirm_clear_clipboard'),
+            ],
         ]);
     }
 
@@ -328,7 +325,7 @@ class Backend
         if (!$modulePerm || !method_exists($modulePerm, 'hasPerm')) {
             return false;
         }
-        
+
         $moduleId = is_numeric($row['module_id']) ? (int) $row['module_id'] : 0;
         if (!$modulePerm->hasPerm($moduleId)) {
             return false;
@@ -337,7 +334,7 @@ class Backend
         return PermissionUtility::hasContentEditPermission(
             is_numeric($row['article_id']) ? (int) $row['article_id'] : 0,
             is_numeric($row['clang_id']) ? (int) $row['clang_id'] : 0,
-            is_numeric($row['module_id']) ? (int) $row['module_id'] : null
+            is_numeric($row['module_id']) ? (int) $row['module_id'] : null,
         );
     }
 
@@ -411,7 +408,6 @@ class Backend
 
             rex_article_cache::delete($articleId, $clang);
             return rex_view::success(rex_i18n::msg('bloecks_slice_inserted'));
-
         } catch (rex_sql_exception $e) {
             return rex_view::warning(sprintf(rex_i18n::msg('bloecks_error_insert_failed'), $e->getMessage()));
         }

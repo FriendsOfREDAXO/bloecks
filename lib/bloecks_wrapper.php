@@ -6,7 +6,6 @@ use rex_addon;
 use rex_article_slice;
 use rex_extension_point;
 use rex_i18n;
-use FriendsOfRedaxo\Bloecks\PermissionUtility;
 
 use function is_array;
 use function is_string;
@@ -57,7 +56,7 @@ class Wrapper
 
         $subject = $ep->getSubject();
         $subjectString = is_string($subject) ? $subject : '';
-        
+
         // Wrap ALL slices, not just slice-output
         if (str_contains($subjectString, 'rex-slice')) {
             // Beautiful drag handle with FontAwesome 6 grip icon - optimized position at 6px (Regular variant)
@@ -67,7 +66,7 @@ class Wrapper
             $sliceIdInt = is_numeric($slice_id) ? (int) $slice_id : 0;
             $articleIdInt = is_numeric($article_id) ? (int) $article_id : 0;
             $clangIdInt = is_numeric($clang_id) ? (int) $clang_id : 1;
-            
+
             $wrapper = sprintf(
                 '<li class="bloecks-dragdrop" data-slice-id="%d" data-article-id="%d" data-clang-id="%d">
                     %s

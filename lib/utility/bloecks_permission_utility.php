@@ -5,10 +5,11 @@ namespace FriendsOfRedaxo\Bloecks;
 use rex;
 use rex_addon;
 use rex_article;
+
 use function array_map;
 use function explode;
 use function in_array;
-use function trim;
+use function is_string;
 
 /**
  * Utility class for permission checks and validations in the BLOECKS addon.
@@ -165,7 +166,7 @@ class PermissionUtility
     public static function isMultiClipboardAvailable(): bool
     {
         $addon = rex_addon::get('bloecks');
-        
+
         // Check if multi-clipboard is enabled in settings
         if (!$addon->getConfig('enable_multi_clipboard', false)) {
             return false;
@@ -201,9 +202,9 @@ class PermissionUtility
             return false;
         }
 
-        return $user->hasPerm('bloecks[]') || 
-               $user->hasPerm('bloecks[copy]') || 
-               $user->hasPerm('bloecks[order]') || 
-               $user->hasPerm('bloecks[multi]');
+        return $user->hasPerm('bloecks[]')
+               || $user->hasPerm('bloecks[copy]')
+               || $user->hasPerm('bloecks[order]')
+               || $user->hasPerm('bloecks[multi]');
     }
 }

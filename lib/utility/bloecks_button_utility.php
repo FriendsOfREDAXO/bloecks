@@ -3,16 +3,17 @@
 namespace FriendsOfRedaxo\Bloecks;
 
 use rex;
-use rex_addon;
+use rex_addon_interface;
 use rex_article;
 use rex_article_revision;
 use rex_extension_point;
 use rex_i18n;
-use rex_addon_interface;
 use rex_sql;
-use FriendsOfRedaxo\Bloecks\ClipboardUtility;
+
 use function count;
 use function htmlspecialchars;
+use function is_array;
+use function is_string;
 use function sprintf;
 
 /**

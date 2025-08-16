@@ -6,11 +6,10 @@ use rex;
 use rex_article;
 use rex_be_controller;
 use rex_i18n;
-use rex_request;
-use rex_session;
-use rex_set_session;
 use rex_sql;
-use rex_unset_session;
+
+use function is_array;
+use function is_string;
 
 /**
  * Utility class for clipboard management in the BLOECKS addon.
@@ -104,8 +103,8 @@ class ClipboardUtility
         $moduleId = isset($sliceData['module_id']) && is_numeric($sliceData['module_id']) ? (int) $sliceData['module_id'] : 0;
         $moduleResult = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
         $moduleRow = is_array($moduleResult) && !empty($moduleResult) ? $moduleResult[0] : null;
-        $moduleName = (is_array($moduleRow) && isset($moduleRow['name']) && is_string($moduleRow['name'])) 
-            ? $moduleRow['name'] 
+        $moduleName = (is_array($moduleRow) && isset($moduleRow['name']) && is_string($moduleRow['name']))
+            ? $moduleRow['name']
             : rex_i18n::msg('bloecks_error_unknown_module');
 
         return [
