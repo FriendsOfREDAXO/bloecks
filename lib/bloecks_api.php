@@ -14,6 +14,7 @@ use rex_i18n;
 use rex_plugin;
 use rex_sql;
 use rex_sql_exception;
+use FriendsOfRedaxo\Bloecks\PermissionUtility;
 
 use function count;
 use function in_array;
@@ -27,6 +28,10 @@ class Api extends rex_api_function
 {
     protected $published = false;  // Backend calls only
 
+    /**
+     * Execute API call.
+     * @api
+     */
     public function execute(): never
     {
         $function = rex_request('function', 'string', '');
@@ -40,9 +45,11 @@ class Api extends rex_api_function
         if ('update_order' === $function) {
             $article_id = rex_request('article', 'int', 0);
             $article_clang = rex_request('clang', 'int', 1);
-            $order = rex_request('order', 'string', '');
+            $orderString = rex_request('order', 'string', '');
 
-            $order = json_decode($order);
+            /** @var mixed $orderDecoded */
+            $orderDecoded = json_decode($orderString);
+            $order = is_array($orderDecoded) ? $orderDecoded : null;
 
             if (!$order || !$article_id) {
                 echo json_encode(['error' => rex_i18n::msg('bloecks_api_error_missing_parameters')]);
@@ -51,8 +58,10 @@ class Api extends rex_api_function
 
             $sql = rex_sql::factory();
             foreach ($order as $key => $value) {
-                if ($value) { // Skip empty values
-                    $sql->setQuery('UPDATE ' . rex::getTablePrefix() . 'article_slice SET priority = :prio WHERE id = :id', ['prio' => $key + 1, 'id' => $value]);
+                if (is_numeric($value) && $value > 0) { // Skip non-numeric or empty values
+                    $priority = is_numeric($key) ? (int) $key + 1 : 1;
+                    $sliceId = (int) $value;
+                    $sql->setQuery('UPDATE ' . rex::getTablePrefix() . 'article_slice SET priority = :prio WHERE id = :id', ['prio' => $priority, 'id' => $sliceId]);
                 }
             }
 
@@ -69,10 +78,22 @@ class Api extends rex_api_function
         exit;
     }
 
-    private function handleCopyPasteAjax($action)
+    /**
+     * Handle copy/paste AJAX requests.
+     * @api
+     */
+    private function handleCopyPasteAjax(string $action): void
     {
         $user = rex::getUser();
-        if (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]')) {
+        if (!$user) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_permission')]);
+            return;
+        }
+        
+        $hasBloecksPermission = $user->hasPerm('bloecks[]');
+        $hasCopyPermission = $user->hasPerm('bloecks[copy]');
+        
+        if (!$hasBloecksPermission && !$hasCopyPermission) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_permission')]);
             return;
         }
@@ -101,7 +122,10 @@ class Api extends rex_api_function
         }
     }
 
-    private function handleCopyOrCut($action)
+    /**
+     * Handle copy or cut operations.
+     */
+    private function handleCopyOrCut(string $action): void
     {
         $sliceId = rex_request('slice_id', 'int');
         if (!$sliceId) {
@@ -110,23 +134,29 @@ class Api extends rex_api_function
         }
 
         $sql = rex_sql::factory();
-        $row = $sql->getArray('SELECT * FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
+        $result = $sql->getArray('SELECT * FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
+        $row = is_array($result) && !empty($result) ? $result[0] : null;
 
-        if (!$row) {
+        if (!is_array($row)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_slice_not_found')]);
             return;
         }
 
-        $row = $row[0];
         $user = rex::getUser();
-
-        if (!$user->getComplexPerm('modules')->hasPerm($row['module_id'])) {
+        
+        $modulePerm = $user ? $user->getComplexPerm('modules') : null;
+        $moduleId = is_numeric($row['module_id']) ? (int) $row['module_id'] : 0;
+        
+        if (!$user || !$modulePerm || !method_exists($modulePerm, 'hasPerm') || !$modulePerm->hasPerm($moduleId)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_module_permission')]);
             return;
         }
 
         // Check if user has content edit permissions for this slice
-        if (!Backend::hasContentEditPermission($row['article_id'], $row['clang_id'], $row['module_id'])) {
+        $articleId = is_numeric($row['article_id']) ? (int) $row['article_id'] : 0;
+        $clangId = is_numeric($row['clang_id']) ? (int) $row['clang_id'] : 0;
+        
+        if (!PermissionUtility::hasContentEditPermission($articleId, $clangId, $moduleId)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_content_permission')]);
             return;
         }
@@ -147,29 +177,33 @@ class Api extends rex_api_function
 
         $data = [];
         foreach ($fields as $field) {
-            $data[$field] = $row[$field];
+            $data[$field] = isset($row[$field]) ? $row[$field] : null;
         }
 
         // Get source slice info
-        $sourceArticle = rex_article::get($row['article_id'], $row['clang_id']);
+        $sourceArticle = rex_article::get($articleId, $clangId);
 
         // Get module name
         $moduleSql = rex_sql::factory();
-        $moduleRow = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$row['module_id']]);
-        $moduleName = $moduleRow ? $moduleRow[0]['name'] : rex_i18n::msg('bloecks_error_unknown_module');
+        $moduleResult = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
+        $moduleRow = is_array($moduleResult) && !empty($moduleResult) ? $moduleResult[0] : null;
+        $moduleName = (is_array($moduleRow) && isset($moduleRow['name']) && is_string($moduleRow['name'])) 
+            ? $moduleRow['name'] 
+            : rex_i18n::msg('bloecks_error_unknown_module');
 
         // Create clipboard item
+        $sourceRevision = is_numeric($row['revision']) ? (int) $row['revision'] : 0;
         $clipboardItem = [
             'data' => $data,
             'source_slice_id' => $sliceId,
-            'source_revision' => $row['revision'] ?? 0,
+            'source_revision' => $sourceRevision,
             'action' => $action,
             'timestamp' => time(),
             'source_info' => [
                 'article_name' => $sourceArticle ? $sourceArticle->getName() : rex_i18n::msg('bloecks_error_unknown_article'),
                 'module_name' => $moduleName,
-                'article_id' => $row['article_id'],
-                'clang_id' => $row['clang_id'],
+                'article_id' => $articleId,
+                'clang_id' => $clangId,
             ],
         ];
 
@@ -178,11 +212,14 @@ class Api extends rex_api_function
 
         // Always use multi-clipboard system now
         $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);
+        if (!is_array($multiClipboard)) {
+            $multiClipboard = [];
+        }
 
         // Check if item already exists (by slice_id)
         $existingIndex = -1;
         foreach ($multiClipboard as $index => $item) {
-            if ($item['source_slice_id'] == $sliceId) {
+            if (is_array($item) && isset($item['source_slice_id']) && is_numeric($item['source_slice_id']) && (int) $item['source_slice_id'] === $sliceId) {
                 $existingIndex = $index;
                 break;
             }
@@ -218,7 +255,10 @@ class Api extends rex_api_function
         ]);
     }
 
-    private function handlePaste()
+    /**
+     * Handle paste operations.
+     */
+    private function handlePaste(): void
     {
         $clipboard = rex_session('bloecks_clipboard', 'array', null);
         if (!$clipboard || !isset($clipboard['data'])) {
@@ -241,7 +281,7 @@ class Api extends rex_api_function
         $user = rex::getUser();
 
         // Check if user has content edit permissions for target article
-        if (!Backend::hasContentEditPermission($articleId, $clang, $data['module_id'])) {
+        if (!PermissionUtility::hasContentEditPermission($articleId, $clang, $data['module_id'])) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_content_permission')]);
             return;
         }
@@ -347,7 +387,10 @@ class Api extends rex_api_function
         }
     }
 
-    private function handleClearClipboard()
+    /**
+     * Handle clear clipboard operations.
+     */
+    private function handleClearClipboard(): void
     {
         // Clear both regular and multi clipboard
         rex_unset_session('bloecks_clipboard');
@@ -360,7 +403,10 @@ class Api extends rex_api_function
         ]);
     }
 
-    private function handleMultiPaste()
+    /**
+     * Handle multi paste operations.
+     */
+    private function handleMultiPaste(): void
     {
         // Check if multi-clipboard is available (setting enabled AND user has permission)
         if (!Backend::isMultiClipboardAvailable()) {
@@ -433,13 +479,19 @@ class Api extends rex_api_function
         }
     }
 
-    private function pasteSingleItem($clipboard, $targetSlice, $articleId, $clang, $ctype, $pastePosition = null)
+    /**
+     * Paste single item from clipboard.
+     * @param array<string, mixed> $clipboard
+     * @return array<string, mixed>
+     */
+    private function pasteSingleItem(array $clipboard, int $targetSlice, int $articleId, int $clang, int $ctype, ?string $pastePosition = null): array
     {
         $data = $clipboard['data'];
         $user = rex::getUser();
 
         // Check permissions
-        if (!Backend::hasContentEditPermission($articleId, $clang, $data['module_id'])) {
+        $moduleId = isset($data['module_id']) && is_numeric($data['module_id']) ? (int) $data['module_id'] : null;
+        if (!PermissionUtility::hasContentEditPermission($articleId, $clang, $moduleId)) {
             return ['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_content_permission')];
         }
 
@@ -503,8 +555,12 @@ class Api extends rex_api_function
         $ins->setValue('priority', $priority);
         $ins->setValue('revision', $revision);
 
-        foreach ($data as $k => $v) {
-            $ins->setValue($k, $v);
+        if (is_array($data)) {
+            foreach ($data as $k => $v) {
+                if (is_string($k)) {
+                    $ins->setValue($k, $v);
+                }
+            }
         }
 
         $ins->addGlobalCreateFields();
@@ -515,7 +571,7 @@ class Api extends rex_api_function
 
         // If cut, delete original slice
         if ('cut' === $clipboard['action']) {
-            $srcId = (int) $clipboard['source_slice_id'];
+            $srcId = isset($clipboard['source_slice_id']) && is_numeric($clipboard['source_slice_id']) ? (int) $clipboard['source_slice_id'] : 0;
             if ($srcId) {
                 rex_content_service::deleteSlice($srcId);
             }
@@ -524,7 +580,10 @@ class Api extends rex_api_function
         return ['success' => true, 'new_slice_id' => $newSliceId];
     }
 
-    private function handleGetClipboardStatus()
+    /**
+     * Handle get clipboard status operations.
+     */
+    private function handleGetClipboardStatus(): void
     {
         $clipboard = rex_session('bloecks_clipboard', 'array', null);
         $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);

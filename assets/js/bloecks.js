@@ -7,6 +7,30 @@
 var BLOECKS = (function($) {
     'use strict';
     
+    // Get configuration from REDAXO's rex.bloecks property
+    var config = rex.bloecks || {
+        enabled: true,
+        dragDropEnabled: false,
+        multiClipboard: false,
+        pastePosition: 'after',
+        apiUrl: ''
+    };
+    
+    // Get translations from REDAXO's rex.bloecks_i18n property
+    var i18n = rex.bloecks_i18n || {
+        copy: 'Kopieren',
+        cut: 'Ausschneiden',
+        paste: 'Einfügen',
+        clear_clipboard: 'Zwischenablage leeren',
+        confirm_clear: 'Zwischenablage wirklich leeren?',
+        drag_move: 'Verschieben',
+        success_copied: 'Slice kopiert',
+        success_cut: 'Slice ausgeschnitten',
+        success_pasted: 'Slice eingefügt',
+        error_permission: 'Keine Berechtigung',
+        error_clipboard_empty: 'Zwischenablage ist leer'
+    };
+    
     var sortableInstances = [];
     
     // Toast notification system
@@ -262,7 +286,7 @@ var BLOECKS = (function($) {
         var successMessages = mainContent.querySelectorAll('.alert-success');
         successMessages.forEach(function(alert) {
             var text = alert.textContent.trim();
-            if (text.includes('kopiert') || text.includes('eingefügt') || text.includes('ausgeschnitten')) {
+            if (text.includes(i18n.success_copied) || text.includes(i18n.success_pasted) || text.includes(i18n.success_cut)) {
                 showToast(text, 'success');
                 // Hide the original alert after showing toast
                 alert.style.display = 'none';
@@ -563,7 +587,7 @@ var BLOECKS = (function($) {
             
             // Check if we have any clipboard items
             if (multiClipboard.length === 0) {
-                showToast('Zwischenablage ist leer', 'warning');
+                showToast(i18n.error_clipboard_empty, 'warning');
                 return;
             }
             
@@ -658,7 +682,7 @@ var BLOECKS = (function($) {
     var multiClipboard = [];
     var isMultiClipboardEnabled = false;
     var activeDropdown = null;
-    var currentPastePosition = (typeof BLOECKS_PASTE_POSITION !== 'undefined') ? BLOECKS_PASTE_POSITION : 'after';
+    var currentPastePosition = config.pastePosition;
 
     function setMultiClipboardEnabled(enabled) {
         isMultiClipboardEnabled = enabled;
@@ -1001,7 +1025,7 @@ var BLOECKS = (function($) {
             initCopyPasteHandlers();
             
             // Re-check multi-clipboard config after navigation
-            if (typeof BLOECKS_MULTI_CLIPBOARD !== 'undefined' && BLOECKS_MULTI_CLIPBOARD) {
+            if (config.multiClipboard) {
                 setMultiClipboardEnabled(true);
                 loadMultiClipboardFromServer();
             }
@@ -1075,7 +1099,7 @@ $(document).ready(function() {
     BLOECKS.initCopyPasteHandlers();
     
     // Initialize multi-clipboard if enabled
-    if (typeof BLOECKS_MULTI_CLIPBOARD !== 'undefined' && BLOECKS_MULTI_CLIPBOARD) {
+    if (config.multiClipboard) {
         BLOECKS.setMultiClipboardEnabled(true);
     }
 });
@@ -1087,7 +1111,7 @@ $(document).on('pjax:complete pjax:end rex:ready', function() {
         BLOECKS.initCopyPasteHandlers();
         
         // Always load clipboard status from server after navigation
-        if (typeof BLOECKS_MULTI_CLIPBOARD !== 'undefined' && BLOECKS_MULTI_CLIPBOARD) {
+        if (config.multiClipboard) {
             BLOECKS.setMultiClipboardEnabled(true);
         }
         

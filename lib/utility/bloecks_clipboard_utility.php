@@ -1,0 +1,184 @@
+<?php
+
+namespace FriendsOfRedaxo\Bloecks;
+
+use rex;
+use rex_article;
+use rex_be_controller;
+use rex_i18n;
+use rex_request;
+use rex_session;
+use rex_set_session;
+use rex_sql;
+use rex_unset_session;
+
+/**
+ * Utility class for clipboard management in the BLOECKS addon.
+ */
+class ClipboardUtility
+{
+    /**
+     * Clear clipboard at session start for security.
+     * This ensures clipboard is cleared on login/logout/session restart.
+     * @api
+     */
+    public static function clearClipboardOnSessionStart(): void
+    {
+        // Check if this is a fresh session or no user logged in
+        if (!rex::getUser() || false === rex_session('bloecks_session_started', 'bool', false)) {
+            self::clearClipboard();
+            rex_set_session('bloecks_session_started', true);
+        }
+
+        // Also clear on logout detection
+        if (rex_request('logout') || 'login' === rex_be_controller::getCurrentPagePart(1)) {
+            self::clearClipboard();
+            rex_unset_session('bloecks_session_started');
+        }
+    }
+
+    /**
+     * Clear all clipboard data from session.
+     * @api
+     */
+    public static function clearClipboard(): void
+    {
+        rex_unset_session('bloecks_clipboard');
+        rex_unset_session('bloecks_multi_clipboard');
+    }
+
+    /**
+     * Store slice data in clipboard session.
+     * @param array<string, mixed> $sliceData
+     * @api
+     */
+    public static function storeInClipboard(int $sliceId, array $sliceData, string $action): void
+    {
+        // Get slice fields to store
+        /** @var array<string> $fields */
+        $fields = ['module_id', 'status'];
+        for ($i = 1; $i <= 20; ++$i) {
+            $fields[] = 'value' . $i;
+        }
+        for ($i = 1; $i <= 5; ++$i) {
+            $fields[] = 'media' . $i;
+            $fields[] = 'medialist' . $i;
+        }
+        for ($i = 1; $i <= 5; ++$i) {
+            $fields[] = 'link' . $i;
+            $fields[] = 'linklist' . $i;
+        }
+
+        /** @var array<string, mixed> $data */
+        $data = [];
+        foreach ($fields as $field) {
+            $data[$field] = $sliceData[$field] ?? null;
+        }
+
+        // Get source information
+        $sourceInfo = self::getSourceInfo($sliceData);
+
+        rex_set_session('bloecks_clipboard', [
+            'data' => $data,
+            'source_slice_id' => $sliceId,
+            'source_revision' => $sliceData['revision'] ?? 0,
+            'action' => $action,
+            'timestamp' => time(),
+            'source_info' => $sourceInfo,
+        ]);
+    }
+
+    /**
+     * Get source information for clipboard display.
+     * @param array<string, mixed> $sliceData
+     * @return array<string, mixed>
+     * @api
+     */
+    public static function getSourceInfo(array $sliceData): array
+    {
+        $articleId = isset($sliceData['article_id']) && is_numeric($sliceData['article_id']) ? (int) $sliceData['article_id'] : 0;
+        $clangId = isset($sliceData['clang_id']) && is_numeric($sliceData['clang_id']) ? (int) $sliceData['clang_id'] : 0;
+        $sourceArticle = rex_article::get($articleId, $clangId);
+
+        $moduleSql = rex_sql::factory();
+        $moduleId = isset($sliceData['module_id']) && is_numeric($sliceData['module_id']) ? (int) $sliceData['module_id'] : 0;
+        $moduleResult = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
+        $moduleRow = is_array($moduleResult) && !empty($moduleResult) ? $moduleResult[0] : null;
+        $moduleName = (is_array($moduleRow) && isset($moduleRow['name']) && is_string($moduleRow['name'])) 
+            ? $moduleRow['name'] 
+            : rex_i18n::msg('bloecks_error_unknown_module');
+
+        return [
+            'article_name' => $sourceArticle ? $sourceArticle->getName() : rex_i18n::msg('bloecks_error_unknown_article'),
+            'module_name' => $moduleName,
+            'article_id' => $articleId,
+            'clang_id' => $clangId,
+        ];
+    }
+
+    /**
+     * Get clipboard content.
+     * @return array<string, mixed>|null
+     * @api
+     */
+    public static function getClipboard(): ?array
+    {
+        return rex_session('bloecks_clipboard', 'array', null);
+    }
+
+    /**
+     * Check if clipboard has content.
+     * @api
+     */
+    public static function hasClipboardContent(): bool
+    {
+        $clipboard = self::getClipboard();
+        return $clipboard && isset($clipboard['data']);
+    }
+
+    /**
+     * Get multi-clipboard content.
+     * @return array<mixed>
+     * @api
+     */
+    public static function getMultiClipboard(): array
+    {
+        return rex_session('bloecks_multi_clipboard', 'array', []);
+    }
+
+    /**
+     * Check if slice is the current source in clipboard.
+     */
+    public static function isClipboardSource(int $sliceId): bool
+    {
+        $clipboard = self::getClipboard();
+        $sourceSliceId = is_array($clipboard) && isset($clipboard['source_slice_id']) && is_numeric($clipboard['source_slice_id']) ? (int) $clipboard['source_slice_id'] : 0;
+        return $sourceSliceId === $sliceId;
+    }
+
+    /**
+     * Get clipboard action (copy or cut).
+     */
+    public static function getClipboardAction(): ?string
+    {
+        $clipboard = self::getClipboard();
+        if (is_array($clipboard) && isset($clipboard['action']) && is_string($clipboard['action'])) {
+            return $clipboard['action'];
+        }
+        return null;
+    }
+
+    /**
+     * Get clipboard source info.
+     * @return array<string, mixed>|null
+     * @api
+     */
+    public static function getClipboardSourceInfo(): ?array
+    {
+        $clipboard = self::getClipboard();
+        if (is_array($clipboard) && isset($clipboard['source_info']) && is_array($clipboard['source_info'])) {
+            return $clipboard['source_info'];
+        }
+        return null;
+    }
+}
