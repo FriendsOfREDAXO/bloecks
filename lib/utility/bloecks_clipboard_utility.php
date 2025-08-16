@@ -93,13 +93,13 @@ class ClipboardUtility
         $moduleSql = rex_sql::factory();
         $moduleId = isset($sliceData['module_id']) && is_numeric($sliceData['module_id']) ? (int) $sliceData['module_id'] : 0;
         $moduleResult = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
-        $moduleRow = !empty($moduleResult) ? $moduleResult[0] : null;
-        $moduleName = $moduleRow
+        $moduleRow = count($moduleResult) === 0 ? null : $moduleResult[0];
+        $moduleName = $moduleRow !== null
             ? $moduleRow['name']
             : rex_i18n::msg('bloecks_error_unknown_module');
 
         return [
-            'article_name' => $sourceArticle ? $sourceArticle->getName() : rex_i18n::msg('bloecks_error_unknown_article'),
+            'article_name' => $sourceArticle !== null ? $sourceArticle->getName() : rex_i18n::msg('bloecks_error_unknown_article'),
             'module_name' => $moduleName,
             'article_id' => $articleId,
             'clang_id' => $clangId,
@@ -113,7 +113,9 @@ class ClipboardUtility
      */
     public static function getClipboard(): ?array
     {
-        return rex_session('bloecks_clipboard', 'array', null);
+        $result = rex_session('bloecks_clipboard', 'array', null);
+        /** @var array<string, mixed>|null $result */
+        return is_array($result) ? $result : null;
     }
 
     /**
@@ -123,7 +125,7 @@ class ClipboardUtility
     public static function hasClipboardContent(): bool
     {
         $clipboard = self::getClipboard();
-        return $clipboard && isset($clipboard['data']);
+        return $clipboard !== null && isset($clipboard['data']);
     }
 
     /**

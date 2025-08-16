@@ -27,17 +27,17 @@ class Wrapper
         $module_id = $ep->getParam('module_id');
 
         // Get the slice object to ensure correct clang_id and module_id
-        if ($slice_id && is_numeric($slice_id)) {
+        if ($slice_id !== null && is_numeric($slice_id)) {
             $slice = rex_article_slice::getArticleSliceById((int) $slice_id);
-            if ($slice) {
-                $clang_id = $slice->getClang();
+            if ($slice !== null) {
+                $clang_id = $slice->getClangId();
                 $article_id = $slice->getArticleId();
                 $module_id = $slice->getModuleId();
             }
         }
 
         // If still no valid clang_id, use current request clang
-        if (!$clang_id || $clang_id <= 0) {
+        if ($clang_id === null || $clang_id <= 0) {
             $clang_id = rex_request('clang', 'int', 1);
         }
 
@@ -53,7 +53,8 @@ class Wrapper
 
         // Check if drag & drop is enabled
         $addon = rex_addon::get('bloecks');
-        if (!$addon->getConfig('enable_drag_drop', false)) {
+        $dragDropEnabled = (bool) $addon->getConfig('enable_drag_drop', false);
+        if (!$dragDropEnabled) {
             $subject = $ep->getSubject();
             return is_string($subject) ? $subject : '';
         }
@@ -97,7 +98,8 @@ class Wrapper
     {
         // Check if drag & drop is enabled
         $addon = rex_addon::get('bloecks');
-        if (!$addon->getConfig('enable_drag_drop', false)) {
+        $dragDropEnabled = (bool) $addon->getConfig('enable_drag_drop', false);
+        if (!$dragDropEnabled) {
             return $ep->getSubject();
         }
 

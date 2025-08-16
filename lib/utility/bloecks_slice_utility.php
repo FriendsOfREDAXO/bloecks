@@ -48,10 +48,10 @@ class SliceUtility
             $revision = rex_article_revision::getSessionArticleRevision($articleId);
         }
 
-        if ($targetSlice) {
+        if ($targetSlice !== 0) {
             $targetSliceObj = rex_article_slice::getArticleSliceById($targetSlice);
-            if ($targetSliceObj) {
-                return 'before' === $position ?
+            if ($targetSliceObj !== null) {
+                return $position === 'before' ?
                     $targetSliceObj->getPriority() :
                     $targetSliceObj->getPriority() + 1;
             }
@@ -65,7 +65,8 @@ class SliceUtility
             [$articleId, $clang, $revision],
         );
 
-        return (int) $result[0]['priority'];
+        $priority = $result[0]['priority'] ?? 1;
+        return is_numeric($priority) ? (int) $priority : 1;
     }
 
     /**
@@ -98,7 +99,7 @@ class SliceUtility
     public static function getSliceData(int $sliceId): ?array
     {
         $slice = rex_article_slice::getArticleSliceById($sliceId);
-        if (!$slice) {
+        if ($slice === null) {
             return null;
         }
 
@@ -114,7 +115,7 @@ class SliceUtility
         // Get all value fields
         for ($i = 1; $i <= 20; ++$i) {
             $value = $slice->getValue($i);
-            if (null !== $value) {
+            if ($value !== null) {
                 $data["value$i"] = $value;
             }
         }
@@ -122,17 +123,17 @@ class SliceUtility
         // Get media and link fields
         for ($i = 1; $i <= 10; ++$i) {
             $media = $slice->getMedia($i);
-            if (null !== $media) {
+            if ($media !== null) {
                 $data["media$i"] = $media;
             }
 
             $link = $slice->getLink($i);
-            if (null !== $link) {
+            if ($link !== null) {
                 $data["link$i"] = $link;
             }
 
             $linkList = $slice->getLinkList($i);
-            if (null !== $linkList) {
+            if ($linkList !== null) {
                 $data["linklist$i"] = $linkList;
             }
         }
@@ -147,21 +148,21 @@ class SliceUtility
     public static function getSliceValue(int $sliceId, string $key, mixed $default = null): mixed
     {
         $slice = rex_article_slice::getArticleSliceById($sliceId);
-        if (!$slice) {
+        if ($slice === null) {
             return $default;
         }
 
         // Use appropriate getter method based on field type
-        if (preg_match('/^value(\d+)$/', $key, $matches)) {
+        if (preg_match('/^value(\d+)$/', $key, $matches) === 1) {
             return $slice->getValue((int) $matches[1]);
         }
-        if (preg_match('/^media(\d+)$/', $key, $matches)) {
+        if (preg_match('/^media(\d+)$/', $key, $matches) === 1) {
             return $slice->getMedia((int) $matches[1]);
         }
-        if (preg_match('/^link(\d+)$/', $key, $matches)) {
+        if (preg_match('/^link(\d+)$/', $key, $matches) === 1) {
             return $slice->getLink((int) $matches[1]);
         }
-        if (preg_match('/^linklist(\d+)$/', $key, $matches)) {
+        if (preg_match('/^linklist(\d+)$/', $key, $matches) === 1) {
             return $slice->getLinkList((int) $matches[1]);
         }
 
@@ -177,10 +178,10 @@ class SliceUtility
      */
     public static function getSlicesForArticle(int $articleId, ?int $clang = null, int $revision = 0): array
     {
-        if (null === $clang) {
+        if ($clang === null) {
             $clang = rex_clang::getCurrentId();
         }
 
-        return rex_article_slice::getSlicesForArticle($articleId, $clang, $revision) ?: [];
+        return rex_article_slice::getSlicesForArticle($articleId, $clang, $revision);
     }
 }

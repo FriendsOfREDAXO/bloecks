@@ -40,7 +40,7 @@ class Api extends rex_api_function
         $function = rex_request('function', 'string', '');
 
         // Handle copy/paste AJAX operations
-        if (in_array($function, ['copy', 'cut', 'paste', 'clear_clipboard', 'multi_paste', 'get_clipboard_status'])) {
+        if (in_array($function, ['copy', 'cut', 'paste', 'clear_clipboard', 'multi_paste', 'get_clipboard_status'], true)) {
             $this->handleCopyPasteAjax($function);
             exit;
         }
@@ -54,7 +54,7 @@ class Api extends rex_api_function
             $orderDecoded = json_decode($orderString);
             $order = is_array($orderDecoded) ? $orderDecoded : null;
 
-            if (!$order || !$article_id) {
+            if ($order === null || $article_id === 0) {
                 echo json_encode(['error' => rex_i18n::msg('bloecks_api_error_missing_parameters')]);
                 exit;
             }
@@ -88,7 +88,7 @@ class Api extends rex_api_function
     private function handleCopyPasteAjax(string $action): void
     {
         $user = rex::getUser();
-        if (!$user) {
+        if ($user === null) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_permission')]);
             return;
         }
@@ -131,14 +131,14 @@ class Api extends rex_api_function
     private function handleCopyOrCut(string $action): void
     {
         $sliceId = rex_request('slice_id', 'int');
-        if (!$sliceId) {
+        if ($sliceId === 0) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_slice_id_missing')]);
             return;
         }
 
         $sql = rex_sql::factory();
         $result = $sql->getArray('SELECT * FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
-        $row = !empty($result) ? $result[0] : null;
+        $row = count($result) > 0 ? $result[0] : null;
 
         if (!is_array($row)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_slice_not_found')]);
@@ -147,17 +147,17 @@ class Api extends rex_api_function
 
         $user = rex::getUser();
 
-        $modulePerm = $user ? $user->getComplexPerm('modules') : null;
-        $moduleId = (int) $row['module_id'];
+        $modulePerm = $user !== null ? $user->getComplexPerm('modules') : null;
+        $moduleId = $row['module_id'];
 
-        if (!$user || !$modulePerm || !method_exists($modulePerm, 'hasPerm') || !$modulePerm->hasPerm($moduleId)) {
+        if ($user === null || $modulePerm === null || !method_exists($modulePerm, 'hasPerm') || !$modulePerm->hasPerm($moduleId)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_module_permission')]);
             return;
         }
 
         // Check if user has content edit permissions for this slice
-        $articleId = (int) $row['article_id'];
-        $clangId = (int) $row['clang_id'];
+        $articleId = $row['article_id'];
+        $clangId = $row['clang_id'];
 
         if (!PermissionUtility::hasContentEditPermission($articleId, $clangId, $moduleId)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_content_permission')]);
@@ -189,13 +189,13 @@ class Api extends rex_api_function
         // Get module name
         $moduleSql = rex_sql::factory();
         $moduleResult = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
-        $moduleRow = !empty($moduleResult) ? $moduleResult[0] : null;
-        $moduleName = $moduleRow
+        $moduleRow = count($moduleResult) > 0 ? $moduleResult[0] : null;
+        $moduleName = $moduleRow !== null
             ? $moduleRow['name']
             : rex_i18n::msg('bloecks_error_unknown_module');
 
         // Create clipboard item
-        $sourceRevision = (int) $row['revision'];
+        $sourceRevision = $row['revision'];
         $clipboardItem = [
             'data' => $data,
             'source_slice_id' => $sliceId,
@@ -203,7 +203,7 @@ class Api extends rex_api_function
             'action' => $action,
             'timestamp' => time(),
             'source_info' => [
-                'article_name' => $sourceArticle ? $sourceArticle->getName() : rex_i18n::msg('bloecks_error_unknown_article'),
+                'article_name' => $sourceArticle !== null ? $sourceArticle->getName() : rex_i18n::msg('bloecks_error_unknown_article'),
                 'module_name' => $moduleName,
                 'article_id' => $articleId,
                 'clang_id' => $clangId,
@@ -261,7 +261,7 @@ class Api extends rex_api_function
     private function handlePaste(): void
     {
         $clipboard = rex_session('bloecks_clipboard', 'array', null);
-        if (!$clipboard || !isset($clipboard['data'])) {
+        if ($clipboard === null || !isset($clipboard['data'])) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_clipboard_empty')]);
             return;
         }
@@ -272,23 +272,25 @@ class Api extends rex_api_function
         $ctype = rex_request('ctype', 'int', 1);
         $pastePosition = rex_request('paste_position', 'string', null);
 
-        if (!$articleId || !$clang) {
+        if ($articleId === 0 || $clang === 0) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_missing_parameters')]);
             return;
         }
 
         $data = $clipboard['data'];
+        if (!is_array($data) || !isset($data['module_id'])) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_invalid_clipboard_data')]);
+            return;
+        }
+        
+        $moduleId = is_numeric($data['module_id']) ? (int) $data['module_id'] : null;
         $user = rex::getUser();
 
         // Check if user has content edit permissions for target article
-        if (!PermissionUtility::hasContentEditPermission($articleId, $clang, $data['module_id'])) {
+        if (!PermissionUtility::hasContentEditPermission($articleId, $clang, $moduleId)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_content_permission')]);
             return;
         }
-
-        // Determine priority for insertion
-        $priority = 1;
-        $sql = rex_sql::factory();
 
         // Get revision from Version plugin if available
         $revision = 0; // Default revision (LIVE)
@@ -296,46 +298,8 @@ class Api extends rex_api_function
             $revision = rex_article_revision::getSessionArticleRevision($articleId);
         }
 
-        // Get paste position from parameter or config
-        if (null === $pastePosition) {
-            $addon = rex_addon::get('bloecks');
-            $pastePosition = $addon->getConfig('paste_position', 'after');
-        }
-
-        if ($targetSlice) {
-            $sql->setQuery('SELECT priority FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$targetSlice]);
-            if ($sql->getRows()) {
-                $currentPriority = (int) $sql->getValue('priority');
-
-                if ('before' === $pastePosition) {
-                    $priority = $currentPriority; // Insert at current priority
-                    // Shift target slice and all following slices down
-                    $shift = rex_sql::factory();
-                    $shift->setQuery(
-                        'UPDATE ' . rex::getTablePrefix() . 'article_slice
-                         SET priority = priority + 1
-                         WHERE article_id=? AND clang_id=? AND revision=? AND priority>=?',
-                        [$articleId, $clang, $revision, $priority],
-                    );
-                } else {
-                    $priority = $currentPriority + 1; // Insert AFTER target slice
-                    // Shift existing slices down (only in current revision)
-                    $shift = rex_sql::factory();
-                    $shift->setQuery(
-                        'UPDATE ' . rex::getTablePrefix() . 'article_slice
-                         SET priority = priority + 1
-                         WHERE article_id=? AND clang_id=? AND revision=? AND priority>=?',
-                        [$articleId, $clang, $revision, $priority],
-                    );
-                }
-            }
-        } else {
-            $priority = (int) ($sql->getArray(
-                'SELECT MAX(priority) p FROM ' . rex::getTablePrefix() . 'article_slice
-                 WHERE article_id=? AND clang_id=? AND revision=?',
-                [$articleId, $clang, $revision],
-            )[0]['p'] ?? 0) + 1;
-        }
+        // Calculate insertion priority and shift existing slices
+        $priority = $this->calculateInsertionPriority($targetSlice, $articleId, $clang, $revision, $pastePosition);
 
         // Insert new slice
         $ins = rex_sql::factory();
@@ -346,8 +310,11 @@ class Api extends rex_api_function
         $ins->setValue('priority', $priority);
         $ins->setValue('revision', $revision);
 
+        // Insert data with type safety
         foreach ($data as $k => $v) {
-            $ins->setValue($k, $v);
+            if (is_string($k) && (is_string($v) || is_int($v) || is_float($v) || is_bool($v) || $v === null)) {
+                $ins->setValue($k, $v);
+            }
         }
 
         $ins->addGlobalCreateFields();
@@ -359,8 +326,8 @@ class Api extends rex_api_function
 
             // If cut, delete original slice
             if ('cut' === $clipboard['action']) {
-                $srcId = (int) $clipboard['source_slice_id'];
-                if ($srcId) {
+                $srcId = is_numeric($clipboard['source_slice_id']) ? (int) $clipboard['source_slice_id'] : 0;
+                if ($srcId > 0) {
                     rex_content_service::deleteSlice($srcId);
                 }
                 rex_unset_session('bloecks_clipboard');
@@ -370,10 +337,15 @@ class Api extends rex_api_function
 
             // Create detailed success message
             $sourceInfo = $clipboard['source_info'] ?? null;
-            $moduleName = $sourceInfo ? $sourceInfo['module_name'] : rex_i18n::msg('bloecks_unknown_module');
+            $moduleName = is_array($sourceInfo) && isset($sourceInfo['module_name']) 
+                ? $sourceInfo['module_name'] 
+                : rex_i18n::msg('bloecks_unknown_module');
             $actionText = 'cut' === $clipboard['action'] ? rex_i18n::msg('bloecks_action_cut') : rex_i18n::msg('bloecks_action_copy');
 
-            $message = rex_i18n::msg('bloecks_slice_inserted', $moduleName, $actionText);
+            $message = rex_i18n::msg('bloecks_slice_inserted', 
+                is_string($moduleName) ? $moduleName : '', 
+                $actionText
+            );
 
             echo json_encode([
                 'success' => true,
@@ -421,13 +393,13 @@ class Api extends rex_api_function
         $ctype = rex_request('ctype', 'int', 1);
         $pastePosition = rex_request('paste_position', 'string', 'after');
 
-        if (!$articleId || !$clang) {
+        if ($articleId === 0 || $clang === 0) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_missing_parameters')]);
             return;
         }
 
         $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);
-        if (empty($multiClipboard)) {
+        if (count($multiClipboard) === 0) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_clipboard_empty')]);
             return;
         }
@@ -446,7 +418,7 @@ class Api extends rex_api_function
             $selectedIndices = array_reverse($selectedIndices);
         }
 
-        $currentTargetSlice = (int) $targetSlice;
+        $currentTargetSlice = $targetSlice;
 
         try {
             foreach ($selectedIndices as $index) {
@@ -455,11 +427,17 @@ class Api extends rex_api_function
                 }
 
                 $clipboard = $multiClipboard[$index];
+                
+                // Validate clipboard before use
+                if (!is_array($clipboard)) {
+                    continue;
+                }
 
                 // Use current target slice for sequential insertion
+                /** @var array<string, mixed> $clipboard */
                 $result = $this->pasteSingleItem($clipboard, $currentTargetSlice, $articleId, $clang, $ctype, $pastePosition);
 
-                if ($result['success']) {
+                if (isset($result['success']) && $result['success'] === true) {
                     ++$insertedCount;
                     $newSliceId = is_numeric($result['new_slice_id']) ? (int) $result['new_slice_id'] : 0;
                     $newSliceIds[] = $newSliceId;
@@ -468,7 +446,7 @@ class Api extends rex_api_function
                     $currentTargetSlice = $newSliceId;
 
                     // If cut, remove from multi-clipboard
-                    if ('cut' === $clipboard['action']) {
+                    if (isset($clipboard['action']) && $clipboard['action'] === 'cut') {
                         unset($multiClipboard[$index]);
                     }
                 }
@@ -507,56 +485,14 @@ class Api extends rex_api_function
             return ['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_content_permission')];
         }
 
-        // Determine priority for insertion
-        $priority = 1;
-        $sql = rex_sql::factory();
-
         // Get revision from Version plugin if available
         $revision = 0; // Default revision (LIVE)
         if (class_exists('rex_article_revision')) {
             $revision = rex_article_revision::getSessionArticleRevision($articleId);
         }
 
-        // Get paste position from parameter or config
-        if (null === $pastePosition) {
-            $addon = rex_addon::get('bloecks');
-            $pastePosition = $addon->getConfig('paste_position', 'after');
-        }
-
-        if ($targetSlice) {
-            $sql->setQuery('SELECT priority FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$targetSlice]);
-            if ($sql->getRows()) {
-                $currentPriority = (int) $sql->getValue('priority');
-
-                if ('before' === $pastePosition) {
-                    $priority = $currentPriority; // Insert at current priority
-                    // Shift target slice and all following slices down
-                    $shift = rex_sql::factory();
-                    $shift->setQuery(
-                        'UPDATE ' . rex::getTablePrefix() . 'article_slice
-                         SET priority = priority + 1
-                         WHERE article_id=? AND clang_id=? AND revision=? AND priority>=?',
-                        [$articleId, $clang, $revision, $priority],
-                    );
-                } else {
-                    $priority = $currentPriority + 1; // Insert AFTER target slice
-                    // Shift existing slices down (only in current revision)
-                    $shift = rex_sql::factory();
-                    $shift->setQuery(
-                        'UPDATE ' . rex::getTablePrefix() . 'article_slice
-                         SET priority = priority + 1
-                         WHERE article_id=? AND clang_id=? AND revision=? AND priority>=?',
-                        [$articleId, $clang, $revision, $priority],
-                    );
-                }
-            }
-        } else {
-            $priority = (int) ($sql->getArray(
-                'SELECT MAX(priority) p FROM ' . rex::getTablePrefix() . 'article_slice
-                 WHERE article_id=? AND clang_id=? AND revision=?',
-                [$articleId, $clang, $revision],
-            )[0]['p'] ?? 0) + 1;
-        }
+        // Calculate insertion priority and shift existing slices
+        $priority = $this->calculateInsertionPriority($targetSlice, $articleId, $clang, $revision, $pastePosition);
 
         // Insert new slice
         $ins = rex_sql::factory();
@@ -582,7 +518,7 @@ class Api extends rex_api_function
         // If cut, delete original slice
         if ('cut' === $clipboard['action']) {
             $srcId = (isset($clipboard['source_slice_id']) && is_numeric($clipboard['source_slice_id'])) ? (int) $clipboard['source_slice_id'] : 0;
-            if ($srcId) {
+            if ($srcId > 0) {
                 rex_content_service::deleteSlice($srcId);
             }
         }
@@ -603,10 +539,63 @@ class Api extends rex_api_function
 
         echo json_encode([
             'success' => true,
-            'has_clipboard' => !empty($clipboard),
+            'has_clipboard' => $clipboard !== null && count($clipboard) > 0,
             'multi_clipboard_enabled' => $isMultiClipboardAvailable,
             'multi_clipboard_count' => count($multiClipboard),
             'multi_clipboard_items' => $multiClipboard,
         ]);
+    }
+
+    /**
+     * Calculate insertion priority and shift existing slices if needed.
+     * @return int The calculated priority for the new slice
+     */
+    private function calculateInsertionPriority(int $targetSlice, int $articleId, int $clang, int $revision, ?string $pastePosition): int
+    {
+        $priority = 1;
+        $sql = rex_sql::factory();
+
+        // Get paste position from parameter or config
+        if (null === $pastePosition) {
+            $addon = rex_addon::get('bloecks');
+            $pastePosition = $addon->getConfig('paste_position', 'after');
+        }
+
+        if ($targetSlice > 0) {
+            $sql->setQuery('SELECT priority FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$targetSlice]);
+            if ($sql->getRows() > 0) {
+                $currentPriority = $sql->getValue('priority');
+
+                if ('before' === $pastePosition) {
+                    $priority = $currentPriority; // Insert at current priority
+                    // Shift target slice and all following slices down
+                    $shift = rex_sql::factory();
+                    $shift->setQuery(
+                        'UPDATE ' . rex::getTablePrefix() . 'article_slice
+                         SET priority = priority + 1
+                         WHERE article_id=? AND clang_id=? AND revision=? AND priority>=?',
+                        [$articleId, $clang, $revision, $priority],
+                    );
+                } else {
+                    $priority = $currentPriority + 1; // Insert AFTER target slice
+                    // Shift existing slices down (only in current revision)
+                    $shift = rex_sql::factory();
+                    $shift->setQuery(
+                        'UPDATE ' . rex::getTablePrefix() . 'article_slice
+                         SET priority = priority + 1
+                         WHERE article_id=? AND clang_id=? AND revision=? AND priority>=?',
+                        [$articleId, $clang, $revision, $priority],
+                    );
+                }
+            }
+        } else {
+            $priority = ($sql->getArray(
+                'SELECT MAX(priority) p FROM ' . rex::getTablePrefix() . 'article_slice
+                 WHERE article_id=? AND clang_id=? AND revision=?',
+                [$articleId, $clang, $revision],
+            )[0]['p'] ?? 0) + 1;
+        }
+
+        return $priority;
     }
 }

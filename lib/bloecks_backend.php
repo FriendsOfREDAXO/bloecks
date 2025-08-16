@@ -35,7 +35,7 @@ class Backend
     public static function init(): void
     {
         $user = rex::getUser();
-        if (!$user) {
+        if ($user === null) {
             return;
         }
 
@@ -76,7 +76,7 @@ class Backend
      */
     private static function loadAssets(): void
     {
-        if ('content' !== rex_be_controller::getCurrentPagePart(1)) {
+        if (rex_be_controller::getCurrentPagePart(1) !== 'content') {
             return;
         }
 
@@ -97,7 +97,7 @@ class Backend
     private static function setJavaScriptConfig(bool $copyPasteEnabled, bool $dragDropEnabled): void
     {
         $user = rex::getUser();
-        if (!$user) {
+        if ($user === null) {
             return;
         }
 
@@ -161,7 +161,7 @@ class Backend
 
         if (ClipboardUtility::hasClipboardContent()) {
             $addon = rex_addon::get('bloecks');
-            if ($clipboard) {
+            if ($clipboard !== null) {
                 $buttons[] = ButtonUtility::createPasteButton($params, $clipboard, $addon);
             }
         }
@@ -177,7 +177,8 @@ class Backend
      */
     private static function shouldShowButtons(rex_extension_point $ep): bool
     {
-        if (!$ep->getParam('perm')) {
+        $perm = (bool) $ep->getParam('perm');
+        if (!$perm) {
             return false; // No module permissions
         }
 
@@ -211,7 +212,7 @@ class Backend
         $clang = rex_request('clang', 'int');
         $ctype = rex_request('ctype', 'int', 1);
 
-        if (!$articleId || !$clang) {
+        if ($articleId <= 0 || $clang <= 0) {
             $subject = $ep->getSubject();
             return is_string($subject) ? $subject : '';
         }
@@ -252,7 +253,7 @@ class Backend
     public static function process(rex_extension_point $ep): void
     {
         $action = rex_request('bloecks_action', 'string');
-        if (!$action) {
+        if ($action === '') {
             return;
         }
 
@@ -262,7 +263,7 @@ class Backend
 
         $msg = self::processAction($action);
 
-        if ($msg) {
+        if ($msg !== '' && $msg !== '0') {
             $subject = $ep->getSubject();
             $subjectString = is_string($subject) ? $subject : '';
             $ep->setSubject($msg . $subjectString);
@@ -293,13 +294,13 @@ class Backend
     private static function processCopyOrCut(string $action): string
     {
         $sliceId = rex_request('slice_id', 'int');
-        if (!$sliceId) {
+        if ($sliceId <= 0) {
             return '';
         }
 
         $sql = rex_sql::factory();
         $result = $sql->getArray('SELECT * FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
-        $row = !empty($result) ? $result[0] : null;
+        $row = count($result) === 0 ? null : $result[0];
 
         if (!is_array($row)) {
             return rex_view::warning(rex_i18n::msg('bloecks_error_slice_not_found'));
@@ -311,7 +312,7 @@ class Backend
 
         ClipboardUtility::storeInClipboard($sliceId, $row, $action);
 
-        $successMsg = 'cut' === $action ? rex_i18n::msg('bloecks_slice_cut') : rex_i18n::msg('bloecks_slice_copied');
+        $successMsg = $action === 'cut' ? rex_i18n::msg('bloecks_slice_cut') : rex_i18n::msg('bloecks_slice_copied');
         return rex_view::success($successMsg);
     }
 
@@ -322,12 +323,12 @@ class Backend
     private static function validateSlicePermissions(array $row): bool
     {
         $user = rex::getUser();
-        if (!$user) {
+        if ($user === null) {
             return false;
         }
 
         $modulePerm = $user->getComplexPerm('modules');
-        if (!$modulePerm || !method_exists($modulePerm, 'hasPerm')) {
+        if ($modulePerm === null || !method_exists($modulePerm, 'hasPerm')) {
             return false;
         }
 
@@ -359,7 +360,7 @@ class Backend
         $clang = rex_request('clang', 'int');
         $ctype = rex_request('ctype', 'int', 1);
 
-        if (!$articleId || !$clang) {
+        if ($articleId <= 0 || $clang <= 0) {
             return rex_view::warning(rex_i18n::msg('bloecks_error_missing_parameters'));
         }
 
@@ -393,7 +394,7 @@ class Backend
         $ins->setValue('revision', 0); // Default revision (LIVE)
 
         foreach ($data as $k => $v) {
-            if (is_string($v) || is_int($v) || is_float($v) || is_bool($v) || null === $v) {
+            if (is_string($v) || is_int($v) || is_float($v) || is_bool($v) || $v === null) {
                 $ins->setValue($k, $v);
             }
         }
@@ -404,9 +405,9 @@ class Backend
         try {
             $ins->insert();
 
-            if ('cut' === $clipboard['action']) {
+            if ($clipboard['action'] === 'cut') {
                 $srcId = isset($clipboard['source_slice_id']) && is_numeric($clipboard['source_slice_id']) ? (int) $clipboard['source_slice_id'] : 0;
-                if ($srcId) {
+                if ($srcId !== 0) {
                     rex_content_service::deleteSlice($srcId);
                 }
                 rex_unset_session('bloecks_clipboard');
