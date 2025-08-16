@@ -14,7 +14,7 @@ page:
             title: 'translate:bloecks_settings'
             icon: rex-icon fa-cog
         docs:
-            title: 'translate:bloecks_docs'
+            title: 'translate:bloecks_documentation'
             subPath: README.md
             icon: rex-icon fa-book
             itemclass: pull-right

@@ -68,19 +68,16 @@ class PermissionUtility
             return false;
         }
 
+        // Check category permission using REDAXO core method
         $structurePerm = $user->getComplexPerm('structure');
-        if ($structurePerm) {
-            // Check category permission (articles inherit from their category)
-            $categoryId = $article->getCategoryId();
-            if ($categoryId && method_exists($structurePerm, 'hasCategoryPerm') && !$structurePerm->hasCategoryPerm($categoryId)) {
-                return false;
-            }
+        if ($structurePerm instanceof \rex_structure_perm && !$structurePerm->hasCategoryPerm($article->getCategoryId())) {
+            return false;
         }
 
-        // Check module permissions if module is specified
+        // Check module permissions if module is specified using REDAXO core method
         if ($moduleId) {
             $modulePerm = $user->getComplexPerm('modules');
-            if ($modulePerm && method_exists($modulePerm, 'hasPerm') && !$modulePerm->hasPerm($moduleId)) {
+            if ($modulePerm instanceof \rex_module_perm && !$modulePerm->hasPerm($moduleId)) {
                 return false;
             }
         }
@@ -98,12 +95,7 @@ class PermissionUtility
             return false;
         }
 
-        $user = rex::getUser();
-        if (!$user) {
-            return false;
-        }
-
-        return $user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[copy]');
+        return self::getUserPermissions()['copy'];
     }
 
     /**
@@ -116,12 +108,7 @@ class PermissionUtility
             return false;
         }
 
-        $user = rex::getUser();
-        if (!$user) {
-            return false;
-        }
-
-        return $user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[order]');
+        return self::getUserPermissions()['order'];
     }
 
     /**
@@ -130,12 +117,7 @@ class PermissionUtility
      */
     public static function hasDragDropPermission(): bool
     {
-        $user = rex::getUser();
-        if (!$user) {
-            return false;
-        }
-
-        return $user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[order]');
+        return self::getUserPermissions()['order'];
     }
 
     /**
@@ -144,20 +126,7 @@ class PermissionUtility
      */
     public static function hasMultiClipboardPermission(): bool
     {
-        $user = rex::getUser();
-
-        // Check if user is logged in
-        if (!$user) {
-            return false;
-        }
-
-        // Admin can always use multi-clipboard
-        if ($user->isAdmin()) {
-            return true;
-        }
-
-        // Check specific permission
-        return $user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[multi]');
+        return self::getUserPermissions()['multi'];
     }
 
     /**
@@ -192,19 +161,47 @@ class PermissionUtility
     }
 
     /**
+     * Get user's current permissions as a structured array.
+     * @return array{
+     *   copy: bool,
+     *   order: bool,
+     *   multi: bool,
+     *   any: bool,
+     *   admin: bool
+     * }
+     * @api
+     */
+    public static function getUserPermissions(): array
+    {
+        $user = rex::getUser();
+        if (!$user) {
+            return [
+                'copy' => false,
+                'order' => false,
+                'multi' => false,
+                'any' => false,
+                'admin' => false,
+            ];
+        }
+
+        $isAdmin = $user->isAdmin();
+        $hasBase = $user->hasPerm('bloecks[]');
+
+        return [
+            'copy' => $isAdmin || $hasBase || $user->hasPerm('bloecks[copy]'),
+            'order' => $isAdmin || $hasBase || $user->hasPerm('bloecks[order]'),
+            'multi' => $isAdmin || $hasBase || $user->hasPerm('bloecks[multi]'),
+            'any' => $isAdmin || $hasBase || $user->hasPerm('bloecks[copy]') || $user->hasPerm('bloecks[order]') || $user->hasPerm('bloecks[multi]'),
+            'admin' => $isAdmin,
+        ];
+    }
+
+    /**
      * Check if user can access BLOECKS functionality at all.
      * @api
      */
     public static function hasAnyBloecksPermission(): bool
     {
-        $user = rex::getUser();
-        if (!$user) {
-            return false;
-        }
-
-        return $user->hasPerm('bloecks[]')
-               || $user->hasPerm('bloecks[copy]')
-               || $user->hasPerm('bloecks[order]')
-               || $user->hasPerm('bloecks[multi]');
+        return self::getUserPermissions()['any'];
     }
 }

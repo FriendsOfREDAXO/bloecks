@@ -145,35 +145,75 @@ var BLOECKS = (function($) {
     function initDragDrop() {
         // Check if drag & drop is enabled in PHP config
         var bloecksConfig = rex.bloecks || {};
-        if (!bloecksConfig.enable_drag_drop) {
+        
+        // Debug output
+        console.log('BLOECKS: Full config object:', bloecksConfig);
+        console.log('BLOECKS: dragDropEnabled value:', bloecksConfig.dragDropEnabled);
+        console.log('BLOECKS: typeof dragDropEnabled:', typeof bloecksConfig.dragDropEnabled);
+        
+        // Check dragDropEnabled - handle both boolean and string values
+        var dragDropEnabled = bloecksConfig.dragDropEnabled;
+        if (dragDropEnabled === undefined || dragDropEnabled === null) {
+            // Fallback: try to detect if we're on content page with drag elements
+            var dragElements = document.querySelectorAll('.bloecks-dragdrop');
+            if (dragElements.length > 0 && window.location.href.includes('page=content')) {
+                console.log('BLOECKS: dragDropEnabled undefined, but found drag elements - enabling as fallback');
+                dragDropEnabled = true;
+            } else {
+                console.log('BLOECKS: Drag & drop disabled - config undefined and no fallback applicable');
+                return;
+            }
+        } else if (dragDropEnabled === false || dragDropEnabled === '0' || dragDropEnabled === 'false') {
+            console.log('BLOECKS: Drag & drop disabled in config, dragDropEnabled:', dragDropEnabled);
+            return;
+        }
+
+        console.log('BLOECKS: Drag & drop enabled, initializing...');
+        
+        // Check if Sortable is available
+        if (typeof Sortable === 'undefined') {
+            console.error('BLOECKS: Sortable library not loaded');
             return;
         }
         
-        // Find the parent container that holds all wrapper elements
-        var mainContainer = document.body;
-        
-        // Check if we have drag elements
-        var dragElements = mainContainer.querySelectorAll('.bloecks-dragdrop');
+        // Find all drag elements
+        var dragElements = document.querySelectorAll('.bloecks-dragdrop');
+        console.log('BLOECKS: Found', dragElements.length, 'drag elements');
         
         if (dragElements.length === 0) {
+            console.log('BLOECKS: No drag elements found');
             return;
         }
         
-        // Find the common parent of all drag elements
-        var commonParent = dragElements[0].parentNode;
-        while (commonParent && commonParent !== document.body) {
-            var allInParent = true;
-            dragElements.forEach(function(el) {
-                if (!commonParent.contains(el)) {
-                    allInParent = false;
+        // Find the parent container - should be ul.rex-slices
+        var parentContainer = document.querySelector('ul.rex-slices');
+        if (!parentContainer) {
+            // Fallback: find common parent of drag elements
+            parentContainer = dragElements[0].parentNode;
+            var attempts = 0;
+            while (parentContainer && parentContainer !== document.body && attempts < 10) {
+                var allInParent = true;
+                for (var i = 0; i < dragElements.length; i++) {
+                    if (!parentContainer.contains(dragElements[i])) {
+                        allInParent = false;
+                        break;
+                    }
                 }
-            });
-            if (allInParent) break;
-            commonParent = commonParent.parentNode;
+                if (allInParent) break;
+                parentContainer = parentContainer.parentNode;
+                attempts++;
+            }
         }
         
+        if (!parentContainer) {
+            console.error('BLOECKS: Could not find parent container for drag elements');
+            return;
+        }
+        
+        console.log('BLOECKS: Using parent container:', parentContainer.tagName, parentContainer.className);
+        
         try {
-            var sortable = Sortable.create(commonParent, {
+            var sortable = Sortable.create(parentContainer, {
                 draggable: '.bloecks-dragdrop',
                 handle: '.bloecks-drag-handle',
                 animation: 150,
@@ -182,10 +222,12 @@ var BLOECKS = (function($) {
                 dragClass: 'bloecks-dragging',
                 
                 onStart: function(evt) {
+                    console.log('BLOECKS: Drag started');
                     evt.item.classList.add('bloecks-dragging');
                 },
                 
                 onEnd: function(evt) {
+                    console.log('BLOECKS: Drag ended, oldIndex:', evt.oldIndex, 'newIndex:', evt.newIndex);
                     evt.item.classList.remove('bloecks-dragging');
                     
                     if (evt.oldIndex !== evt.newIndex) {
@@ -195,6 +237,7 @@ var BLOECKS = (function($) {
             });
             
             sortableInstances.push(sortable);
+            console.log('BLOECKS: Sortable instance created successfully');
             
         } catch (error) {
             console.error('BLOECKS: Error creating sortable:', error);

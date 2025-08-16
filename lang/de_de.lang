@@ -2,6 +2,7 @@ bloecks_navigation = blÖcks
 bloecks_overview = Übersicht
 bloecks_settings = Einstellungen
 bloecks_docs = Doku
+bloecks_documentation = Dokumentation
 
 # Permissions
 perm_general_bloecks[] = bloecks[]

@@ -105,6 +105,8 @@ class Backend
             'api_url' => rex_url::backendController(['rex-api-call' => 'bloecks_api']),
             'drag_drop_enabled' => $dragDropEnabled,
             'copy_paste_enabled' => $copyPasteEnabled,
+            'multiClipboard' => rex_addon::get('bloecks')->getConfig('enable_multi_clipboard', false),
+            'pastePosition' => rex_addon::get('bloecks')->getConfig('paste_position', 'after'),
             'messages' => [
                 'success' => rex_i18n::msg('bloecks_success'),
                 'error' => rex_i18n::msg('bloecks_error'),

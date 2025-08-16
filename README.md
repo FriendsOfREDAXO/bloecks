@@ -105,6 +105,71 @@ npm run update-sortable
 - Session-basierte Zwischenablage
 - REDAXO Extension Points für nahtlose Integration
 
+## Klassen-Referenz
+
+### Core Classes
+- **`bloecks_backend`** - Hauptkoordination und UI-Integration
+- **`bloecks_api`** - RESTful API Endpoints für AJAX-Operationen  
+- **`bloecks_wrapper`** - Extension Point Wrapper für Slice-Rendering
+
+### Utility Classes (`lib/utility/`)
+- **`bloecks_permission_utility.php`** - Rechteverwaltung und Benutzerberechtigungen
+- **`bloecks_clipboard_utility.php`** - Session-basierte Zwischenablage-Verwaltung
+- **`bloecks_button_utility.php`** - UI-Button-Generierung für Copy/Cut/Paste
+- **`bloecks_slice_utility.php`** - Slice-Operationen und Datenbankzugriffe
+
+### Public API Methods
+
+#### PermissionUtility
+```php
+// Benutzerberechtigungen prüfen
+PermissionUtility::canUserCopy(): bool
+PermissionUtility::canUserOrder(): bool  
+PermissionUtility::canUserMultiClipboard(): bool
+PermissionUtility::isSliceExcluded(int $moduleId, int $templateId): bool
+```
+
+#### ClipboardUtility
+```php
+// Zwischenablage-Operationen
+ClipboardUtility::addToClipboard(array $slice, string $action): void
+ClipboardUtility::getClipboard(): ?array
+ClipboardUtility::clearClipboard(): void
+ClipboardUtility::getClipboardSourceInfo(): ?array
+```
+
+#### ButtonUtility
+```php
+// UI-Button-Generierung
+ButtonUtility::createCopyButton(int $sliceId, array $slice): string
+ButtonUtility::createCutButton(int $sliceId, array $slice): string
+ButtonUtility::createPasteButton(array $clipboard, int $targetSlice): string
+ButtonUtility::createModuleSelectPasteButton(int $articleId, int $clang, int $ctype, string $pastePosition): string
+```
+
+#### SliceUtility
+```php
+// Slice-Datenbankoperationen
+SliceUtility::getSliceData(int $sliceId): ?array
+SliceUtility::updateSlicePriority(int $sliceId, int $newPriority): bool
+SliceUtility::deleteSlice(int $sliceId): bool
+SliceUtility::getSlicesByArticle(int $articleId, int $clang, int $ctype): array
+```
+
+### JavaScript API
+```javascript
+// Globale Konfiguration via rex.bloecks
+rex.bloecks.pastePosition    // 'before' | 'after'
+rex.bloecks.copyEnabled      // boolean
+rex.bloecks.dragEnabled      // boolean
+rex.bloecks.multiEnabled     // boolean
+
+// Event Handling
+$(document).on('bloecks:copied', function(e, sliceId) { });
+$(document).on('bloecks:pasted', function(e, result) { });
+$(document).on('bloecks:sorted', function(e, result) { });
+```
+
 ## Lizenz
 MIT
 
