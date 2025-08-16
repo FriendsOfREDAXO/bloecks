@@ -16,6 +16,7 @@ use rex_sql_exception;
 use rex_url;
 use rex_view;
 
+use function count;
 use function is_array;
 use function is_bool;
 use function is_float;
@@ -35,7 +36,7 @@ class Backend
     public static function init(): void
     {
         $user = rex::getUser();
-        if ($user === null) {
+        if (null === $user) {
             return;
         }
 
@@ -76,7 +77,7 @@ class Backend
      */
     private static function loadAssets(): void
     {
-        if (rex_be_controller::getCurrentPagePart(1) !== 'content') {
+        if ('content' !== rex_be_controller::getCurrentPagePart(1)) {
             return;
         }
 
@@ -97,7 +98,7 @@ class Backend
     private static function setJavaScriptConfig(bool $copyPasteEnabled, bool $dragDropEnabled): void
     {
         $user = rex::getUser();
-        if ($user === null) {
+        if (null === $user) {
             return;
         }
 
@@ -161,7 +162,7 @@ class Backend
 
         if (ClipboardUtility::hasClipboardContent()) {
             $addon = rex_addon::get('bloecks');
-            if ($clipboard !== null) {
+            if (null !== $clipboard) {
                 $buttons[] = ButtonUtility::createPasteButton($params, $clipboard, $addon);
             }
         }
@@ -253,7 +254,7 @@ class Backend
     public static function process(rex_extension_point $ep): void
     {
         $action = rex_request('bloecks_action', 'string');
-        if ($action === '') {
+        if ('' === $action) {
             return;
         }
 
@@ -263,7 +264,7 @@ class Backend
 
         $msg = self::processAction($action);
 
-        if ($msg !== '' && $msg !== '0') {
+        if ('' !== $msg && '0' !== $msg) {
             $subject = $ep->getSubject();
             $subjectString = is_string($subject) ? $subject : '';
             $ep->setSubject($msg . $subjectString);
@@ -300,7 +301,7 @@ class Backend
 
         $sql = rex_sql::factory();
         $result = $sql->getArray('SELECT * FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
-        $row = count($result) === 0 ? null : $result[0];
+        $row = 0 === count($result) ? null : $result[0];
 
         if (!is_array($row)) {
             return rex_view::warning(rex_i18n::msg('bloecks_error_slice_not_found'));
@@ -312,7 +313,7 @@ class Backend
 
         ClipboardUtility::storeInClipboard($sliceId, $row, $action);
 
-        $successMsg = $action === 'cut' ? rex_i18n::msg('bloecks_slice_cut') : rex_i18n::msg('bloecks_slice_copied');
+        $successMsg = 'cut' === $action ? rex_i18n::msg('bloecks_slice_cut') : rex_i18n::msg('bloecks_slice_copied');
         return rex_view::success($successMsg);
     }
 
@@ -323,12 +324,12 @@ class Backend
     private static function validateSlicePermissions(array $row): bool
     {
         $user = rex::getUser();
-        if ($user === null) {
+        if (null === $user) {
             return false;
         }
 
         $modulePerm = $user->getComplexPerm('modules');
-        if ($modulePerm === null || !method_exists($modulePerm, 'hasPerm')) {
+        if (null === $modulePerm || !method_exists($modulePerm, 'hasPerm')) {
             return false;
         }
 
@@ -394,7 +395,7 @@ class Backend
         $ins->setValue('revision', 0); // Default revision (LIVE)
 
         foreach ($data as $k => $v) {
-            if (is_string($v) || is_int($v) || is_float($v) || is_bool($v) || $v === null) {
+            if (is_string($v) || is_int($v) || is_float($v) || is_bool($v) || null === $v) {
                 $ins->setValue($k, $v);
             }
         }
@@ -405,9 +406,9 @@ class Backend
         try {
             $ins->insert();
 
-            if ($clipboard['action'] === 'cut') {
+            if ('cut' === $clipboard['action']) {
                 $srcId = isset($clipboard['source_slice_id']) && is_numeric($clipboard['source_slice_id']) ? (int) $clipboard['source_slice_id'] : 0;
-                if ($srcId !== 0) {
+                if (0 !== $srcId) {
                     rex_content_service::deleteSlice($srcId);
                 }
                 rex_unset_session('bloecks_clipboard');

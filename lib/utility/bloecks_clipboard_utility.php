@@ -7,6 +7,7 @@ use rex_article;
 use rex_i18n;
 use rex_sql;
 
+use function count;
 use function is_array;
 use function is_string;
 
@@ -93,13 +94,13 @@ class ClipboardUtility
         $moduleSql = rex_sql::factory();
         $moduleId = isset($sliceData['module_id']) && is_numeric($sliceData['module_id']) ? (int) $sliceData['module_id'] : 0;
         $moduleResult = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
-        $moduleRow = count($moduleResult) === 0 ? null : $moduleResult[0];
-        $moduleName = $moduleRow !== null
+        $moduleRow = 0 === count($moduleResult) ? null : $moduleResult[0];
+        $moduleName = null !== $moduleRow
             ? $moduleRow['name']
             : rex_i18n::msg('bloecks_error_unknown_module');
 
         return [
-            'article_name' => $sourceArticle !== null ? $sourceArticle->getName() : rex_i18n::msg('bloecks_error_unknown_article'),
+            'article_name' => null !== $sourceArticle ? $sourceArticle->getName() : rex_i18n::msg('bloecks_error_unknown_article'),
             'module_name' => $moduleName,
             'article_id' => $articleId,
             'clang_id' => $clangId,
@@ -125,7 +126,7 @@ class ClipboardUtility
     public static function hasClipboardContent(): bool
     {
         $clipboard = self::getClipboard();
-        return $clipboard !== null && isset($clipboard['data']);
+        return null !== $clipboard && isset($clipboard['data']);
     }
 
     /**
