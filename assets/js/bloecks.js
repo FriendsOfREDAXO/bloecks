@@ -884,8 +884,8 @@ var BLOECKS = (function($) {
         multiClipboard.forEach(function(item, index) {
             var $item = $('<div class="bloecks-clipboard-item"></div>');
             
-            // Only show checkbox if multiple items OR multi-clipboard enabled
-            if (multiClipboard.length > 1 || isMultiClipboardEnabled) {
+            // Only show checkbox if multiple items AND multi-clipboard enabled
+            if (multiClipboard.length > 1 && isMultiClipboardEnabled) {
                 $item.append('<input type="checkbox" checked data-index="' + index + '">');
             }
             
@@ -910,11 +910,11 @@ var BLOECKS = (function($) {
         // Paste buttons
         var $pasteActions = $('<div class="dropdown-actions"></div>');
         
-        if (multiClipboard.length === 1) {
-            // Single item - simple paste
+        if (multiClipboard.length === 1 || !isMultiClipboardEnabled) {
+            // Single item OR multi-clipboard disabled - simple paste
             $pasteActions.append('<button type="button" class="btn btn-sm btn-success" data-action="paste-all">Einfügen</button>');
         } else {
-            // Multiple items - selective paste options
+            // Multiple items AND multi-clipboard enabled - selective paste options
             $pasteActions.append('<button type="button" class="btn btn-sm btn-success" data-action="paste-selected">Ausgewählte einfügen</button>');
             $pasteActions.append('<button type="button" class="btn btn-sm btn-primary" data-action="paste-all">Alle einfügen</button>');
         }

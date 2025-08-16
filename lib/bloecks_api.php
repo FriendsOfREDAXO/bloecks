@@ -380,12 +380,6 @@ class Api extends rex_api_function
      */
     private function handleMultiPaste(): void
     {
-        // Check if multi-clipboard is available (setting enabled AND user has permission)
-        if (!Backend::isMultiClipboardAvailable()) {
-            echo json_encode(['success' => false, 'message' => 'Multi-Clipboard nicht verfügbar']);
-            return;
-        }
-
         $selectedItems = rex_request('selected_items', 'string', '');
         $targetSlice = rex_request('bloecks_target', 'int');
         $articleId = rex_request('article_id', 'int');
