@@ -17,22 +17,14 @@ use function is_string;
 class ClipboardUtility
 {
     /**
-     * Clear clipboard at session start for security.
-     * This ensures clipboard is cleared on login/logout/session restart.
+     * Clear clipboard on logout for security.
      * @api
      */
     public static function clearClipboardOnSessionStart(): void
     {
-        // Check if this is a fresh session or no user logged in
-        if (!rex::getUser() || false === rex_session('bloecks_session_started', 'bool', false)) {
+        // Clear clipboard on explicit logout
+        if (rex_request('logout', 'bool')) {
             self::clearClipboard();
-            rex_set_session('bloecks_session_started', true);
-        }
-
-        // Also clear on logout detection
-        if (rex_request('logout') || 'login' === rex_be_controller::getCurrentPagePart(1)) {
-            self::clearClipboard();
-            rex_unset_session('bloecks_session_started');
         }
     }
 

@@ -441,6 +441,13 @@ class Api extends rex_api_function
         $insertedCount = 0;
         $newSliceIds = [];
 
+        // WICHTIG: Für "before" Position die Reihenfolge umkehren, damit die Items in der richtigen Reihenfolge erscheinen
+        if ('before' === $pastePosition) {
+            $selectedIndices = array_reverse($selectedIndices);
+        }
+
+        $currentTargetSlice = $targetSlice;
+
         try {
             foreach ($selectedIndices as $index) {
                 if (!isset($multiClipboard[$index])) {
@@ -449,12 +456,15 @@ class Api extends rex_api_function
 
                 $clipboard = $multiClipboard[$index];
 
-                // Use same paste logic as single paste
-                $result = $this->pasteSingleItem($clipboard, $targetSlice, $articleId, $clang, $ctype, $pastePosition);
+                // Use current target slice for sequential insertion
+                $result = $this->pasteSingleItem($clipboard, $currentTargetSlice, $articleId, $clang, $ctype, $pastePosition);
 
                 if ($result['success']) {
                     ++$insertedCount;
                     $newSliceIds[] = $result['new_slice_id'];
+
+                    // Update target slice to the newly inserted slice for proper stacking
+                    $currentTargetSlice = $result['new_slice_id'];
 
                     // If cut, remove from multi-clipboard
                     if ('cut' === $clipboard['action']) {

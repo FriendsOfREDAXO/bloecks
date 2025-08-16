@@ -56,7 +56,7 @@ if (rex::isBackend() && PHP_SAPI !== 'cli' && is_object(rex::getUser())) {
     // Only run session-dependent code when not in CLI context
     rex_extension::register('PACKAGES_INCLUDED', static function () {
         // Clear clipboard on login/logout and session start for security
-        Backend::clearClipboardOnSessionStart();
+        \FriendsOfRedaxo\Bloecks\ClipboardUtility::clearClipboardOnSessionStart();
         Backend::init();
     });
 }

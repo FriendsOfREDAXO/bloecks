@@ -486,6 +486,9 @@ var BLOECKS = (function($) {
                 checkForMessages();
                 initCopyPasteHandlers();
                 checkForScrollTarget(); // Add this call!
+                
+                // WICHTIG: Zwischenablage auch bei rex:ready laden!
+                loadMultiClipboardFromServer();
             }, 100);
         }
     });
@@ -499,6 +502,9 @@ var BLOECKS = (function($) {
                 checkForMessages();
                 initCopyPasteHandlers();
                 checkForScrollTarget(); // Add this call!
+                
+                // WICHTIG: Zwischenablage auch bei pjax:end laden!
+                loadMultiClipboardFromServer();
             }, 150);
         }
     });
@@ -521,6 +527,9 @@ var BLOECKS = (function($) {
                 checkForMessages();
                 initCopyPasteHandlers();
                 checkForScrollTarget();
+                
+                // WICHTIG: Zwischenablage auch bei pjax:complete laden!
+                loadMultiClipboardFromServer();
             }, 100);
         }
     });
@@ -585,8 +594,12 @@ var BLOECKS = (function($) {
             
             var $this = $(this);
             
+            console.log('BLOECKS: Paste button clicked, multiClipboard length:', multiClipboard.length);
+            console.log('BLOECKS: multiClipboard contents:', multiClipboard);
+            
             // Check if we have any clipboard items
             if (multiClipboard.length === 0) {
+                console.log('BLOECKS: Clipboard is empty, showing error message');
                 showToast(i18n.error_clipboard_empty, 'warning');
                 return;
             }
@@ -753,6 +766,8 @@ var BLOECKS = (function($) {
     }
 
     function updatePasteButtons() {
+        console.log('BLOECKS: Updating paste buttons, multiClipboard length:', multiClipboard.length);
+        
         $('.bloecks-paste').each(function() {
             var $btn = $(this);
             
@@ -763,6 +778,7 @@ var BLOECKS = (function($) {
                 if (title && !title.includes('(')) {
                     $btn.attr('title', title + ' (' + multiClipboard.length + ' Elemente)');
                 }
+                console.log('BLOECKS: Button updated for multiple items');
             } else if (multiClipboard.length === 1) {
                 // Single item - show detailed info
                 $btn.removeClass('has-multiple');
@@ -772,12 +788,16 @@ var BLOECKS = (function($) {
                     var newTitle = actionText + ': "' + item.source_info.module_name + '" aus "' + item.source_info.article_name + '" (ID: ' + item.source_info.article_id + ')';
                     $btn.attr('title', newTitle);
                 }
+                console.log('BLOECKS: Button updated for single item');
             } else {
                 // No items - disable button visually
                 $btn.removeClass('has-multiple');
                 $btn.attr('title', 'Zwischenablage ist leer');
+                console.log('BLOECKS: Button updated for empty clipboard');
             }
         });
+        
+        console.log('BLOECKS: Found', $('.bloecks-paste').length, 'paste buttons to update');
     }
 
     function showClipboardDropdown($button) {
@@ -828,7 +848,13 @@ var BLOECKS = (function($) {
             
             var $info = $('<div class="bloecks-clipboard-item-info"></div>');
             var moduleName = (item.source_info && item.source_info.module_name) ? item.source_info.module_name : 'Unbekanntes Modul';
-            $info.append('<div class="bloecks-clipboard-item-title">' + moduleName + '</div>');
+            
+            // Add icon based on action (copy or cut) using Font Awesome 6
+            var actionIcon = item.action === 'cut' 
+                ? '<i class="fa-solid fa-scissors" style="color: #dc3545; margin-right: 6px;" title="Ausgeschnitten"></i>'
+                : '<i class="fa-solid fa-copy" style="color: #0d6efd; margin-right: 6px;" title="Kopiert"></i>';
+            
+            $info.append('<div class="bloecks-clipboard-item-title">' + actionIcon + moduleName + '</div>');
             if (item.source_info) {
                 var actionText = item.action === 'cut' ? 'ausgeschnitten' : 'kopiert';
                 $info.append('<div class="bloecks-clipboard-item-meta">' + actionText + ' aus: ' + item.source_info.article_name + ' (ID: ' + item.source_info.article_id + ')</div>');
@@ -1039,31 +1065,40 @@ var BLOECKS = (function($) {
             'rex-api-call': 'bloecks'
         };
         
+        console.log('BLOECKS: Loading clipboard status from server...', data);
+        
         $.ajax({
             url: 'index.php',
             type: 'POST',
             dataType: 'json',
             data: data,
             success: function(response) {
+                console.log('BLOECKS: Clipboard status response:', response);
+                
                 if (response.success) {
                     // Always sync multi-clipboard, regardless of setting
                     if (response.multi_clipboard_items && response.multi_clipboard_items.length > 0) {
                         multiClipboard = response.multi_clipboard_items;
+                        console.log('BLOECKS: Loaded', multiClipboard.length, 'items from server clipboard');
                     } else {
                         multiClipboard = [];
+                        console.log('BLOECKS: Server clipboard is empty');
                     }
                     
                     // Set multi-clipboard mode based on server setting
                     if (response.multi_clipboard_enabled) {
                         setMultiClipboardEnabled(true);
+                        console.log('BLOECKS: Multi-clipboard enabled on server');
                     }
                     
                     updatePasteButtons();
+                } else {
+                    console.log('BLOECKS: Server returned error:', response);
                 }
             },
-            error: function() {
-                // Silently fail - not critical
-                console.log('Could not load clipboard status');
+            error: function(xhr, status, error) {
+                console.log('BLOECKS: Could not load clipboard status - Network error:', error);
+                console.log('BLOECKS: XHR status:', status, xhr.status, xhr.responseText);
             }
         });
     }
@@ -1088,6 +1123,7 @@ var BLOECKS = (function($) {
         removeFromMultiClipboard: removeFromMultiClipboard,
         clearMultiClipboard: clearMultiClipboard,
         loadMultiClipboardFromServer: loadMultiClipboardFromServer,
+        config: config,  // Make config accessible
         version: '2.5.0'
     };
     
@@ -1098,10 +1134,13 @@ $(document).ready(function() {
     // Always initialize copy/paste handlers
     BLOECKS.initCopyPasteHandlers();
     
-    // Initialize multi-clipboard if enabled
-    if (config.multiClipboard) {
+    // Initialize multi-clipboard if enabled - use BLOECKS.config
+    if (BLOECKS.config && BLOECKS.config.multiClipboard) {
         BLOECKS.setMultiClipboardEnabled(true);
     }
+    
+    // Always load clipboard status from server on initial page load
+    BLOECKS.loadMultiClipboardFromServer();
 });
 
 // Re-initialize after PJAX navigation
@@ -1110,12 +1149,12 @@ $(document).on('pjax:complete pjax:end rex:ready', function() {
         // Always reinitialize handlers
         BLOECKS.initCopyPasteHandlers();
         
-        // Always load clipboard status from server after navigation
-        if (config.multiClipboard) {
+        // Always load clipboard status from server after navigation - use BLOECKS.config
+        if (BLOECKS.config && BLOECKS.config.multiClipboard) {
             BLOECKS.setMultiClipboardEnabled(true);
         }
         
-        // Load current clipboard status to sync frontend with backend
+        // WICHTIG: Immer Clipboard-Status laden bei Navigation!
         BLOECKS.loadMultiClipboardFromServer();
         
         // Check for scroll target after PJAX navigation (important for paste operations)
