@@ -27,7 +27,7 @@ class PermissionUtility
 
         // Check module exclusions
         $modulesExclude = $addon->getConfig('modules_exclude', '');
-        if (is_string($modulesExclude) && $modulesExclude !== '' && $moduleId !== null) {
+        if (is_string($modulesExclude) && '' !== $modulesExclude && null !== $moduleId) {
             $excludedModules = array_map('trim', explode(',', $modulesExclude));
             if (in_array((string) $moduleId, $excludedModules, true)) {
                 return true;
@@ -36,9 +36,9 @@ class PermissionUtility
 
         // Check template exclusions
         $templatesExclude = $addon->getConfig('templates_exclude', '');
-        if (is_string($templatesExclude) && $templatesExclude !== '' && $articleId > 0 && $clang > 0) {
+        if (is_string($templatesExclude) && '' !== $templatesExclude && $articleId > 0 && $clang > 0) {
             $article = rex_article::get($articleId, $clang);
-            if ($article !== null && $article->getTemplateId() > 0) {
+            if (null !== $article && $article->getTemplateId() > 0) {
                 $excludedTemplates = array_map('trim', explode(',', $templatesExclude));
                 if (in_array((string) $article->getTemplateId(), $excludedTemplates, true)) {
                     return true;
@@ -55,7 +55,7 @@ class PermissionUtility
     public static function hasContentEditPermission(int $articleId, int $clang, ?int $moduleId = null): bool
     {
         $user = rex::getUser();
-        if ($user === null) {
+        if (null === $user) {
             return false;
         }
 
@@ -66,7 +66,7 @@ class PermissionUtility
 
         // Get article to check
         $article = rex_article::get($articleId, $clang);
-        if ($article === null) {
+        if (null === $article) {
             return false;
         }
 
@@ -77,7 +77,7 @@ class PermissionUtility
         }
 
         // Check module permissions if module is specified using REDAXO core method
-        if ($moduleId !== null) {
+        if (null !== $moduleId) {
             $modulePerm = $user->getComplexPerm('modules');
             if ($modulePerm instanceof rex_module_perm && !$modulePerm->hasPerm($moduleId)) {
                 return false;
@@ -141,7 +141,7 @@ class PermissionUtility
         $addon = rex_addon::get('bloecks');
 
         // Check if multi-clipboard is enabled in settings
-        if ($addon->getConfig('enable_multi_clipboard', false) !== true) {
+        if (true !== $addon->getConfig('enable_multi_clipboard', false)) {
             return false;
         }
 
@@ -178,7 +178,7 @@ class PermissionUtility
     public static function getUserPermissions(): array
     {
         $user = rex::getUser();
-        if ($user === null) {
+        if (null === $user) {
             return [
                 'copy' => false,
                 'order' => false,

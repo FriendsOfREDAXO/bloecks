@@ -27,9 +27,9 @@ class Wrapper
         $module_id = $ep->getParam('module_id');
 
         // Get the slice object to ensure correct clang_id and module_id
-        if ($slice_id !== null && is_numeric($slice_id)) {
+        if (null !== $slice_id && is_numeric($slice_id)) {
             $slice = rex_article_slice::getArticleSliceById((int) $slice_id);
-            if ($slice !== null) {
+            if (null !== $slice) {
                 $clang_id = $slice->getClangId();
                 $article_id = $slice->getArticleId();
                 $module_id = $slice->getModuleId();
@@ -37,7 +37,7 @@ class Wrapper
         }
 
         // If still no valid clang_id, use current request clang
-        if ($clang_id === null || $clang_id <= 0) {
+        if (null === $clang_id || $clang_id <= 0) {
             $clang_id = rex_request('clang', 'int', 1);
         }
 

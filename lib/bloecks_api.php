@@ -54,7 +54,7 @@ class Api extends rex_api_function
             $orderDecoded = json_decode($orderString);
             $order = is_array($orderDecoded) ? $orderDecoded : null;
 
-            if ($order === null || $article_id === 0) {
+            if (null === $order || 0 === $article_id) {
                 echo json_encode(['error' => rex_i18n::msg('bloecks_api_error_missing_parameters')]);
                 exit;
             }
@@ -88,7 +88,7 @@ class Api extends rex_api_function
     private function handleCopyPasteAjax(string $action): void
     {
         $user = rex::getUser();
-        if ($user === null) {
+        if (null === $user) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_permission')]);
             return;
         }
@@ -131,7 +131,7 @@ class Api extends rex_api_function
     private function handleCopyOrCut(string $action): void
     {
         $sliceId = rex_request('slice_id', 'int');
-        if ($sliceId === 0) {
+        if (0 === $sliceId) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_slice_id_missing')]);
             return;
         }
@@ -147,10 +147,10 @@ class Api extends rex_api_function
 
         $user = rex::getUser();
 
-        $modulePerm = $user !== null ? $user->getComplexPerm('modules') : null;
+        $modulePerm = null !== $user ? $user->getComplexPerm('modules') : null;
         $moduleId = $row['module_id'];
 
-        if ($user === null || $modulePerm === null || !method_exists($modulePerm, 'hasPerm') || !$modulePerm->hasPerm($moduleId)) {
+        if (null === $user || null === $modulePerm || !method_exists($modulePerm, 'hasPerm') || !$modulePerm->hasPerm($moduleId)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_module_permission')]);
             return;
         }
@@ -190,7 +190,7 @@ class Api extends rex_api_function
         $moduleSql = rex_sql::factory();
         $moduleResult = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
         $moduleRow = count($moduleResult) > 0 ? $moduleResult[0] : null;
-        $moduleName = $moduleRow !== null
+        $moduleName = null !== $moduleRow
             ? $moduleRow['name']
             : rex_i18n::msg('bloecks_error_unknown_module');
 
@@ -203,7 +203,7 @@ class Api extends rex_api_function
             'action' => $action,
             'timestamp' => time(),
             'source_info' => [
-                'article_name' => $sourceArticle !== null ? $sourceArticle->getName() : rex_i18n::msg('bloecks_error_unknown_article'),
+                'article_name' => null !== $sourceArticle ? $sourceArticle->getName() : rex_i18n::msg('bloecks_error_unknown_article'),
                 'module_name' => $moduleName,
                 'article_id' => $articleId,
                 'clang_id' => $clangId,
@@ -261,7 +261,7 @@ class Api extends rex_api_function
     private function handlePaste(): void
     {
         $clipboard = rex_session('bloecks_clipboard', 'array', null);
-        if ($clipboard === null || !isset($clipboard['data'])) {
+        if (null === $clipboard || !isset($clipboard['data'])) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_clipboard_empty')]);
             return;
         }
@@ -272,7 +272,7 @@ class Api extends rex_api_function
         $ctype = rex_request('ctype', 'int', 1);
         $pastePosition = rex_request('paste_position', 'string', null);
 
-        if ($articleId === 0 || $clang === 0) {
+        if (0 === $articleId || 0 === $clang) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_missing_parameters')]);
             return;
         }
@@ -282,7 +282,7 @@ class Api extends rex_api_function
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_invalid_clipboard_data')]);
             return;
         }
-        
+
         $moduleId = is_numeric($data['module_id']) ? (int) $data['module_id'] : null;
         $user = rex::getUser();
 
@@ -312,7 +312,7 @@ class Api extends rex_api_function
 
         // Insert data with type safety
         foreach ($data as $k => $v) {
-            if (is_string($k) && (is_string($v) || is_int($v) || is_float($v) || is_bool($v) || $v === null)) {
+            if (is_string($k) && (is_string($v) || is_int($v) || is_float($v) || is_bool($v) || null === $v)) {
                 $ins->setValue($k, $v);
             }
         }
@@ -337,14 +337,14 @@ class Api extends rex_api_function
 
             // Create detailed success message
             $sourceInfo = $clipboard['source_info'] ?? null;
-            $moduleName = is_array($sourceInfo) && isset($sourceInfo['module_name']) 
-                ? $sourceInfo['module_name'] 
+            $moduleName = is_array($sourceInfo) && isset($sourceInfo['module_name'])
+                ? $sourceInfo['module_name']
                 : rex_i18n::msg('bloecks_unknown_module');
             $actionText = 'cut' === $clipboard['action'] ? rex_i18n::msg('bloecks_action_cut') : rex_i18n::msg('bloecks_action_copy');
 
-            $message = rex_i18n::msg('bloecks_slice_inserted', 
-                is_string($moduleName) ? $moduleName : '', 
-                $actionText
+            $message = rex_i18n::msg('bloecks_slice_inserted',
+                is_string($moduleName) ? $moduleName : '',
+                $actionText,
             );
 
             echo json_encode([
@@ -393,13 +393,13 @@ class Api extends rex_api_function
         $ctype = rex_request('ctype', 'int', 1);
         $pastePosition = rex_request('paste_position', 'string', 'after');
 
-        if ($articleId === 0 || $clang === 0) {
+        if (0 === $articleId || 0 === $clang) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_missing_parameters')]);
             return;
         }
 
         $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);
-        if (count($multiClipboard) === 0) {
+        if (0 === count($multiClipboard)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_clipboard_empty')]);
             return;
         }
@@ -427,7 +427,7 @@ class Api extends rex_api_function
                 }
 
                 $clipboard = $multiClipboard[$index];
-                
+
                 // Validate clipboard before use
                 if (!is_array($clipboard)) {
                     continue;
@@ -437,7 +437,7 @@ class Api extends rex_api_function
                 /** @var array<string, mixed> $clipboard */
                 $result = $this->pasteSingleItem($clipboard, $currentTargetSlice, $articleId, $clang, $ctype, $pastePosition);
 
-                if (isset($result['success']) && $result['success'] === true) {
+                if (isset($result['success']) && true === $result['success']) {
                     ++$insertedCount;
                     $newSliceId = is_numeric($result['new_slice_id']) ? (int) $result['new_slice_id'] : 0;
                     $newSliceIds[] = $newSliceId;
@@ -446,7 +446,7 @@ class Api extends rex_api_function
                     $currentTargetSlice = $newSliceId;
 
                     // If cut, remove from multi-clipboard
-                    if (isset($clipboard['action']) && $clipboard['action'] === 'cut') {
+                    if (isset($clipboard['action']) && 'cut' === $clipboard['action']) {
                         unset($multiClipboard[$index]);
                     }
                 }
@@ -539,7 +539,7 @@ class Api extends rex_api_function
 
         echo json_encode([
             'success' => true,
-            'has_clipboard' => $clipboard !== null && count($clipboard) > 0,
+            'has_clipboard' => null !== $clipboard && count($clipboard) > 0,
             'multi_clipboard_enabled' => $isMultiClipboardAvailable,
             'multi_clipboard_count' => count($multiClipboard),
             'multi_clipboard_items' => $multiClipboard,

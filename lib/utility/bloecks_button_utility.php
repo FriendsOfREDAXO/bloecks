@@ -30,7 +30,7 @@ class ButtonUtility
      */
     public static function createCopyButton(array $params, ?array $clipboard, bool $isSource): array
     {
-        $isActive = $isSource && ClipboardUtility::getClipboardAction() === 'copy';
+        $isActive = $isSource && 'copy' === ClipboardUtility::getClipboardAction();
 
         return [
             'hidden_label' => 'Copy Slice',
@@ -56,7 +56,7 @@ class ButtonUtility
      */
     public static function createCutButton(array $params, ?array $clipboard, bool $isSource): array
     {
-        $isActive = $isSource && ClipboardUtility::getClipboardAction() === 'cut';
+        $isActive = $isSource && 'cut' === ClipboardUtility::getClipboardAction();
 
         return [
             'hidden_label' => 'Cut Slice',
@@ -85,7 +85,7 @@ class ButtonUtility
         $sourceInfo = ClipboardUtility::getClipboardSourceInfo();
         $pastePositionConfig = $addon->getConfig('paste_position', 'after');
         $pastePosition = is_string($pastePositionConfig) ? $pastePositionConfig : 'after';
-        $isPasteBefore = $pastePosition === 'before';
+        $isPasteBefore = 'before' === $pastePosition;
 
         // Check multi-clipboard status
         $multiClipboard = ClipboardUtility::getMultiClipboard();
@@ -99,9 +99,9 @@ class ButtonUtility
                 $isPasteBefore ? 'vor dem Slice einfügen' : 'nach dem Slice einfügen',
             );
             $buttonClass = ['btn', 'btn-default', 'bloecks-paste', 'has-multiple'];
-        } elseif ($clipboardCount === 1 && $sourceInfo !== null) {
+        } elseif (1 === $clipboardCount && null !== $sourceInfo) {
             // Single item with detailed info
-            $actionText = ClipboardUtility::getClipboardAction() === 'cut' ? rex_i18n::msg('bloecks_action_cut') : rex_i18n::msg('bloecks_action_copied');
+            $actionText = 'cut' === ClipboardUtility::getClipboardAction() ? rex_i18n::msg('bloecks_action_cut') : rex_i18n::msg('bloecks_action_copied');
             $positionText = $isPasteBefore ? rex_i18n::msg('paste_position_before') : rex_i18n::msg('paste_position_after');
             $tooltipText = sprintf(
                 '%s: "%s" aus "%s" (ID: %s) - %s',
@@ -147,13 +147,13 @@ class ButtonUtility
 
         // Determine module name for button text
         $moduleName = '';
-        if ($sourceInfo !== null && isset($sourceInfo['module_name']) && is_string($sourceInfo['module_name']) && $sourceInfo['module_name'] !== '') {
+        if (null !== $sourceInfo && isset($sourceInfo['module_name']) && is_string($sourceInfo['module_name']) && '' !== $sourceInfo['module_name']) {
             $moduleName = $sourceInfo['module_name'];
-            $articleName = isset($sourceInfo['article_name']) && is_string($sourceInfo['article_name']) 
+            $articleName = isset($sourceInfo['article_name']) && is_string($sourceInfo['article_name'])
                 ? $sourceInfo['article_name'] : '';
-            $articleId = isset($sourceInfo['article_id']) && is_string($sourceInfo['article_id']) 
+            $articleId = isset($sourceInfo['article_id']) && is_string($sourceInfo['article_id'])
                 ? $sourceInfo['article_id'] : '';
-                
+
             $tooltipText = sprintf(
                 'Fügt ein: "%s" aus "%s" (ID: %s)',
                 $moduleName,
@@ -167,34 +167,34 @@ class ButtonUtility
             if (is_array($clipboardData) && isset($clipboardData['module_id']) && is_numeric($clipboardData['module_id'])) {
                 $moduleId = (int) $clipboardData['module_id'];
             }
-            if ($moduleId !== null && $moduleId > 0) {
+            if (null !== $moduleId && $moduleId > 0) {
                 $moduleSql = rex_sql::factory();
                 $moduleResult = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
-                $moduleRow = count($moduleResult) === 0 ? null : $moduleResult[0];
-                $moduleName = $moduleRow !== null ? $moduleRow['name'] : rex_i18n::msg('bloecks_error_unknown_module');
+                $moduleRow = 0 === count($moduleResult) ? null : $moduleResult[0];
+                $moduleName = null !== $moduleRow ? $moduleRow['name'] : rex_i18n::msg('bloecks_error_unknown_module');
             }
-            $displayName = $moduleName === '' ? '-noname-' : $moduleName;
+            $displayName = '' === $moduleName ? '-noname-' : $moduleName;
             $tooltipText = rex_i18n::msg('bloecks_paste_from_clipboard', $displayName);
         }
 
         // Button text with REDAXO language system
-        if ($moduleName !== '') {
+        if ('' !== $moduleName) {
             $buttonText = rex_i18n::msg('bloecks_paste_module', $moduleName);
         } else {
             $buttonText = rex_i18n::msg('bloecks_action_paste');
         }
 
         // Tooltip should always be "Fügt ein: ...", not "Kopiert: ..."
-        if ($moduleName !== '') {
+        if ('' !== $moduleName) {
             $tooltipText = sprintf('Fügt ein: "%s"', $moduleName);
-            if ($sourceInfo !== null) {
-                $moduleName = isset($sourceInfo['module_name']) && is_string($sourceInfo['module_name']) 
+            if (null !== $sourceInfo) {
+                $moduleName = isset($sourceInfo['module_name']) && is_string($sourceInfo['module_name'])
                     ? $sourceInfo['module_name'] : '';
-                $articleName = isset($sourceInfo['article_name']) && is_string($sourceInfo['article_name']) 
+                $articleName = isset($sourceInfo['article_name']) && is_string($sourceInfo['article_name'])
                     ? $sourceInfo['article_name'] : '';
-                $articleId = isset($sourceInfo['article_id']) && is_string($sourceInfo['article_id']) 
+                $articleId = isset($sourceInfo['article_id']) && is_string($sourceInfo['article_id'])
                     ? $sourceInfo['article_id'] : '';
-                    
+
                 $tooltipText = sprintf(
                     'Fügt ein: "%s" aus "%s" (ID: %s)',
                     $moduleName,
@@ -240,11 +240,11 @@ class ButtonUtility
 
         // Get category_id for proper URL construction
         $categoryId = 0;
-        if ($articleId !== null && is_numeric($articleId)) {
+        if (null !== $articleId && is_numeric($articleId)) {
             $articleIdInt = (int) $articleId;
             $clangInt = is_numeric($clang) ? (int) $clang : null;
             $article = rex_article::get($articleIdInt, $clangInt);
-            if ($article !== null) {
+            if (null !== $article) {
                 $categoryId = $article->getCategoryId();
             }
         }
