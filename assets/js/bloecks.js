@@ -1119,7 +1119,7 @@ var BLOECKS = (function($) {
                 console.log('BLOECKS: Clipboard status response:', response);
                 
                 if (response.success) {
-                    // Always sync multi-clipboard, regardless of setting
+                    // Always sync multi-clipboard items
                     if (response.multi_clipboard_items && response.multi_clipboard_items.length > 0) {
                         multiClipboard = response.multi_clipboard_items;
                         console.log('BLOECKS: Loaded', multiClipboard.length, 'items from server clipboard');
@@ -1128,11 +1128,10 @@ var BLOECKS = (function($) {
                         console.log('BLOECKS: Server clipboard is empty');
                     }
                     
-                    // Set multi-clipboard mode based on server setting
-                    if (response.multi_clipboard_enabled) {
-                        setMultiClipboardEnabled(true);
-                        console.log('BLOECKS: Multi-clipboard enabled on server');
-                    }
+                    // Multi-clipboard status is controlled by the initial config, not server response
+                    // The server response indicates permission, but JS config controls the feature
+                    console.log('BLOECKS: Multi-clipboard enabled in JS:', isMultiClipboardEnabled);
+                    console.log('BLOECKS: Multi-clipboard allowed by server:', response.multi_clipboard_enabled);
                     
                     updatePasteButtons();
                 } else {
