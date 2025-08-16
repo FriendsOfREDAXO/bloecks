@@ -11,6 +11,7 @@ use rex_sql;
 use rex_sql_util;
 
 use function class_exists;
+use function sprintf;
 
 /**
  * Utility class for slice operations in the BLOECKS addon.
@@ -30,7 +31,7 @@ class SliceUtility
         } else {
             $data['revision'] ??= 0;
         }
-        
+
         // Use REDAXO core service for slice creation
         return rex_content_service::addSlice($articleId, $clangId, $ctypeId, $moduleId, $data);
     }
@@ -50,8 +51,8 @@ class SliceUtility
         if ($targetSlice) {
             $targetSliceObj = rex_article_slice::getArticleSliceById($targetSlice);
             if ($targetSliceObj) {
-                return 'before' === $position ? 
-                    $targetSliceObj->getPriority() : 
+                return 'before' === $position ?
+                    $targetSliceObj->getPriority() :
                     $targetSliceObj->getPriority() + 1;
             }
         }
@@ -59,9 +60,9 @@ class SliceUtility
         // Default: Insert at end using REDAXO core method
         $sql = rex_sql::factory();
         $result = $sql->getArray(
-            'SELECT IFNULL(MAX(priority),0)+1 as priority FROM ' . rex::getTable('article_slice') . 
+            'SELECT IFNULL(MAX(priority),0)+1 as priority FROM ' . rex::getTable('article_slice') .
             ' WHERE article_id=? AND clang_id=? AND revision=?',
-            [$articleId, $clang, $revision]
+            [$articleId, $clang, $revision],
         );
 
         return (int) $result[0]['priority'];
@@ -76,16 +77,16 @@ class SliceUtility
         $whereCondition = sprintf(
             'article_id=%d AND clang_id=%d AND ctype_id=%d AND revision=%d',
             $articleId,
-            $clang, 
+            $clang,
             $ctype,
-            $revision
+            $revision,
         );
 
         rex_sql_util::organizePriorities(
             rex::getTable('article_slice'),
             'priority',
             $whereCondition,
-            'priority'
+            'priority',
         );
     }
 
@@ -118,18 +119,18 @@ class SliceUtility
             }
         }
 
-        // Get media and link fields  
+        // Get media and link fields
         for ($i = 1; $i <= 10; ++$i) {
             $media = $slice->getMedia($i);
             if (null !== $media) {
                 $data["media$i"] = $media;
             }
-            
+
             $link = $slice->getLink($i);
             if (null !== $link) {
                 $data["link$i"] = $link;
             }
-            
+
             $linkList = $slice->getLinkList($i);
             if (null !== $linkList) {
                 $data["linklist$i"] = $linkList;
@@ -174,7 +175,7 @@ class SliceUtility
      * @return array<rex_article_slice>
      * @api
      */
-    public static function getSlicesForArticle(int $articleId, int $clang = null, int $revision = 0): array
+    public static function getSlicesForArticle(int $articleId, ?int $clang = null, int $revision = 0): array
     {
         if (null === $clang) {
             $clang = rex_clang::getCurrentId();

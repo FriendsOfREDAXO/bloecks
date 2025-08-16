@@ -5,6 +5,8 @@ namespace FriendsOfRedaxo\Bloecks;
 use rex;
 use rex_addon;
 use rex_article;
+use rex_module_perm;
+use rex_structure_perm;
 
 use function array_map;
 use function explode;
@@ -70,14 +72,14 @@ class PermissionUtility
 
         // Check category permission using REDAXO core method
         $structurePerm = $user->getComplexPerm('structure');
-        if ($structurePerm instanceof \rex_structure_perm && !$structurePerm->hasCategoryPerm($article->getCategoryId())) {
+        if ($structurePerm instanceof rex_structure_perm && !$structurePerm->hasCategoryPerm($article->getCategoryId())) {
             return false;
         }
 
         // Check module permissions if module is specified using REDAXO core method
         if ($moduleId) {
             $modulePerm = $user->getComplexPerm('modules');
-            if ($modulePerm instanceof \rex_module_perm && !$modulePerm->hasPerm($moduleId)) {
+            if ($modulePerm instanceof rex_module_perm && !$modulePerm->hasPerm($moduleId)) {
                 return false;
             }
         }
