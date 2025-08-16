@@ -17,6 +17,9 @@ use rex_url;
 use rex_view;
 
 use function is_array;
+use function is_bool;
+use function is_float;
+use function is_int;
 use function is_string;
 use function sprintf;
 
@@ -388,7 +391,7 @@ class Backend
         $ins->setValue('revision', 0); // Default revision (LIVE)
 
         foreach ($data as $k => $v) {
-            if ((is_string($v) || is_int($v) || is_float($v) || is_bool($v) || is_null($v))) {
+            if (is_string($v) || is_int($v) || is_float($v) || is_bool($v) || null === $v) {
                 $ins->setValue($k, $v);
             }
         }

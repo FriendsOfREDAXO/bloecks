@@ -18,6 +18,9 @@ use rex_sql_exception;
 use function count;
 use function in_array;
 use function is_array;
+use function is_bool;
+use function is_float;
+use function is_int;
 use function is_string;
 use function sprintf;
 
@@ -565,7 +568,7 @@ class Api extends rex_api_function
         $ins->setValue('revision', $revision);
 
         foreach ($data as $k => $v) {
-            if (is_string($v) || is_int($v) || is_float($v) || is_bool($v) || is_null($v)) {
+            if (is_string($v) || is_int($v) || is_float($v) || is_bool($v) || null === $v) {
                 $ins->setValue($k, $v);
             }
         }

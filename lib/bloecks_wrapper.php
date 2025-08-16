@@ -45,7 +45,7 @@ class Wrapper
         $articleIdInt = is_numeric($article_id) ? (int) $article_id : 0;
         $clangIdInt = is_numeric($clang_id) ? (int) $clang_id : 1;
         $moduleIdInt = (is_numeric($module_id)) ? (int) $module_id : null;
-        
+
         if (PermissionUtility::isExcluded($articleIdInt, $clangIdInt, $moduleIdInt)) {
             $subject = $ep->getSubject();
             return is_string($subject) ? $subject : '';
