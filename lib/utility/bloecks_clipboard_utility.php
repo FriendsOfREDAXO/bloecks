@@ -94,8 +94,8 @@ class ClipboardUtility
         $moduleSql = rex_sql::factory();
         $moduleId = isset($sliceData['module_id']) && is_numeric($sliceData['module_id']) ? (int) $sliceData['module_id'] : 0;
         $moduleResult = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
-        $moduleRow = is_array($moduleResult) && !empty($moduleResult) ? $moduleResult[0] : null;
-        $moduleName = (is_array($moduleRow) && isset($moduleRow['name']) && is_string($moduleRow['name']))
+        $moduleRow = !empty($moduleResult) ? $moduleResult[0] : null;
+        $moduleName = $moduleRow
             ? $moduleRow['name']
             : rex_i18n::msg('bloecks_error_unknown_module');
 
@@ -168,7 +168,9 @@ class ClipboardUtility
     {
         $clipboard = self::getClipboard();
         if (is_array($clipboard) && isset($clipboard['source_info']) && is_array($clipboard['source_info'])) {
-            return $clipboard['source_info'];
+            /** @var array<string, mixed> $sourceInfo */
+            $sourceInfo = $clipboard['source_info'];
+            return $sourceInfo;
         }
         return null;
     }

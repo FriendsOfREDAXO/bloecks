@@ -135,7 +135,7 @@ class Api extends rex_api_function
 
         $sql = rex_sql::factory();
         $result = $sql->getArray('SELECT * FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
-        $row = is_array($result) && !empty($result) ? $result[0] : null;
+        $row = !empty($result) ? $result[0] : null;
 
         if (!is_array($row)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_slice_not_found')]);
@@ -145,7 +145,7 @@ class Api extends rex_api_function
         $user = rex::getUser();
 
         $modulePerm = $user ? $user->getComplexPerm('modules') : null;
-        $moduleId = is_numeric($row['module_id']) ? (int) $row['module_id'] : 0;
+        $moduleId = (int) $row['module_id'];
 
         if (!$user || !$modulePerm || !method_exists($modulePerm, 'hasPerm') || !$modulePerm->hasPerm($moduleId)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_module_permission')]);
@@ -153,8 +153,8 @@ class Api extends rex_api_function
         }
 
         // Check if user has content edit permissions for this slice
-        $articleId = is_numeric($row['article_id']) ? (int) $row['article_id'] : 0;
-        $clangId = is_numeric($row['clang_id']) ? (int) $row['clang_id'] : 0;
+        $articleId = (int) $row['article_id'];
+        $clangId = (int) $row['clang_id'];
 
         if (!PermissionUtility::hasContentEditPermission($articleId, $clangId, $moduleId)) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_content_permission')]);
@@ -186,13 +186,13 @@ class Api extends rex_api_function
         // Get module name
         $moduleSql = rex_sql::factory();
         $moduleResult = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
-        $moduleRow = is_array($moduleResult) && !empty($moduleResult) ? $moduleResult[0] : null;
-        $moduleName = (is_array($moduleRow) && isset($moduleRow['name']) && is_string($moduleRow['name']))
+        $moduleRow = !empty($moduleResult) ? $moduleResult[0] : null;
+        $moduleName = $moduleRow
             ? $moduleRow['name']
             : rex_i18n::msg('bloecks_error_unknown_module');
 
         // Create clipboard item
-        $sourceRevision = is_numeric($row['revision']) ? (int) $row['revision'] : 0;
+        $sourceRevision = (int) $row['revision'];
         $clipboardItem = [
             'data' => $data,
             'source_slice_id' => $sliceId,
@@ -212,9 +212,6 @@ class Api extends rex_api_function
 
         // Always use multi-clipboard system now
         $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);
-        if (!is_array($multiClipboard)) {
-            $multiClipboard = [];
-        }
 
         // Check if item already exists (by slice_id)
         $existingIndex = -1;
@@ -446,7 +443,7 @@ class Api extends rex_api_function
             $selectedIndices = array_reverse($selectedIndices);
         }
 
-        $currentTargetSlice = $targetSlice;
+        $currentTargetSlice = (int) $targetSlice;
 
         try {
             foreach ($selectedIndices as $index) {
@@ -461,10 +458,11 @@ class Api extends rex_api_function
 
                 if ($result['success']) {
                     ++$insertedCount;
-                    $newSliceIds[] = $result['new_slice_id'];
+                    $newSliceId = is_numeric($result['new_slice_id']) ? (int) $result['new_slice_id'] : 0;
+                    $newSliceIds[] = $newSliceId;
 
                     // Update target slice to the newly inserted slice for proper stacking
-                    $currentTargetSlice = $result['new_slice_id'];
+                    $currentTargetSlice = $newSliceId;
 
                     // If cut, remove from multi-clipboard
                     if ('cut' === $clipboard['action']) {
@@ -496,11 +494,12 @@ class Api extends rex_api_function
      */
     private function pasteSingleItem(array $clipboard, int $targetSlice, int $articleId, int $clang, int $ctype, ?string $pastePosition = null): array
     {
+        /** @var array<string, mixed> $data */
         $data = $clipboard['data'];
         $user = rex::getUser();
 
         // Check permissions
-        $moduleId = isset($data['module_id']) && is_numeric($data['module_id']) ? (int) $data['module_id'] : null;
+        $moduleId = (isset($data['module_id']) && is_numeric($data['module_id'])) ? (int) $data['module_id'] : null;
         if (!PermissionUtility::hasContentEditPermission($articleId, $clang, $moduleId)) {
             return ['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_content_permission')];
         }
@@ -565,11 +564,9 @@ class Api extends rex_api_function
         $ins->setValue('priority', $priority);
         $ins->setValue('revision', $revision);
 
-        if (is_array($data)) {
-            foreach ($data as $k => $v) {
-                if (is_string($k)) {
-                    $ins->setValue($k, $v);
-                }
+        foreach ($data as $k => $v) {
+            if (is_string($v) || is_int($v) || is_float($v) || is_bool($v) || is_null($v)) {
+                $ins->setValue($k, $v);
             }
         }
 
@@ -581,7 +578,7 @@ class Api extends rex_api_function
 
         // If cut, delete original slice
         if ('cut' === $clipboard['action']) {
-            $srcId = isset($clipboard['source_slice_id']) && is_numeric($clipboard['source_slice_id']) ? (int) $clipboard['source_slice_id'] : 0;
+            $srcId = (isset($clipboard['source_slice_id']) && is_numeric($clipboard['source_slice_id'])) ? (int) $clipboard['source_slice_id'] : 0;
             if ($srcId) {
                 rex_content_service::deleteSlice($srcId);
             }

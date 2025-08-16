@@ -156,18 +156,23 @@ class ButtonUtility
             );
         } else {
             // Fallback: Get module name from clipboard data
-            $moduleId = isset($clipboard['data']['module_id']) && is_numeric($clipboard['data']['module_id']) ? (int) $clipboard['data']['module_id'] : null;
+            $clipboardData = $clipboard['data'] ?? [];
+            $moduleId = null;
+            if (is_array($clipboardData) && isset($clipboardData['module_id']) && is_numeric($clipboardData['module_id'])) {
+                $moduleId = (int) $clipboardData['module_id'];
+            }
             if ($moduleId) {
                 $moduleSql = rex_sql::factory();
                 $moduleResult = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
-                $moduleRow = is_array($moduleResult) && !empty($moduleResult) ? $moduleResult[0] : null;
-                $moduleName = (is_array($moduleRow) && isset($moduleRow['name']) && is_string($moduleRow['name'])) ? $moduleRow['name'] : rex_i18n::msg('bloecks_error_unknown_module');
+                $moduleRow = !empty($moduleResult) ? $moduleResult[0] : null;
+                $moduleName = $moduleRow ? $moduleRow['name'] : rex_i18n::msg('bloecks_error_unknown_module');
             }
-            $tooltipText = rex_i18n::msg('bloecks_paste_from_clipboard', is_string($moduleName) ? $moduleName : '');
+            $displayName = !empty($moduleName) ? $moduleName : '-noname-';
+            $tooltipText = rex_i18n::msg('bloecks_paste_from_clipboard', $displayName);
         }
 
         // Button text with REDAXO language system
-        if (!empty($moduleName)) {
+        if (!empty($moduleName) && is_string($moduleName)) {
             $buttonText = rex_i18n::msg('bloecks_paste_module', $moduleName);
         } else {
             $buttonText = rex_i18n::msg('bloecks_action_paste');

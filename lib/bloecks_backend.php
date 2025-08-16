@@ -294,7 +294,7 @@ class Backend
 
         $sql = rex_sql::factory();
         $result = $sql->getArray('SELECT * FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
-        $row = is_array($result) && !empty($result) ? $result[0] : null;
+        $row = !empty($result) ? $result[0] : null;
 
         if (!is_array($row)) {
             return rex_view::warning(rex_i18n::msg('bloecks_error_slice_not_found'));
@@ -365,7 +365,8 @@ class Backend
             return rex_view::warning(rex_i18n::msg('bloecks_error_no_content_permission'));
         }
 
-        $dataArray = is_array($data) ? $data : [];
+        /** @var array<string, mixed> $dataArray */
+        $dataArray = $data;
         return self::insertSlice($targetSlice, $articleId, $clang, $ctype, $dataArray, $clipboard);
     }
 
@@ -387,7 +388,7 @@ class Backend
         $ins->setValue('revision', 0); // Default revision (LIVE)
 
         foreach ($data as $k => $v) {
-            if (is_string($k)) {
+            if ((is_string($v) || is_int($v) || is_float($v) || is_bool($v) || is_null($v))) {
                 $ins->setValue($k, $v);
             }
         }
@@ -430,6 +431,7 @@ class Backend
     /**
      * Clear clipboard at session start for security.
      * Delegated to ClipboardUtility.
+     * @api
      */
     public static function clearClipboardOnSessionStart(): void
     {
