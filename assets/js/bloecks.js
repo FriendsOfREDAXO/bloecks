@@ -151,7 +151,9 @@ var BLOECKS = (function($) {
         try {
             var sortable = Sortable.create(commonParent, {
                 draggable: '.bloecks-dragdrop',
-                handle: '.bloecks-drag-handle',
+                handle: '.panel-heading, .panel-title',
+                filter: 'a, button, input, select, textarea, .btn, .dropdown-toggle, [data-toggle], [data-bs-toggle]',
+                preventOnFilter: false,
                 animation: 150,
                 ghostClass: 'bloecks-sortable-ghost',
                 chosenClass: 'bloecks-sortable-chosen',
@@ -159,10 +161,35 @@ var BLOECKS = (function($) {
                 
                 onStart: function(evt) {
                     evt.item.classList.add('bloecks-dragging');
+                    document.body.classList.add('bloecks-drag-active');
+                    
+                    // Hide all open dropdowns immediately
+                    var openDropdowns = document.querySelectorAll('.dropdown.open, .dropdown.show');
+                    openDropdowns.forEach(function(dropdown) {
+                        dropdown.classList.remove('open', 'show');
+                        dropdown.style.display = 'none';
+                    });
                 },
                 
                 onEnd: function(evt) {
                     evt.item.classList.remove('bloecks-dragging');
+                    document.body.classList.remove('bloecks-drag-active');
+                    
+                    // Flash effect on drop
+                    if (evt.oldIndex !== evt.newIndex) {
+                        evt.item.classList.add('bloecks-dropped-flash');
+                        setTimeout(function() {
+                            evt.item.classList.remove('bloecks-dropped-flash');
+                        }, 600);
+                    }
+                    
+                    // Re-enable dropdowns after a short delay
+                    setTimeout(function() {
+                        var hiddenDropdowns = document.querySelectorAll('.rex-slice-select > .dropdown[style*="display: none"]');
+                        hiddenDropdowns.forEach(function(dropdown) {
+                            dropdown.style.display = '';
+                        });
+                    }, 100);
                     
                     if (evt.oldIndex !== evt.newIndex) {
                         updateSliceOrder(evt);

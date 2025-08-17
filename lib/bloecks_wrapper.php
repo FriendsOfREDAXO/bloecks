@@ -53,19 +53,18 @@ class Wrapper
 
         // Wrap ALL slices, not just slice-output
         if (str_contains($subject, 'rex-slice')) {
-            // Beautiful drag handle with FontAwesome 6 grip icon - optimized position at 6px (Regular variant)
-            $dragHandle = '<div class="bloecks-drag-handle" title="' . rex_i18n::msg('bloecks_drag_move') . '"><i class="fa fa-grip-vertical"></i></div>';
+            // Check if compact mode is enabled
+            $compactMode = $addon->getConfig('enable_compact_mode', false) ? ' is--compact' : '';
 
-            // Create wrapper similar to slice_columns - remove border completely
+            // Create wrapper similar to slice_columns
             $wrapper = sprintf(
-                '<li class="bloecks-dragdrop" data-slice-id="%d" data-article-id="%d" data-clang-id="%d">
-                    %s
+                '<li class="bloecks-dragdrop%s" data-slice-id="%d" data-article-id="%d" data-clang-id="%d">
                     <ul class="bloecks-slice-container">%s</ul>
                 </li>',
+                $compactMode,
                 $slice_id,
                 $article_id,
                 $clang_id,
-                $dragHandle,
                 $subject,
             );
 
@@ -110,5 +109,65 @@ class Wrapper
         }
 
         return $menu_items;
+    }
+
+    /**
+     * Add compact mode wrapper for slice select menus.
+     */
+    public static function addCompactModeWrapper(rex_extension_point $ep): string
+    {
+        $subject = $ep->getSubject();
+        $slice_id = $ep->getParam('slice_id');
+        $article_id = $ep->getParam('article_id');
+        $clang_id = $ep->getParam('clang_id');
+        $module_id = $ep->getParam('module_id');
+
+        // Get the slice object to ensure correct clang_id and module_id
+        if ($slice_id) {
+            $slice = rex_article_slice::getArticleSliceById($slice_id);
+            if ($slice) {
+                $clang_id = $slice->getClang();
+                $article_id = $slice->getArticleId();
+                $module_id = $slice->getModuleId();
+            }
+        }
+
+        // If still no valid clang_id, use current request clang
+        if (!$clang_id || $clang_id <= 0) {
+            $clang_id = rex_request('clang', 'int', 1);
+        }
+
+        // Check for exclusions using the backend method
+        if (Backend::isExcluded($article_id, $clang_id, $module_id)) {
+            return $subject;
+        }
+
+        // Check if compact mode is enabled
+        $addon = rex_addon::get('bloecks');
+        if (!$addon->getConfig('enable_compact_mode', false)) {
+            return $subject;
+        }
+
+        // Add compact mode class to existing slice containers
+        if (str_contains($subject, 'rex-slice')) {
+            // Add is--compact class to any existing wrapper or create new one
+            if (str_contains($subject, 'bloecks-dragdrop')) {
+                // Already has drag-drop wrapper, just add compact class
+                $subject = str_replace('class="bloecks-dragdrop"', 'class="bloecks-dragdrop is--compact"', $subject);
+                $subject = str_replace("class='bloecks-dragdrop'", "class='bloecks-dragdrop is--compact'", $subject);
+            } else {
+                // No drag-drop wrapper, create minimal compact wrapper
+                $wrapper = sprintf(
+                    '<div class="rex-slice-draggable is--compact" data-slice-id="%d" data-article-id="%d" data-clang-id="%d">%s</div>',
+                    $slice_id,
+                    $article_id,
+                    $clang_id,
+                    $subject,
+                );
+                return $wrapper;
+            }
+        }
+
+        return $subject;
     }
 }

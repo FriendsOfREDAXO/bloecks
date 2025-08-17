@@ -66,6 +66,12 @@ class Backend
             && ($user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[order]'))) {
             rex_extension::register('SLICE_SHOW', Wrapper::addDragDropWrapper(...), rex_extension::EARLY);
             rex_extension::register('SLICE_MENU', Wrapper::addDragHandle(...));
+        } else {
+            // If drag & drop is disabled but compact mode is enabled, use compact mode only
+            $compactModeEnabled = (bool) $addon->getConfig('enable_compact_mode', false);
+            if ($compactModeEnabled) {
+                rex_extension::register('SLICE_SHOW', Wrapper::addCompactModeWrapper(...), rex_extension::LATE);
+            }
         }
 
         // Load assets on content edit pages ONLY if features are enabled

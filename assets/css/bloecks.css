@@ -324,69 +324,163 @@ html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
     transform: translateX(0);
 }
 
-/* Beautiful drag handle styling */
-.bloecks-drag-handle {
-    position: absolute;
-    top: 6px;
-    left: 0px;
-    background: #6c757d;
-    color: white;
-    padding: 8px;
-    cursor: grab !important;
-    z-index: 1000;
-    border-radius: 0 4px 4px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    transition: all 0.2s ease;
-    -webkit-user-select: none;
-    user-select: none;
+/* Beautiful drag handle styling - positioned next to slice title */
+
+
+/* Drag handle in slice headers/titles */
+.rex-slice .panel-heading,
+.rex-slice .panel-title {
+    position: relative;
 }
 
-.bloecks-drag-handle i {
-    font-size: 12px;
+/* Make slice titles draggable by adding drag handle */
+.bloecks-dragdrop .panel-heading,
+.rex-slice-draggable .panel-heading {
+    cursor: grab;
 }
 
-.bloecks-drag-handle:hover {
-    background: #495057 !important;
-    transform: scale(1.05);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.bloecks-dragdrop .panel-heading:active,
+.rex-slice-draggable .panel-heading:active {
+    cursor: grabbing;
 }
 
-.bloecks-drag-handle:active {
-    cursor: grabbing !important;
-    transform: scale(0.95);
+/* Ensure drag handle is visible in headers */
+.bloecks-dragdrop .panel-heading .bloecks-drag-handle,
+.rex-slice-draggable .panel-heading .bloecks-drag-handle {
+    display: inline-block;
+    margin-right: 8px;
 }
 
 /* Alternative drag handle styles for menu items */
 .bloecks-drag-handle-link {
-    background: red;
+    background: #6c757d;
     color: white;
-    padding: 5px;
-    margin: 2px;
+    padding: 4px 6px;
+    margin-right: 8px;
     display: inline-block;
     text-decoration: none;
     border-radius: 3px;
     cursor: grab;
+    font-size: 12px;
+}
+
+.bloecks-drag-handle-link:hover {
+    background: #495057;
+    color: white;
+    text-decoration: none;
 }
 
 .bloecks-drag-handle-label {
-    background: red;
+    background: #6c757d;
     color: white;
-    padding: 3px;
+    padding: 3px 6px;
     border-radius: 3px;
+    font-size: 11px;
+    margin-right: 6px;
 }
 
-/* Remove drag cursor from slice titles and panels */
+/* Panel headers are draggable - make this visually clear */
 .bloecks-dragdrop .panel-heading,
 .bloecks-dragdrop .panel-title,
 .bloecks-dragdrop .rex-slice-header,
-.bloecks-dragdrop .panel-heading *,
-.bloecks-dragdrop .panel-title *,
-.bloecks-dragdrop .rex-slice-header * {
-    cursor: default !important;
+.rex-slice-draggable .panel-heading,
+.rex-slice-draggable .panel-title,
+.rex-slice-draggable .rex-slice-header {
+    cursor: grab !important;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+/* Add visual drag indicator with CSS pseudo-element */
+.bloecks-dragdrop .panel-heading::before,
+.rex-slice-draggable .panel-heading::before {
+    content: "⋮⋮";
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: -2px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+/* Hover effects for draggable headers */
+.bloecks-dragdrop .panel-heading:hover,
+.rex-slice-draggable .panel-heading:hover {
+    background-color: rgba(108, 117, 125, 0.1);
+    border-left: 3px solid #6c757d;
+    padding-left: 27px; /* Compensate for left border */
+}
+
+.bloecks-dragdrop .panel-heading:hover::before,
+.rex-slice-draggable .panel-heading:hover::before {
+    opacity: 1;
+    color: #495057;
+}
+
+.bloecks-dragdrop .panel-heading:active,
+.bloecks-dragdrop .panel-title:active,
+.bloecks-dragdrop .rex-slice-header:active,
+.rex-slice-draggable .panel-heading:active,
+.rex-slice-draggable .panel-title:active,
+.rex-slice-draggable .rex-slice-header:active {
+    cursor: grabbing !important;
+    background-color: rgba(108, 117, 125, 0.2);
+}
+
+/* Adjust padding for drag indicator */
+.bloecks-dragdrop .panel-heading,
+.rex-slice-draggable .panel-heading {
+    padding-left: 30px; /* Space for drag indicator */
+}
+
+/* Keep normal cursor for interactive elements inside headers */
+.bloecks-dragdrop .panel-heading a,
+.bloecks-dragdrop .panel-heading button,
+.bloecks-dragdrop .panel-heading input,
+.bloecks-dragdrop .panel-heading select,
+.bloecks-dragdrop .panel-title a,
+.bloecks-dragdrop .panel-title button,
+.bloecks-dragdrop .panel-title input,
+.bloecks-dragdrop .panel-title select,
+.rex-slice-draggable .panel-heading a,
+.rex-slice-draggable .panel-heading button,
+.rex-slice-draggable .panel-heading input,
+.rex-slice-draggable .panel-heading select,
+.rex-slice-draggable .panel-title a,
+.rex-slice-draggable .panel-title button,
+.rex-slice-draggable .panel-title input,
+.rex-slice-draggable .panel-title select {
+    cursor: pointer !important;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto !important;
+}
+
+/* Specific button styling to ensure they remain interactive */
+.bloecks-dragdrop .panel-heading .btn,
+.bloecks-dragdrop .panel-heading .dropdown-toggle,
+.bloecks-dragdrop .panel-title .btn,
+.bloecks-dragdrop .panel-title .dropdown-toggle,
+.rex-slice-draggable .panel-heading .btn,
+.rex-slice-draggable .panel-heading .dropdown-toggle,
+.rex-slice-draggable .panel-title .btn,
+.rex-slice-draggable .panel-title .dropdown-toggle {
+    cursor: pointer !important;
+    z-index: 15 !important;
+    position: relative;
+    pointer-events: auto !important;
+}
+
+/* Ensure drag icons don't interfere with buttons */
+.bloecks-dragdrop .panel-heading .btn:hover,
+.bloecks-dragdrop .panel-heading .dropdown-toggle:hover,
+.rex-slice-draggable .panel-heading .btn:hover,
+.rex-slice-draggable .panel-heading .dropdown-toggle:hover {
+    z-index: 20 !important;
 }
 
 /* Wrapper styling */
@@ -402,6 +496,105 @@ html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
+/* Compact mode for slice select dropdown - beautiful hover animation */
+.bloecks-dragdrop.is--compact .rex-slice-output {
+    position: relative;
+    z-index: 5;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bloecks-dragdrop.is--compact .rex-slice-select {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: -20px 0 0 0;
+    height: 20px;
+    overflow: visible;
+}
+
+.bloecks-dragdrop.is--compact .rex-slice-select > .dropdown {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    right: 5%;
+    width: auto;
+    margin: 0;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-80%) translateX(0) scale(0.96);
+    transition: 
+        transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        visibility 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        box-shadow 0.3s ease;
+    transform-origin: center top;
+}
+
+/* Hover state with smooth fly-in from top and fade */
+.bloecks-dragdrop.is--compact:hover .rex-slice-select > .dropdown,
+.bloecks-dragdrop.is--compact .rex-slice-select > .dropdown.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(0) scale(1);
+    transition: 
+        transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        visibility 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        box-shadow 0.4s ease;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Enhanced open state */
+.bloecks-dragdrop.is--compact .rex-slice-select > .dropdown.open {
+    z-index: 1010;
+}
+
+/* Subtle slide animation for content on hover */
+.bloecks-dragdrop.is--compact:hover .rex-slice-output {
+    transform: translateY(-1px);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Dark mode support for compact mode with improved shadows */
+body.rex-theme-dark .bloecks-dragdrop.is--compact .rex-slice-select > .dropdown,
+html[data-bs-theme="dark"] .bloecks-dragdrop.is--compact .rex-slice-select > .dropdown {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(33, 37, 41, 0.95);
+}
+
+body.rex-theme-dark .bloecks-dragdrop.is--compact:hover .rex-slice-select > .dropdown,
+html[data-bs-theme="dark"] .bloecks-dragdrop.is--compact:hover .rex-slice-select > .dropdown,
+body.rex-theme-dark .bloecks-dragdrop.is--compact .rex-slice-select > .dropdown.open,
+html[data-bs-theme="dark"] .bloecks-dragdrop.is--compact .rex-slice-select > .dropdown.open {
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+@media (prefers-color-scheme: dark) {
+    body.rex-has-theme:not(.rex-theme-light) .bloecks-dragdrop.is--compact .rex-slice-select > .dropdown {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15);
+        border-color: rgba(255, 255, 255, 0.1);
+        background: rgba(33, 37, 41, 0.95);
+    }
+    
+    body.rex-has-theme:not(.rex-theme-light) .bloecks-dragdrop.is--compact:hover .rex-slice-select > .dropdown,
+    body.rex-has-theme:not(.rex-theme-light) .bloecks-dragdrop.is--compact .rex-slice-select > .dropdown.open {
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+}
+
+body.rex-theme-dark .bloecks-dragdrop.is--compact .rex-slice-select > .dropdown,
+html[data-bs-theme="dark"] .bloecks-dragdrop.is--compact .rex-slice-select > .dropdown {
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.7);
+}
+
 .bloecks-slice-container {
     list-style: none;
     padding: 0;
@@ -409,27 +602,355 @@ html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
     width: 100%;
 }
 
-/* Smooth dragging effects */
+/* Smooth dragging effects with background and padding */
 .bloecks-sortable-ghost {
-    opacity: 0.4;
-    background: #f8f9fa;
-    border: 2px dashed #dee2e6;
+    opacity: 0.6;
+    background: rgba(248, 249, 250, 0.9);
+    border: 2px dashed #007bff;
+    border-radius: 4px;
+    padding: 8px;
+    margin: 4px 0;
     transform: none !important;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Animated border effect for ghost */
+.bloecks-sortable-ghost::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg, 
+        transparent, 
+        rgba(0, 123, 255, 0.1), 
+        transparent
+    );
+    animation: ghostShimmer 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes ghostShimmer {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: 100%; }
 }
 
 .bloecks-sortable-chosen {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #28a745;
+    border-radius: 4px;
+    padding: 6px;
+    margin: 2px 0;
+    box-shadow: 
+        0 0 0 4px rgba(40, 167, 69, 0.15),
+        0 8px 24px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    transform: none !important;
+    transform: scale(1.01) !important;
+    transition: all 0.2s ease-out;
+    position: relative;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* Subtle glow effect for chosen element */
+.bloecks-sortable-chosen::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    border-radius: 6px;
+    pointer-events: none;
+    animation: chosenGlow 2s ease-in-out infinite;
+}
+
+@keyframes chosenGlow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+}
+
+/* Flash effect when element is dropped */
+.bloecks-dropped-flash {
+    animation: dropFlash 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    position: relative;
+    z-index: 100;
+}
+
+@keyframes dropFlash {
+    0% {
+        background-color: transparent;
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+        border-color: transparent;
+    }
+    25% {
+        background-color: rgba(40, 167, 69, 0.1);
+        box-shadow: 
+            0 0 0 4px rgba(40, 167, 69, 0.3),
+            0 0 20px rgba(40, 167, 69, 0.2);
+        border-color: rgba(40, 167, 69, 0.5);
+    }
+    50% {
+        background-color: rgba(40, 167, 69, 0.15);
+        box-shadow: 
+            0 0 0 8px rgba(40, 167, 69, 0.25),
+            0 0 30px rgba(40, 167, 69, 0.3);
+        border-color: rgba(40, 167, 69, 0.7);
+    }
+    75% {
+        background-color: rgba(40, 167, 69, 0.08);
+        box-shadow: 
+            0 0 0 4px rgba(40, 167, 69, 0.15),
+            0 0 15px rgba(40, 167, 69, 0.15);
+        border-color: rgba(40, 167, 69, 0.3);
+    }
+    100% {
+        background-color: transparent;
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+        border-color: transparent;
+    }
+}
+
+/* Dark mode flash effect */
+body.rex-theme-dark .bloecks-dropped-flash,
+html[data-bs-theme="dark"] .bloecks-dropped-flash {
+    animation: dropFlashDark 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes dropFlashDark {
+    0% {
+        background-color: transparent;
+        box-shadow: 0 0 0 0 rgba(32, 201, 151, 0);
+        border-color: transparent;
+    }
+    25% {
+        background-color: rgba(32, 201, 151, 0.1);
+        box-shadow: 
+            0 0 0 4px rgba(32, 201, 151, 0.3),
+            0 0 20px rgba(32, 201, 151, 0.2);
+        border-color: rgba(32, 201, 151, 0.5);
+    }
+    50% {
+        background-color: rgba(32, 201, 151, 0.15);
+        box-shadow: 
+            0 0 0 8px rgba(32, 201, 151, 0.25),
+            0 0 30px rgba(32, 201, 151, 0.3);
+        border-color: rgba(32, 201, 151, 0.7);
+    }
+    75% {
+        background-color: rgba(32, 201, 151, 0.08);
+        box-shadow: 
+            0 0 0 4px rgba(32, 201, 151, 0.15),
+            0 0 15px rgba(32, 201, 151, 0.15);
+        border-color: rgba(32, 201, 151, 0.3);
+    }
+    100% {
+        background-color: transparent;
+        box-shadow: 0 0 0 0 rgba(32, 201, 151, 0);
+        border-color: transparent;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    body.rex-has-theme:not(.rex-theme-light) .bloecks-dropped-flash {
+        animation: dropFlashDark 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+}
+
+/* Dark mode styling for drag effects with backgrounds */
+body.rex-theme-dark .bloecks-sortable-ghost,
+html[data-bs-theme="dark"] .bloecks-sortable-ghost {
+    background: rgba(52, 58, 64, 0.9);
+    border-color: #17a2b8;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+body.rex-theme-dark .bloecks-sortable-ghost::before,
+html[data-bs-theme="dark"] .bloecks-sortable-ghost::before {
+    background: linear-gradient(
+        90deg, 
+        transparent, 
+        rgba(23, 162, 184, 0.15), 
+        transparent
+    );
+}
+
+body.rex-theme-dark .bloecks-sortable-chosen,
+html[data-bs-theme="dark"] .bloecks-sortable-chosen {
+    background: rgba(33, 37, 41, 0.95);
+    border-color: #20c997;
+    color: rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        0 0 0 4px rgba(32, 201, 151, 0.15),
+        0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+body.rex-theme-dark .bloecks-sortable-chosen::after,
+html[data-bs-theme="dark"] .bloecks-sortable-chosen::after {
+    border-color: rgba(32, 201, 151, 0.4);
+}
+
+/* System dark mode preference */
+@media (prefers-color-scheme: dark) {
+    body.rex-has-theme:not(.rex-theme-light) .bloecks-sortable-ghost {
+        background: rgba(52, 58, 64, 0.9);
+        border-color: #17a2b8;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    body.rex-has-theme:not(.rex-theme-light) .bloecks-sortable-ghost::before {
+        background: linear-gradient(
+            90deg, 
+            transparent, 
+            rgba(23, 162, 184, 0.15), 
+            transparent
+        );
+    }
+    
+    body.rex-has-theme:not(.rex-theme-light) .bloecks-sortable-chosen {
+        background: rgba(33, 37, 41, 0.95);
+        border-color: #20c997;
+        color: rgba(255, 255, 255, 0.9);
+        box-shadow: 
+            0 0 0 4px rgba(32, 201, 151, 0.15),
+            0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.rex-has-theme:not(.rex-theme-light) .bloecks-sortable-chosen::after {
+        border-color: rgba(32, 201, 151, 0.4);
+    }
+}
+
+/* Enhanced chosen element for better visibility */
+body.rex-theme-dark .bloecks-sortable-chosen,
+html[data-bs-theme="dark"] .bloecks-sortable-chosen {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+    body.rex-has-theme:not(.rex-theme-light) .bloecks-sortable-chosen {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
 }
 
 .bloecks-dragging {
     opacity: 0.9;
     z-index: 1001;
-    box-shadow: 0 4px 40px rgba(233, 239, 236, 0.691);
-    border: 4px solid #007bff6c;
-    transform: none !important;
-    position: relative !important;
+    cursor: grabbing !important;
+}
+
+/* Enhanced dragging feedback */
+.bloecks-dragging * {
+    cursor: grabbing !important;
+    pointer-events: none;
+}
+
+/* Hide ONLY compact mode menus during drag operation - normal mode menus stay visible */
+body.bloecks-drag-active .bloecks-dragdrop.is--compact .rex-slice-select > .dropdown,
+body.bloecks-drag-active .bloecks-dragdrop.is--compact:hover .rex-slice-select > .dropdown,
+.bloecks-dragdrop.is--compact.bloecks-dragging .rex-slice-select > .dropdown,
+.bloecks-dragdrop.is--compact.bloecks-sortable-ghost .rex-slice-select > .dropdown,
+.bloecks-dragdrop.is--compact.bloecks-sortable-chosen .rex-slice-select > .dropdown {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Hide action buttons only within dragging elements (not globally) */
+.bloecks-dragging .panel-heading .btn-group,
+.bloecks-sortable-ghost .panel-heading .btn-group,
+.bloecks-sortable-chosen .panel-heading .btn-group {
+    display: none !important;
+}
+
+/* Hide clipboard dropdown during drag (makes sense globally) */
+body.bloecks-drag-active .bloecks-clipboard-dropdown {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Smooth placeholder for better visual feedback */
+.bloecks-sortable-placeholder {
+    background: linear-gradient(45deg, 
+        rgba(108, 117, 125, 0.1) 25%, 
+        transparent 25%, 
+        transparent 50%, 
+        rgba(108, 117, 125, 0.1) 50%, 
+        rgba(108, 117, 125, 0.1) 75%, 
+        transparent 75%, 
+        transparent);
+    background-size: 16px 16px;
+    border: 2px dashed #6c757d;
+    border-radius: 4px;
+    min-height: 60px;
+    margin: 8px 0;
+    animation: placeholderPulse 2s ease-in-out infinite;
+    position: relative;
+}
+
+.bloecks-sortable-placeholder::before {
+    content: "Drop hier";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #6c757d;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+@keyframes placeholderPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+}
+
+/* Dark mode placeholder */
+body.rex-theme-dark .bloecks-sortable-placeholder,
+html[data-bs-theme="dark"] .bloecks-sortable-placeholder {
+    background: linear-gradient(45deg, 
+        rgba(134, 142, 150, 0.15) 25%, 
+        transparent 25%, 
+        transparent 50%, 
+        rgba(134, 142, 150, 0.15) 50%, 
+        rgba(134, 142, 150, 0.15) 75%, 
+        transparent 75%, 
+        transparent);
+    border-color: #868e96;
+}
+
+body.rex-theme-dark .bloecks-sortable-placeholder::before,
+html[data-bs-theme="dark"] .bloecks-sortable-placeholder::before {
+    color: #adb5bd;
+}
+
+@media (prefers-color-scheme: dark) {
+    body.rex-has-theme:not(.rex-theme-light) .bloecks-sortable-placeholder {
+        background: linear-gradient(45deg, 
+            rgba(134, 142, 150, 0.15) 25%, 
+            transparent 25%, 
+            transparent 50%, 
+            rgba(134, 142, 150, 0.15) 50%, 
+            rgba(134, 142, 150, 0.15) 75%, 
+            transparent 75%, 
+            transparent);
+        border-color: #868e96;
+    }
+    
+    body.rex-has-theme:not(.rex-theme-light) .bloecks-sortable-placeholder::before {
+        color: #adb5bd;
+    }
 }
 
 /* Success/Error Feedback */
@@ -536,4 +1057,79 @@ html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
 
 .bloecks-cut.is-cut .rex-icon {
     color: white !important;
+}
+
+/* Compact Mode - Hide slice select by default, show on hover */
+.is--editing .rex-slice-select {
+    display: none;
+}
+
+.rex-slice-draggable {
+    position: relative;
+}
+
+.rex-slice-draggable.is--compact .rex-slice-output {
+    position: relative;
+    z-index: 5;
+}
+
+.rex-slice-draggable.is--compact .rex-slice-select {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: -20px 0 0 0;
+    height: 20px;
+}
+
+.rex-slice-draggable.is--compact .rex-slice-select > .dropdown {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    right: 5%;
+    width: auto;
+    margin: 0;
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(-25%);
+    transition: transform 300ms ease-out, opacity 300ms ease-out, max-height 0ms linear 300ms;
+}
+
+.rex-slice-draggable.is--compact:hover .rex-slice-select > .dropdown,
+.rex-slice-draggable.is--compact .rex-slice-select > .dropdown.open {
+    opacity: 1;
+    transform: translateY(-50%);
+    transition: transform 300ms ease-out, opacity 300ms ease-out, max-height 0ms linear 0ms;
+}
+
+.rex-slice-draggable.is--compact .rex-slice-select > .dropdown.open {
+    z-index: 1010;
+}
+
+/* Also support bloecks-dragdrop wrapper with compact mode */
+.bloecks-dragdrop.is--compact .rex-slice-select > .dropdown {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    right: 5%;
+    width: auto;
+    margin: 0;
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(-25%);
+    transition: transform 300ms ease-out, opacity 300ms ease-out, max-height 0ms linear 300ms;
+}
+
+.bloecks-dragdrop.is--compact:hover .rex-slice-select > .dropdown,
+.bloecks-dragdrop.is--compact .rex-slice-select > .dropdown.open {
+    opacity: 1;
+    transform: translateY(-50%);
+    transition: transform 300ms ease-out, opacity 300ms ease-out, max-height 0ms linear 0ms;
+}
+
+.bloecks-dragdrop.is--compact .rex-slice-select > .dropdown.open {
+    z-index: 1010;
 }

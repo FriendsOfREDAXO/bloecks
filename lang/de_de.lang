@@ -78,3 +78,7 @@ bloecks_paste_selected = Ausgewählte einfügen
 bloecks_clear_clipboard = Zwischenablage geleert
 bloecks_select_all = Alle auswählen
 bloecks_select_none = Auswahl aufheben
+
+# Compact Mode Feature
+bloecks_enable_compact_mode = Kompakt-Modus aktivieren
+bloecks_compact_mode_notice = Block-Hinzufügen-Menü wird ausgeblendet und erscheint nur beim Hover über Slices
