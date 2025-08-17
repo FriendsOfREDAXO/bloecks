@@ -279,9 +279,9 @@ html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
     margin-bottom: 12px;
     border-radius: 8px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.25);
-    transform: scale(0.8);
+    transform: translateY(-100px) scale(0.9);
     opacity: 0;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     pointer-events: auto;
     cursor: pointer;
     max-width: 500px;
@@ -313,7 +313,15 @@ html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
 
 /* Show toast */
 .bloecks-toast.show {
-    transform: translateX(0);
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+/* Hide toast (when removing) */
+.bloecks-toast.hide {
+    transform: translateY(-50px) scale(0.8);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.55, 0.055, 0.675, 0.19);
 }
 
 /* Beautiful drag handle styling */
@@ -525,10 +533,10 @@ html:not([data-bs-theme="dark"]) body:not(.rex-theme-dark) .bloecks-cut.is-cut {
     }
 
     .bloecks-cut.is-cut {
-        background-color: rgba(239, 68, 68, 0.8) !important;
-        border-color: rgba(239, 68, 68, 1) !important;
+        background-color: rgba(249, 115, 22, 0.8) !important;
+        border-color: rgba(249, 115, 22, 1) !important;
         color: white !important;
-        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3) !important;
+        box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.3) !important;
     }
 }
 
@@ -542,8 +550,25 @@ html[data-bs-theme="dark"] .bloecks-copy.is-copied {
 
 body.rex-theme-dark .bloecks-cut.is-cut,
 html[data-bs-theme="dark"] .bloecks-cut.is-cut {
-    background-color: rgba(239, 68, 68, 0.8) !important;
-    border-color: rgba(239, 68, 68, 1) !important;
+    background-color: rgba(249, 115, 22, 0.8) !important;
+    border-color: rgba(249, 115, 22, 1) !important;
     color: white !important;
-    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3) !important;
+    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.3) !important;
+}
+
+/* Temporary highlight effect for just-actioned buttons */
+.bloecks-copy.just-actioned,
+.bloecks-cut.just-actioned {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+}
+
+body.rex-theme-dark .bloecks-copy.just-actioned,
+html[data-bs-theme="dark"] .bloecks-copy.just-actioned {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5) !important;
+}
+
+body.rex-theme-dark .bloecks-cut.just-actioned,
+html[data-bs-theme="dark"] .bloecks-cut.just-actioned {
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.5) !important;
 }

@@ -141,7 +141,9 @@ class PermissionUtility
         $addon = rex_addon::get('bloecks');
 
         // Check if multi-clipboard is enabled in settings
-        if (true !== $addon->getConfig('enable_multi_clipboard', false)) {
+        // Use flexible boolean check instead of strict comparison
+        $enableMultiClipboard = $addon->getConfig('enable_multi_clipboard', false);
+        if (!$enableMultiClipboard || 'false' === $enableMultiClipboard || '0' === $enableMultiClipboard) {
             return false;
         }
 

@@ -38,21 +38,24 @@ var BLOECKS = (function($) {
     var toastCounter = 0;
     
     function createToastContainer() {
-        if (toastContainer) {
+        if (toastContainer && document.body.contains(toastContainer)) {
             return toastContainer;
         }
         
+        console.log('BLOECKS: Creating new toast container');
         toastContainer = document.createElement('div');
         toastContainer.className = 'bloecks-toast-container';
-        toastContainer.style.cssText = `
-            position: fixed;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10000;
-            pointer-events: none;
-        `;
+        toastContainer.style.position = 'fixed';
+        toastContainer.style.top = '80px';
+        toastContainer.style.left = '50%';
+        toastContainer.style.transform = 'translateX(-50%)';
+        toastContainer.style.zIndex = '10000';
+        toastContainer.style.pointerEvents = 'none';
+        toastContainer.style.minWidth = '300px';
+        toastContainer.style.maxWidth = '500px';
+        
         document.body.appendChild(toastContainer);
+        console.log('BLOECKS: Toast container created and added to body');
         return toastContainer;
     }
     
@@ -68,73 +71,94 @@ var BLOECKS = (function($) {
         type = type || 'success';
         duration = duration || 4000;
         
+        console.log('BLOECKS: Showing toast:', message, 'type:', type, 'id:', toastId);
+        
         var container = createToastContainer();
         var toast = document.createElement('div');
         
         toast.id = toastId;
         toast.className = 'bloecks-toast bloecks-toast-' + type;
-        toast.style.cssText = `
-            background: ${type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : type === 'info' ? '#17a2b8' : '#dc3545'};
-            color: white;
-            padding: 20px 26px;
-            margin-bottom: 12px;
-            border-radius: 8px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
-            transform: scale(0.8);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: auto;
-            cursor: pointer;
-            max-width: 500px;
-            min-width: 350px;
-            word-wrap: break-word;
-            font-size: 16px;
-            line-height: 1.5;
-            position: relative;
-            text-align: center;
-            font-weight: 500;
-        `;
         
-        toast.innerHTML = `
-            <div style="display: flex; align-items: flex-start; gap: 8px;">
-                <div style="flex: 1;">${message}</div>
-                <button onclick="BLOECKS.closeToast('${toastId}')" 
-                        style="background: none; border: none; color: white; font-size: 18px; 
-                               line-height: 1; cursor: pointer; padding: 0; margin: -2px 0 0 0;">×</button>
-            </div>
-        `;
+        // Use fallback for older browsers - avoid template literals
+        var bgColor = '#28a745'; // success
+        if (type === 'warning') bgColor = '#ffc107';
+        else if (type === 'info') bgColor = '#17a2b8';
+        else if (type === 'error') bgColor = '#dc3545';
         
+        toast.style.background = bgColor;
+        toast.style.color = 'white';
+        toast.style.padding = '15px 20px';
+        toast.style.marginBottom = '10px';
+        toast.style.borderRadius = '6px';
+        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-20px)';
+        toast.style.transition = 'all 0.3s ease-out';
+        toast.style.pointerEvents = 'auto';
+        toast.style.cursor = 'pointer';
+        toast.style.maxWidth = '400px';
+        toast.style.minWidth = '300px';
+        toast.style.fontSize = '14px';
+        toast.style.lineHeight = '1.4';
+        toast.style.position = 'relative';
+        toast.style.textAlign = 'left';
+        toast.style.fontWeight = '500';
+        
+        // Create close button
+        var closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '×';
+        closeBtn.style.cssText = 'background:none;border:none;color:white;font-size:18px;float:right;cursor:pointer;margin:-2px -5px 0 10px;padding:0;line-height:1;';
+        closeBtn.onclick = function() { removeToast(toastId); };
+        
+        // Create message container
+        var msgDiv = document.createElement('div');
+        msgDiv.innerHTML = message;
+        
+        toast.appendChild(closeBtn);
+        toast.appendChild(msgDiv);
         container.appendChild(toast);
         
-        // Trigger animation
+        console.log('BLOECKS: Toast element created and added to DOM');
+        
+        // Show animation
         setTimeout(function() {
-            toast.style.transform = 'scale(1)';
             toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+            console.log('BLOECKS: Toast animation triggered');
         }, 10);
         
         // Auto remove
         setTimeout(function() {
+            console.log('BLOECKS: Auto-removing toast after', duration, 'ms');
             removeToast(toastId);
         }, duration);
         
         // Click to close
-        toast.addEventListener('click', function() {
+        toast.onclick = function() {
             removeToast(toastId);
-        });
+        };
         
-        return toastId; // Return the ID so it can be removed later
+        return toast;
     }
     
     function removeToast(toastId) {
+        console.log('BLOECKS: Removing toast:', toastId);
         var toast = document.getElementById(toastId);
         if (toast) {
-            toast.style.transform = 'scale(0.8)';
+            console.log('BLOECKS: Toast element found, starting removal animation');
+            // Smooth fade out animation
             toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-20px)';
+            
+            // Remove after animation completes
             setTimeout(function() {
                 if (toast.parentNode) {
                     toast.parentNode.removeChild(toast);
+                    console.log('BLOECKS: Toast removed from DOM');
                 }
             }, 300);
+        } else {
+            console.log('BLOECKS: Toast element not found for removal');
         }
     }
     
@@ -614,7 +638,16 @@ var BLOECKS = (function($) {
     }
     
     // Initialize copy/paste handlers for AJAX operations
+    var copyPasteHandlersInitialized = false;
+    
     function initCopyPasteHandlers() {
+        if (copyPasteHandlersInitialized) {
+            console.log('BLOECKS: Copy/paste handlers already initialized, skipping');
+            return;
+        }
+        
+        copyPasteHandlersInitialized = true;
+        console.log('BLOECKS: Initializing copy/paste handlers');
         // Handle copy/cut buttons
         $(document).off('click', '.bloecks-copy, .bloecks-cut').on('click', '.bloecks-copy, .bloecks-cut', function(e) {
             e.preventDefault();
@@ -678,11 +711,32 @@ var BLOECKS = (function($) {
                 
                 
                 if (response.success) {
-                    showToast(response.message, 'success', 6000); // Längere Anzeigedauer für Paste-Erfolg
+                    // Show success toast with adequate timing
+                    showToast(response.message, 'success', 4000);
+                    console.log('BLOECKS: Action', action, 'successful:', response.message);
                     
-                    // Always add to multi-clipboard on successful copy/cut
+                    // Only add to multi-clipboard if multi-clipboard is enabled
                     if ((action === 'copy' || action === 'cut') && response.clipboard_item) {
-                        addToMultiClipboard(response.clipboard_item);
+                        if (config.multiClipboard) {
+                            addToMultiClipboard(response.clipboard_item);
+                        } else {
+                            // For single clipboard mode, replace the entire array
+                            multiClipboard = [response.clipboard_item];
+                        }
+                        console.log('BLOECKS: Updated multi-clipboard, total items:', multiClipboard.length);
+                        
+                        // IMMEDIATELY update paste buttons to avoid flickering
+                        updatePasteButtons();
+                        
+                        // Update copy/cut button visual state
+                        if (params.slice_id) {
+                            updateCopyButtonState(params.slice_id, action);
+                        }
+                        
+                        // Also ensure persistent states are applied
+                        setTimeout(function() {
+                            applyPersistentButtonStates();
+                        }, 100);
                     }
                     
                     // Scroll-Position für copy/cut speichern, für paste den Ziel-Slice
@@ -696,16 +750,8 @@ var BLOECKS = (function($) {
                         sessionStorage.setItem('bloecks_scroll_position', window.pageYOffset || document.documentElement.scrollTop);
                     }
                     
-                    // PJAX reload für alle Aktionen (copy/cut/paste) für Button-State Updates
-                    setTimeout(function() {
-                        // Use the correct PJAX method like REDAXO core does
-                        $.pjax({
-                            url: getCleanUrlForReload(),
-                            container: '#rex-js-page-main-content',
-                            fragment: '#rex-js-page-main-content',
-                            push: false // Important: don't push to history
-                        });
-                    }, 800); // Shorter wait time
+                    // No PJAX reload needed for copy/cut actions - buttons are updated locally
+                    // This eliminates the flickering and improves performance
                 } else {
                     showToast(response.message || 'Unbekannter Fehler', 'error');
                 }
@@ -736,15 +782,14 @@ var BLOECKS = (function($) {
     // Public API
     // Multi-Clipboard functionality
     var multiClipboard = [];
-    var isMultiClipboardEnabled = false;
     var activeDropdown = null;
-    var currentPastePosition = config.pastePosition;
-
-    function setMultiClipboardEnabled(enabled) {
-        isMultiClipboardEnabled = enabled;
-    }
-
-    function addToMultiClipboard(item) {
+    var currentPastePosition = config.pastePosition;    function addToMultiClipboard(item) {
+        // Only work if multi-clipboard is enabled
+        if (!config.multiClipboard) {
+            console.log('BLOECKS: addToMultiClipboard called but multi-clipboard is disabled');
+            return;
+        }
+        
         // Check if item already exists (by slice_id)
         var existingIndex = multiClipboard.findIndex(function(clipItem) {
             return clipItem.source_slice_id === item.source_slice_id;
@@ -789,7 +834,11 @@ var BLOECKS = (function($) {
                 if (response.success) {
                     showToast(response.message, 'success');
                     
-                    // Force PJAX reload to update button states
+                    // Clear the local clipboard array and update buttons
+                    multiClipboard = [];
+                    updatePasteButtons();
+                    
+                    // PJAX reload needed to reset all button states on the page
                     setTimeout(function() {
                         $.pjax({
                             url: getCleanUrlForReload(),
@@ -797,7 +846,7 @@ var BLOECKS = (function($) {
                             fragment: '#rex-js-page-main-content',
                             push: false // Important: don't push to history
                         });
-                    }, 800);
+                    }, 500);
                 } else {
                     showToast('Fehler beim Leeren der Zwischenablage', 'error');
                 }
@@ -811,12 +860,21 @@ var BLOECKS = (function($) {
     function updatePasteButtons() {
         console.log('BLOECKS: Updating paste buttons, multiClipboard length:', multiClipboard.length);
         
-        $('.bloecks-paste').each(function() {
+        var $pasteButtons = $('.bloecks-paste');
+        console.log('BLOECKS: Found', $pasteButtons.length, 'paste buttons in DOM');
+        
+        if ($pasteButtons.length === 0) {
+            console.log('BLOECKS: No paste buttons found - they might not be loaded yet');
+            return;
+        }
+        
+        $pasteButtons.each(function() {
             var $btn = $(this);
             
             if (multiClipboard.length > 1) {
                 // Multiple items - show dropdown indicator
-                $btn.addClass('has-multiple');
+                $btn.addClass('has-multiple').removeClass('disabled').prop('disabled', false);
+                $btn.css('opacity', '1').show(); // Ensure button is visible
                 var title = $btn.attr('title');
                 if (title && !title.includes('(')) {
                     $btn.attr('title', title + ' (' + multiClipboard.length + ' Elemente)');
@@ -824,7 +882,8 @@ var BLOECKS = (function($) {
                 console.log('BLOECKS: Button updated for multiple items');
             } else if (multiClipboard.length === 1) {
                 // Single item - show detailed info
-                $btn.removeClass('has-multiple');
+                $btn.removeClass('has-multiple disabled').prop('disabled', false);
+                $btn.css('opacity', '1').show(); // Ensure button is visible
                 var item = multiClipboard[0];
                 if (item && item.source_info) {
                     var actionText = item.action === 'cut' ? 'ausgeschnittenes' : 'kopiertes';
@@ -833,14 +892,78 @@ var BLOECKS = (function($) {
                 }
                 console.log('BLOECKS: Button updated for single item');
             } else {
-                // No items - disable button visually
-                $btn.removeClass('has-multiple');
+                // No items - disable button visually but don't hide it
+                $btn.removeClass('has-multiple').addClass('disabled').prop('disabled', true);
+                $btn.css('opacity', '0.6'); // Make it visually disabled but still visible
                 $btn.attr('title', 'Zwischenablage ist leer');
-                console.log('BLOECKS: Button updated for empty clipboard');
+                console.log('BLOECKS: Button disabled - no clipboard items');
             }
         });
         
-        console.log('BLOECKS: Found', $('.bloecks-paste').length, 'paste buttons to update');
+        console.log('BLOECKS: Finished updating paste buttons');
+    }
+    
+    function syncServerButtonStates() {
+        console.log('BLOECKS: Syncing server-side button states with client-side states');
+        
+        // Find all copy/cut buttons that already have server-side states
+        $('.bloecks-copy.is-copied, .bloecks-cut.is-cut').each(function() {
+            var $btn = $(this);
+            var sliceId = $btn.data('slice-id');
+            
+            console.log('BLOECKS: Found server-side button state for slice', sliceId, 'classes:', $btn.attr('class'));
+            
+            // Keep the server-side states - they are the source of truth for what's in clipboard
+            // Don't remove them, they show what's currently in the server clipboard
+        });
+    }
+    
+    function applyPersistentButtonStates() {
+        console.log('BLOECKS: Applying persistent button states based on clipboard content');
+        
+        // Reset all copy/cut buttons to default state first
+        $('.bloecks-copy, .bloecks-cut').removeClass('is-copied is-cut');
+        
+        // Apply states based on current clipboard content
+        multiClipboard.forEach(function(item) {
+            if (item.source_slice_id) {
+                var $copyBtn = $('.bloecks-copy[data-slice-id="' + item.source_slice_id + '"]');
+                var $cutBtn = $('.bloecks-cut[data-slice-id="' + item.source_slice_id + '"]');
+                
+                if (item.action === 'copy' && $copyBtn.length > 0) {
+                    $copyBtn.addClass('is-copied');
+                    console.log('BLOECKS: Applied persistent is-copied state to slice', item.source_slice_id);
+                } else if (item.action === 'cut' && $cutBtn.length > 0) {
+                    $cutBtn.addClass('is-cut');
+                    console.log('BLOECKS: Applied persistent is-cut state to slice', item.source_slice_id);
+                }
+            }
+        });
+    }
+
+    function updateCopyButtonState(sliceId, action) {
+        // Find and update the copy/cut button for the specific slice
+        var selector = '.bloecks-' + action + '[data-slice-id="' + sliceId + '"]';
+        var $button = $(selector);
+        
+        if ($button.length > 0) {
+            // Apply the persistent state immediately
+            if (action === 'cut') {
+                $button.addClass('is-cut').removeClass('btn-secondary btn-default');
+            } else if (action === 'copy') {
+                $button.addClass('is-copied').removeClass('btn-secondary btn-default');
+            }
+            
+            // Add a temporary highlight effect (without removing the persistent state)
+            $button.addClass('just-actioned');
+            
+            // Remove only the highlight effect after 2 seconds (keep persistent state)
+            setTimeout(function() {
+                $button.removeClass('just-actioned');
+            }, 2000);
+            
+            console.log('BLOECKS: Updated', action, 'button state for slice', sliceId);
+        }
     }
 
     function showClipboardDropdown($button) {
@@ -872,7 +995,7 @@ var BLOECKS = (function($) {
         var $actions = $('<div class="dropdown-actions"></div>');
         
         // Only show selection controls if multiple items OR multi-clipboard is enabled
-        if (multiClipboard.length > 1 || isMultiClipboardEnabled) {
+        if (multiClipboard.length > 1 || config.multiClipboard) {
             $actions.append('<button type="button" class="btn btn-xs btn-default" data-action="select-all">Alle auswählen</button>');
             $actions.append('<button type="button" class="btn btn-xs btn-default" data-action="select-none">Auswahl aufheben</button>');
         }
@@ -885,7 +1008,7 @@ var BLOECKS = (function($) {
             var $item = $('<div class="bloecks-clipboard-item"></div>');
             
             // Only show checkbox if multiple items AND multi-clipboard enabled
-            if (multiClipboard.length > 1 && isMultiClipboardEnabled) {
+            if (multiClipboard.length > 1 && config.multiClipboard) {
                 $item.append('<input type="checkbox" checked data-index="' + index + '">');
             }
             
@@ -910,7 +1033,7 @@ var BLOECKS = (function($) {
         // Paste buttons
         var $pasteActions = $('<div class="dropdown-actions"></div>');
         
-        if (multiClipboard.length === 1 || !isMultiClipboardEnabled) {
+        if (multiClipboard.length === 1 || !config.multiClipboard) {
             // Single item OR multi-clipboard disabled - simple paste
             $pasteActions.append('<button type="button" class="btn btn-sm btn-success" data-action="paste-all">Einfügen</button>');
         } else {
@@ -1011,7 +1134,7 @@ var BLOECKS = (function($) {
         }
         
         // If multi-clipboard is NOT enabled AND we have only one item, use simple paste
-        if (!isMultiClipboardEnabled && indexes.length === 1) {
+        if (!config.multiClipboard && indexes.length === 1) {
             var params = {
                 'bloecks_target': targetSlice,
                 'article_id': articleId,
@@ -1095,17 +1218,26 @@ var BLOECKS = (function($) {
             
             // Re-check multi-clipboard config after navigation
             if (config.multiClipboard) {
-                setMultiClipboardEnabled(true);
                 loadMultiClipboardFromServer();
             }
         }, 100);
     });
     
+    var isLoadingClipboard = false;
+    
     function loadMultiClipboardFromServer() {
+        // Prevent multiple simultaneous requests
+        if (isLoadingClipboard) {
+            console.log('BLOECKS: Clipboard already loading, skipping request');
+            return;
+        }
+        
+        isLoadingClipboard = true;
         // Load current clipboard status from server
         var data = {
             'function': 'get_clipboard_status',
-            'rex-api-call': 'bloecks'
+            'rex-api-call': 'bloecks',
+            '_t': Date.now() // Cache busting parameter
         };
         
         console.log('BLOECKS: Loading clipboard status from server...', data);
@@ -1115,32 +1247,57 @@ var BLOECKS = (function($) {
             type: 'POST',
             dataType: 'json',
             data: data,
+            cache: false, // Disable caching
             success: function(response) {
                 console.log('BLOECKS: Clipboard status response:', response);
                 
                 if (response.success) {
-                    // Always sync multi-clipboard items
+                    // Store previous clipboard length for comparison
+                    var prevLength = multiClipboard.length;
+                    
+                    // Always sync from server on page load/navigation
+                    // The server is the source of truth for clipboard state
                     if (response.multi_clipboard_items && response.multi_clipboard_items.length > 0) {
                         multiClipboard = response.multi_clipboard_items;
                         console.log('BLOECKS: Loaded', multiClipboard.length, 'items from server clipboard');
+                        console.log('BLOECKS: Multi-clipboard items:', multiClipboard);
+                        
+                        // Report if we lost items
+                        if (prevLength > multiClipboard.length && prevLength > 0) {
+                            console.warn('BLOECKS: Clipboard items reduced from', prevLength, 'to', multiClipboard.length);
+                        }
                     } else {
                         multiClipboard = [];
                         console.log('BLOECKS: Server clipboard is empty');
+                        
+                        // Report if we had items before
+                        if (prevLength > 0) {
+                            console.warn('BLOECKS: Clipboard was cleared - had', prevLength, 'items before');
+                        }
                     }
                     
-                    // Multi-clipboard status is controlled by the initial config, not server response
-                    // The server response indicates permission, but JS config controls the feature
-                    console.log('BLOECKS: Multi-clipboard enabled in JS:', isMultiClipboardEnabled);
+                    // Multi-clipboard status is controlled by the initial config
+                    console.log('BLOECKS: Multi-clipboard enabled in JS:', config.multiClipboard);
                     console.log('BLOECKS: Multi-clipboard allowed by server:', response.multi_clipboard_enabled);
+                    console.log('BLOECKS: Server session ID:', response.debug_session_id);
                     
                     updatePasteButtons();
+                    
+                    // Apply persistent button states based on clipboard content
+                    applyPersistentButtonStates();
                 } else {
                     console.log('BLOECKS: Server returned error:', response);
                 }
+                
+                // Reset loading flag
+                isLoadingClipboard = false;
             },
             error: function(xhr, status, error) {
                 console.log('BLOECKS: Could not load clipboard status - Network error:', error);
                 console.log('BLOECKS: XHR status:', status, xhr.status, xhr.responseText);
+                
+                // Reset loading flag
+                isLoadingClipboard = false;
             }
         });
     }
@@ -1160,11 +1317,12 @@ var BLOECKS = (function($) {
         checkForMessages: checkForMessages,
         checkForScrollTarget: checkForScrollTarget,
         initCopyPasteHandlers: initCopyPasteHandlers,
-        setMultiClipboardEnabled: setMultiClipboardEnabled,
         addToMultiClipboard: addToMultiClipboard,
         removeFromMultiClipboard: removeFromMultiClipboard,
         clearMultiClipboard: clearMultiClipboard,
         loadMultiClipboardFromServer: loadMultiClipboardFromServer,
+        syncServerButtonStates: syncServerButtonStates,
+        applyPersistentButtonStates: applyPersistentButtonStates,
         config: config,  // Make config accessible
         version: '2.5.0'
     };
@@ -1176,9 +1334,14 @@ $(document).ready(function() {
     // Always initialize copy/paste handlers
     BLOECKS.initCopyPasteHandlers();
     
-    // Initialize multi-clipboard if enabled - use BLOECKS.config
+    // Sync server-side button states with client-side expectations
+    setTimeout(function() {
+        BLOECKS.syncServerButtonStates();
+    }, 50);
+    
+    // Initialize multi-clipboard if enabled in config
     if (BLOECKS.config && BLOECKS.config.multiClipboard) {
-        BLOECKS.setMultiClipboardEnabled(true);
+        console.log('BLOECKS: Multi-clipboard enabled in config');
     }
     
     // Always load clipboard status from server on initial page load
@@ -1188,15 +1351,22 @@ $(document).ready(function() {
 // Re-initialize after PJAX navigation
 $(document).on('pjax:complete pjax:end rex:ready', function() {
     setTimeout(function() {
+        // Reset initialization flags for new page
+        copyPasteHandlersInitialized = false;
+        
         // Always reinitialize handlers
         BLOECKS.initCopyPasteHandlers();
         
-        // Always load clipboard status from server after navigation - use BLOECKS.config
+        // Sync server-side button states
+        BLOECKS.syncServerButtonStates();
+        
+        // Re-check multi-clipboard config after navigation
         if (BLOECKS.config && BLOECKS.config.multiClipboard) {
-            BLOECKS.setMultiClipboardEnabled(true);
+            console.log('BLOECKS: Multi-clipboard enabled after PJAX');
         }
         
         // WICHTIG: Immer Clipboard-Status laden bei Navigation!
+        // Bei PJAX Navigation muss explizit vom Server geladen werden
         BLOECKS.loadMultiClipboardFromServer();
         
         // Check for scroll target after PJAX navigation (important for paste operations)

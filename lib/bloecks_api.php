@@ -243,6 +243,12 @@ class Api extends rex_api_function
         }
 
         rex_set_session('bloecks_multi_clipboard', $multiClipboard);
+        
+        // Force session save to ensure persistence across navigation
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+            session_start();
+        }
 
         $message = 'cut' === $action ? rex_i18n::msg('bloecks_slice_cut') : rex_i18n::msg('bloecks_slice_copied');
 
@@ -252,6 +258,7 @@ class Api extends rex_api_function
             'message' => $message,
             'reload_needed' => false,
             'clipboard_item' => $clipboardItem,
+            'multi_clipboard_count' => count($multiClipboard),
         ]);
     }
 
@@ -448,6 +455,13 @@ class Api extends rex_api_function
 
             // Update multi-clipboard after cuts
             rex_set_session('bloecks_multi_clipboard', array_values($multiClipboard));
+            
+            // Force session save to ensure persistence across navigation
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_write_close();
+                session_start();
+            }
+            
             rex_article_cache::delete($articleId, $clang);
 
             echo json_encode([
@@ -537,6 +551,8 @@ class Api extends rex_api_function
             'multi_clipboard_enabled' => $isMultiClipboardAvailable,
             'multi_clipboard_count' => count($multiClipboard),
             'multi_clipboard_items' => $multiClipboard,
+            'debug_session_id' => session_id(),
+            'debug_timestamp' => time(),
         ]);
     }
 
