@@ -9,7 +9,7 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
+    z-index: 1030;
     min-width: 300px;
     max-width: 500px;
     max-height: 400px;
@@ -46,13 +46,17 @@
 .bloecks-clipboard-dropdown .bloecks-position-select {
     flex: 1;
     font-size: 12px;
-    padding: 6px 10px;
+    padding: 6px 30px 6px 10px; /* More padding on right for arrow */
     border: 1px solid #ddd;
     border-radius: 4px;
-    background: white;
+    background: white url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23666' d='m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z'/%3E%3C/svg%3E") no-repeat right 8px center;
+    background-size: 12px;
     color: #333;
     outline: none;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 .bloecks-clipboard-dropdown .bloecks-position-select:focus {
@@ -138,9 +142,35 @@
         color: #e2e8f0;
     }
 
-    .bloecks-clipboard-dropdown .dropdown-actions {
+    .bloecks-clipboard-dropdown .dropdown-position-toggle {
         background: #2d3748;
         border-bottom-color: #4a5568;
+    }
+
+    .bloecks-clipboard-dropdown .dropdown-position-toggle label {
+        color: #a0aec0;
+    }
+
+    .bloecks-clipboard-dropdown .bloecks-position-select {
+        background: #4a5568 url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23a0aec0' d='m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z'/%3E%3C/svg%3E") no-repeat right 8px center;
+        background-size: 12px;
+        border-color: #2d3748;
+        color: #e2e8f0;
+    }
+
+    .bloecks-clipboard-dropdown .bloecks-position-select:focus {
+        border-color: #63b3ed;
+        box-shadow: 0 0 0 1px rgba(99, 179, 237, 0.2);
+    }
+
+    .bloecks-clipboard-dropdown .bloecks-position-select:hover {
+        border-color: #718096;
+        background-color: #718096;
+    }
+
+    .bloecks-clipboard-dropdown .bloecks-position-select option {
+        background: #4a5568;
+        color: #e2e8f0;
     }
 
     .bloecks-clipboard-item {
@@ -173,6 +203,43 @@ body.rex-theme-dark .bloecks-clipboard-dropdown .dropdown-header,
 html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .dropdown-header {
     background: #1a202c;
     border-bottom-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.rex-theme-dark .bloecks-clipboard-dropdown .dropdown-position-toggle,
+html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .dropdown-position-toggle {
+    background: #2d3748;
+    border-bottom-color: #4a5568;
+}
+
+body.rex-theme-dark .bloecks-clipboard-dropdown .dropdown-position-toggle label,
+html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .dropdown-position-toggle label {
+    color: #a0aec0;
+}
+
+body.rex-theme-dark .bloecks-clipboard-dropdown .bloecks-position-select,
+html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .bloecks-position-select {
+    background: #4a5568 url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23a0aec0' d='m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z'/%3E%3C/svg%3E") no-repeat right 8px center;
+    background-size: 12px;
+    border-color: #2d3748;
+    color: #e2e8f0;
+}
+
+body.rex-theme-dark .bloecks-clipboard-dropdown .bloecks-position-select:focus,
+html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .bloecks-position-select:focus {
+    border-color: #63b3ed;
+    box-shadow: 0 0 0 1px rgba(99, 179, 237, 0.2);
+}
+
+body.rex-theme-dark .bloecks-clipboard-dropdown .bloecks-position-select:hover,
+html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .bloecks-position-select:hover {
+    border-color: #718096;
+    background-color: #718096;
+}
+
+body.rex-theme-dark .bloecks-clipboard-dropdown .bloecks-position-select option,
+html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .bloecks-position-select option {
+    background: #4a5568;
     color: #e2e8f0;
 }
 
@@ -412,6 +479,38 @@ html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
 
 .rex-icon-paste::before {
     content: "\f0ea" !important; /* fa-regular fa-paste */
+}
+
+/* Safari-specific fixes to remove gradients and appearance issues */
+@supports (-webkit-appearance: none) {
+    .bloecks-clipboard-dropdown .bloecks-position-select {
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23666' d='m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 12px;
+        background-color: white;
+        border: 1px solid #ddd;
+    }
+}
+
+/* Safari Dark Mode fixes */
+@supports (-webkit-appearance: none) {
+    @media (prefers-color-scheme: dark) {
+        .bloecks-clipboard-dropdown .bloecks-position-select {
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23a0aec0' d='m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z'/%3E%3C/svg%3E");
+            background-color: #4a5568;
+            border-color: #2d3748;
+        }
+    }
+    
+    body.rex-theme-dark .bloecks-clipboard-dropdown .bloecks-position-select,
+    html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .bloecks-position-select {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23a0aec0' d='m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z'/%3E%3C/svg%3E");
+        background-color: #4a5568;
+        border-color: #2d3748;
+    }
 }
 
 /* Active/Copied button states */

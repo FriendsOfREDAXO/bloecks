@@ -396,12 +396,23 @@ class Api extends rex_api_function
         $newSliceIds = [];
 
         try {
+            // Sort selected indices by their timestamp to maintain paste order
+            $itemsToInsert = [];
             foreach ($selectedIndices as $index) {
                 if (!isset($multiClipboard[$index])) {
                     continue;
                 }
+                $itemsToInsert[] = ['index' => $index, 'item' => $multiClipboard[$index]];
+            }
 
-                $clipboard = $multiClipboard[$index];
+            // Sort by timestamp (oldest first) so they are pasted in chronological order
+            usort($itemsToInsert, function($a, $b) {
+                return ($a['item']['timestamp'] ?? 0) - ($b['item']['timestamp'] ?? 0);
+            });
+
+            foreach ($itemsToInsert as $itemInfo) {
+                $index = $itemInfo['index'];
+                $clipboard = $itemInfo['item'];
 
                 // Use same paste logic as single paste
                 $result = $this->pasteSingleItem($clipboard, $targetSlice, $articleId, $clang, $ctype, $pastePosition);
@@ -409,6 +420,11 @@ class Api extends rex_api_function
                 if ($result['success']) {
                     ++$insertedCount;
                     $newSliceIds[] = $result['new_slice_id'];
+
+                    // Update targetSlice for next insertion to maintain order
+                    if ('after' === $pastePosition) {
+                        $targetSlice = $result['new_slice_id'];
+                    }
 
                     // If cut, remove from multi-clipboard
                     if ('cut' === $clipboard['action']) {

@@ -793,18 +793,32 @@ var BLOECKS = (function($) {
         $actions.append('<button type="button" class="btn btn-xs btn-danger" data-action="clear">Leeren</button>');
         $dropdown.append($actions);
         
-        // Items
-        multiClipboard.forEach(function(item, index) {
+        // Items - display in chronological order (oldest first = natural order)
+        var sortedItems = multiClipboard.slice().map(function(item, index) {
+            return { item: item, originalIndex: index };
+        }).sort(function(a, b) {
+            // Sort by timestamp (oldest first) to show items in the order they were added
+            return (a.item.timestamp || 0) - (b.item.timestamp || 0);
+        });
+
+        sortedItems.forEach(function(sortedItem) {
+            var item = sortedItem.item;
+            var originalIndex = sortedItem.originalIndex;
             var $item = $('<div class="bloecks-clipboard-item"></div>');
             
             // Only show checkbox if multiple items OR multi-clipboard enabled
             if (multiClipboard.length > 1 || isMultiClipboardEnabled) {
-                $item.append('<input type="checkbox" checked data-index="' + index + '">');
+                $item.append('<input type="checkbox" checked data-index="' + originalIndex + '">');
             }
             
             var $info = $('<div class="bloecks-clipboard-item-info"></div>');
             var moduleName = (item.source_info && item.source_info.module_name) ? item.source_info.module_name : 'Unbekanntes Modul';
-            $info.append('<div class="bloecks-clipboard-item-title">' + moduleName + '</div>');
+            
+            // Add Font Awesome icon based on action
+            var iconClass = item.action === 'cut' ? 'rex-icon rex-icon-cut' : 'rex-icon rex-icon-copy';
+            var iconStyle = item.action === 'cut' ? 'color: #dc3545; margin-right: 6px;' : 'color: #6c757d; margin-right: 6px;';
+            
+            $info.append('<div class="bloecks-clipboard-item-title"><i class="' + iconClass + '" style="' + iconStyle + '"></i>' + moduleName + '</div>');
             if (item.source_info) {
                 var actionText = item.action === 'cut' ? 'ausgeschnitten' : 'kopiert';
                 $info.append('<div class="bloecks-clipboard-item-meta">' + actionText + ' aus: ' + item.source_info.article_name + ' (ID: ' + item.source_info.article_id + ')</div>');
@@ -892,6 +906,13 @@ var BLOECKS = (function($) {
             showToast('Keine Elemente ausgewählt', 'warning');
             return;
         }
+        
+        // Sort selected indexes by timestamp to maintain paste order
+        selectedIndexes.sort(function(a, b) {
+            var itemA = multiClipboard[a];
+            var itemB = multiClipboard[b];
+            return (itemA.timestamp || 0) - (itemB.timestamp || 0);
+        });
         
         pasteMultipleItems($button, selectedIndexes);
         hideClipboardDropdown();
