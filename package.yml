@@ -1,5 +1,5 @@
 package: bloecks
-version: '5.2.1'
+version: '5.2.0'
 author: 'Friends Of REDAXO'
 supportpage: https://github.com/FriendsOfREDAXO/bloecks
 
@@ -14,7 +14,7 @@ page:
             title: 'translate:bloecks_settings'
             icon: rex-icon fa-cog
         docs:
-            title: 'translate:bloecks_documentation'
+            title: 'translate:bloecks_docs'
             subPath: README.md
             icon: rex-icon fa-book
             itemclass: pull-right

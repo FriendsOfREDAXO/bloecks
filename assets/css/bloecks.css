@@ -9,7 +9,7 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 1030;
+    z-index: 1000;
     min-width: 300px;
     max-width: 500px;
     max-height: 400px;
@@ -53,12 +53,6 @@
     color: #333;
     outline: none;
     transition: border-color 0.2s ease;
-    /* Remove default browser styling for Safari */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    /* Simple text-based dropdown indicator */
-    padding-right: 25px;
 }
 
 .bloecks-clipboard-dropdown .bloecks-position-select:focus {
@@ -144,30 +138,6 @@
         color: #e2e8f0;
     }
 
-    .bloecks-clipboard-dropdown .dropdown-position-toggle {
-        background: #2d3748;
-        border-bottom-color: #4a5568;
-    }
-
-    .bloecks-clipboard-dropdown .dropdown-position-toggle label {
-        color: #e2e8f0;
-    }
-
-    .bloecks-clipboard-dropdown .bloecks-position-select {
-        background: #4a5568;
-        border-color: #718096;
-        color: #e2e8f0;
-    }
-
-    .bloecks-clipboard-dropdown .bloecks-position-select:focus {
-        border-color: #63b3ed;
-        box-shadow: 0 0 0 1px rgba(99, 179, 237, 0.2);
-    }
-
-    .bloecks-clipboard-dropdown .bloecks-position-select:hover {
-        border-color: #a0aec0;
-    }
-
     .bloecks-clipboard-dropdown .dropdown-actions {
         background: #2d3748;
         border-bottom-color: #4a5568;
@@ -204,35 +174,6 @@ html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .dropdown-header {
     background: #1a202c;
     border-bottom-color: #4a5568;
     color: #e2e8f0;
-}
-
-body.rex-theme-dark .bloecks-clipboard-dropdown .dropdown-position-toggle,
-html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .dropdown-position-toggle {
-    background: #2d3748;
-    border-bottom-color: #4a5568;
-}
-
-body.rex-theme-dark .bloecks-clipboard-dropdown .dropdown-position-toggle label,
-html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .dropdown-position-toggle label {
-    color: #e2e8f0;
-}
-
-body.rex-theme-dark .bloecks-clipboard-dropdown .bloecks-position-select,
-html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .bloecks-position-select {
-    background: #4a5568;
-    border-color: #718096;
-    color: #e2e8f0;
-}
-
-body.rex-theme-dark .bloecks-clipboard-dropdown .bloecks-position-select:focus,
-html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .bloecks-position-select:focus {
-    border-color: #63b3ed;
-    box-shadow: 0 0 0 1px rgba(99, 179, 237, 0.2);
-}
-
-body.rex-theme-dark .bloecks-clipboard-dropdown .bloecks-position-select:hover,
-html[data-bs-theme="dark"] .bloecks-clipboard-dropdown .bloecks-position-select:hover {
-    border-color: #a0aec0;
 }
 
 body.rex-theme-dark .bloecks-clipboard-dropdown .dropdown-actions,
@@ -279,9 +220,9 @@ html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
     margin-bottom: 12px;
     border-radius: 8px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.25);
-    transform: translateY(-100px) scale(0.9);
+    transform: scale(0.8);
     opacity: 0;
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     pointer-events: auto;
     cursor: pointer;
     max-width: 500px;
@@ -313,15 +254,7 @@ html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
 
 /* Show toast */
 .bloecks-toast.show {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-}
-
-/* Hide toast (when removing) */
-.bloecks-toast.hide {
-    transform: translateY(-50px) scale(0.8);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    transform: translateX(0);
 }
 
 /* Beautiful drag handle styling */
@@ -504,71 +437,4 @@ html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
 
 .bloecks-cut.is-cut .rex-icon {
     color: white !important;
-}
-
-/* Light Theme specific button states */
-body:not(.rex-theme-dark):not([data-bs-theme="dark"]) .bloecks-copy.is-copied,
-html:not([data-bs-theme="dark"]) body:not(.rex-theme-dark) .bloecks-copy.is-copied {
-    background-color: rgba(108, 117, 125, 0.8) !important;
-    border-color: rgba(108, 117, 125, 1) !important;
-    color: white !important;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2) !important;
-}
-
-body:not(.rex-theme-dark):not([data-bs-theme="dark"]) .bloecks-cut.is-cut,
-html:not([data-bs-theme="dark"]) body:not(.rex-theme-dark) .bloecks-cut.is-cut {
-    background-color: rgba(220, 53, 69, 0.8) !important;
-    border-color: rgba(220, 53, 69, 1) !important;
-    color: white !important;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2) !important;
-}
-
-/* Dark Theme specific button states */
-@media (prefers-color-scheme: dark) {
-    .bloecks-copy.is-copied {
-        background-color: rgba(59, 130, 246, 0.8) !important;
-        border-color: rgba(59, 130, 246, 1) !important;
-        color: white !important;
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
-    }
-
-    .bloecks-cut.is-cut {
-        background-color: rgba(249, 115, 22, 0.8) !important;
-        border-color: rgba(249, 115, 22, 1) !important;
-        color: white !important;
-        box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.3) !important;
-    }
-}
-
-body.rex-theme-dark .bloecks-copy.is-copied,
-html[data-bs-theme="dark"] .bloecks-copy.is-copied {
-    background-color: rgba(59, 130, 246, 0.8) !important;
-    border-color: rgba(59, 130, 246, 1) !important;
-    color: white !important;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
-}
-
-body.rex-theme-dark .bloecks-cut.is-cut,
-html[data-bs-theme="dark"] .bloecks-cut.is-cut {
-    background-color: rgba(249, 115, 22, 0.8) !important;
-    border-color: rgba(249, 115, 22, 1) !important;
-    color: white !important;
-    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.3) !important;
-}
-
-/* Temporary highlight effect for just-actioned buttons */
-.bloecks-copy.just-actioned,
-.bloecks-cut.just-actioned {
-    transform: scale(1.05);
-    transition: transform 0.2s ease;
-}
-
-body.rex-theme-dark .bloecks-copy.just-actioned,
-html[data-bs-theme="dark"] .bloecks-copy.just-actioned {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5) !important;
-}
-
-body.rex-theme-dark .bloecks-cut.just-actioned,
-html[data-bs-theme="dark"] .bloecks-cut.just-actioned {
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.5) !important;
 }

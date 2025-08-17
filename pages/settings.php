@@ -2,8 +2,7 @@
 
 /** @var rex_addon $this */
 
-$user = rex::getUser();
-if (null === $user || !$user->isAdmin()) {
+if (!rex::getUser()->isAdmin()) {
     echo rex_view::error(rex_i18n::msg('bloecks_no_permission'));
     return;
 }

@@ -4,7 +4,9 @@ namespace FriendsOfRedaxo\Bloecks;
 
 use rex;
 use rex_addon;
+use rex_article;
 use rex_article_cache;
+use rex_article_revision;
 use rex_be_controller;
 use rex_content_service;
 use rex_csrf_token;
@@ -13,454 +15,754 @@ use rex_extension_point;
 use rex_i18n;
 use rex_sql;
 use rex_sql_exception;
-use rex_url;
 use rex_view;
 
 use function count;
-use function is_array;
-use function is_bool;
-use function is_float;
-use function is_int;
-use function is_string;
+use function in_array;
+use function rex_session;
+use function rex_set_session;
+use function rex_unset_session;
 use function sprintf;
 
 /**
  * Backend functionality for BLOECKS addon.
- * Reduced complexity - main logic moved to utility classes.
  */
 class Backend
 {
     /**
-     * Initialize the backend functionality.
+     * In                    rex_article_cache::delete($articleId, $clang);.
+     *
+     * // Create success message with hidden new slice ID embedded in the message
+     * $successMessage = rex_i18n::msg('bloecks_slice_inserted') .
+     * '<span style="display: none;" data-bloecks-new-slice-id="' . $newSliceId . '"></span>';
+     * $msg = rex_view::success($successMessage);ze the backend functionality.
      */
     public static function init(): void
     {
         $user = rex::getUser();
-        if (null === $user) {
+        if (!$user) {
             return;
         }
 
-        self::registerCopyPasteExtensions();
-        self::registerDragDropExtensions();
-        self::loadAssets();
-    }
-
-    /**
-     * Register copy/paste extension points.
-     */
-    private static function registerCopyPasteExtensions(): void
-    {
-        if (!PermissionUtility::shouldShowCopyPasteButtons()) {
-            return;
-        }
-
-        rex_extension::register('STRUCTURE_CONTENT_SLICE_MENU', self::addButtons(...));
-        rex_extension::register('STRUCTURE_CONTENT_MODULE_SELECT', self::addPasteToModuleSelect(...));
-        rex_extension::register('STRUCTURE_CONTENT_BEFORE_SLICES', self::process(...));
-    }
-
-    /**
-     * Register drag & drop extension points.
-     */
-    private static function registerDragDropExtensions(): void
-    {
-        if (!PermissionUtility::shouldShowDragDrop()) {
-            return;
-        }
-
-        rex_extension::register('SLICE_SHOW', Wrapper::addDragDropWrapper(...), rex_extension::EARLY);
-        rex_extension::register('SLICE_MENU', Wrapper::addDragHandle(...));
-    }
-
-    /**
-     * Load assets if needed.
-     */
-    private static function loadAssets(): void
-    {
-        if ('content' !== rex_be_controller::getCurrentPagePart(1)) {
-            return;
-        }
-
-        $loadCopyPasteAssets = PermissionUtility::shouldShowCopyPasteButtons();
-        $loadDragDropAssets = PermissionUtility::shouldShowDragDrop();
-
-        if (!$loadCopyPasteAssets && !$loadDragDropAssets) {
-            return;
-        }
-
-        self::setJavaScriptConfig($loadCopyPasteAssets, $loadDragDropAssets);
-        self::loadJavaScriptAndCSS($loadDragDropAssets);
-    }
-
-    /**
-     * Set JavaScript configuration via rex_view::setJsProperty.
-     */
-    private static function setJavaScriptConfig(bool $copyPasteEnabled, bool $dragDropEnabled): void
-    {
-        $user = rex::getUser();
-        if (null === $user) {
-            return;
-        }
-
-        rex_view::setJsProperty('bloecks', [
-            'token' => rex_csrf_token::factory('bloecks')->getValue(),
-            'perm_order' => $user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[order]'),
-            'perm_copy' => $user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[copy]'),
-            'api_url' => rex_url::backendController(['rex-api-call' => 'bloecks_api']),
-            'drag_drop_enabled' => $dragDropEnabled,
-            'copy_paste_enabled' => $copyPasteEnabled,
-            'multiClipboard' => rex_addon::get('bloecks')->getConfig('enable_multi_clipboard', false),
-            'pastePosition' => rex_addon::get('bloecks')->getConfig('paste_position', 'after'),
-            'messages' => [
-                'success' => rex_i18n::msg('bloecks_success'),
-                'error' => rex_i18n::msg('bloecks_error'),
-                'copy_success' => rex_i18n::msg('bloecks_copy_success'),
-                'paste_success' => rex_i18n::msg('bloecks_paste_success'),
-                'order_success' => rex_i18n::msg('bloecks_order_success'),
-                'confirm_clear_clipboard' => rex_i18n::msg('bloecks_confirm_clear_clipboard'),
-            ],
-        ]);
-    }
-
-    /**
-     * Load JavaScript and CSS assets.
-     */
-    private static function loadJavaScriptAndCSS(bool $loadDragDropAssets): void
-    {
         $addon = rex_addon::get('bloecks');
+        $copyPasteEnabled = (bool) $addon->getConfig('enable_copy_paste', false);
+        $dragDropEnabled = (bool) $addon->getConfig('enable_drag_drop', false);
 
-        // Load SortableJS for drag & drop only if needed
-        if ($loadDragDropAssets) {
-            rex_view::addJsFile($addon->getAssetsUrl('js/sortable.min.js'));
+        // Only register extension points if features are enabled AND user has permissions
+        if ($copyPasteEnabled
+            && ($user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[copy]'))) {
+            // Register slice menu extensions for copy/paste
+            rex_extension::register('STRUCTURE_CONTENT_SLICE_MENU', self::addButtons(...));
+
+            // Add paste button to module select menu when no slices exist
+            rex_extension::register('STRUCTURE_CONTENT_MODULE_SELECT', self::addPasteToModuleSelect(...));
+
+            // Process copy/cut/paste actions
+            rex_extension::register('STRUCTURE_CONTENT_BEFORE_SLICES', self::process(...));
         }
 
-        rex_view::addJsFile($addon->getAssetsUrl('js/bloecks.js') . '?v=' . time());
-        rex_view::addCssFile($addon->getAssetsUrl('css/bloecks.css') . '?v=' . time());
+        // Register drag & drop extension points if enabled AND user has permissions
+        if ($dragDropEnabled
+            && ($user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[order]'))) {
+            rex_extension::register('SLICE_SHOW', Wrapper::addDragDropWrapper(...), rex_extension::EARLY);
+            rex_extension::register('SLICE_MENU', Wrapper::addDragHandle(...));
+        }
+
+        // Load assets on content edit pages ONLY if features are enabled
+        if ('content' === rex_be_controller::getCurrentPagePart(1)) {
+            // Only load assets if at least one feature is enabled and user has permissions
+            $loadCopyPasteAssets = $copyPasteEnabled
+                && ($user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[copy]'));
+            $loadDragDropAssets = $dragDropEnabled
+                && ($user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[order]'));
+
+            if ($loadCopyPasteAssets || $loadDragDropAssets) {
+                // JS config for drag & drop ordering
+                rex_view::setJsProperty('bloecks', [
+                    'token' => rex_csrf_token::factory('bloecks')->getValue(),
+                    'perm_order' => $user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[order]'),
+                    'enable_copy_paste' => $loadCopyPasteAssets,
+                    'enable_drag_drop' => $loadDragDropAssets,
+                ]);
+
+                // Load SortableJS for drag & drop only if drag & drop is enabled and user has permissions
+                if ($loadDragDropAssets) {
+                    rex_view::addJsFile($addon->getAssetsUrl('js/sortable.min.js'));
+                }
+
+                rex_view::addJsFile($addon->getAssetsUrl('js/bloecks.js') . '?v=' . time());
+                rex_view::addCssFile($addon->getAssetsUrl('css/bloecks.css') . '?v=' . time());
+            }
+        }
     }
 
     /**
      * Add copy/cut/paste buttons to slice menu.
-     * @param rex_extension_point<mixed> $ep
-     * @return array<mixed>
-     * @api Extension point callback for STRUCTURE_CONTENT_SLICE_MENU
      */
     public static function addButtons(rex_extension_point $ep): array
     {
-        if (!self::shouldShowButtons($ep)) {
-            $subject = $ep->getSubject();
-            return is_array($subject) ? $subject : [];
+        $addon = rex_addon::get('bloecks');
+        $user = rex::getUser();
+
+        if (!$addon->getConfig('enable_copy_paste', false)) {
+            return $ep->getSubject();
         }
 
-        $params = ButtonUtility::extractButtonParams($ep);
-        $clipboard = ClipboardUtility::getClipboard();
-        $sliceId = is_numeric($params['slice_id']) ? (int) $params['slice_id'] : 0;
-        $isSource = ClipboardUtility::isClipboardSource($sliceId);
-
-        $buttons = [];
-        $buttons[] = ButtonUtility::createCopyButton($params, $clipboard, $isSource);
-        $buttons[] = ButtonUtility::createCutButton($params, $clipboard, $isSource);
-
-        if (ClipboardUtility::hasClipboardContent()) {
-            $addon = rex_addon::get('bloecks');
-            if (null !== $clipboard) {
-                $buttons[] = ButtonUtility::createPasteButton($params, $clipboard, $addon);
-            }
+        if (!$user || (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]'))) {
+            return $ep->getSubject();
         }
-
-        $subject = $ep->getSubject();
-        $subjectArray = is_array($subject) ? $subject : [];
-        return array_merge($subjectArray, $buttons);
-    }
-
-    /**
-     * Check if buttons should be shown for this slice.
-     * @param rex_extension_point<mixed> $ep
-     */
-    private static function shouldShowButtons(rex_extension_point $ep): bool
-    {
-        $perm = (bool) $ep->getParam('perm');
-        if (!$perm) {
-            return false; // No module permissions
-        }
+        if (!$ep->getParam('perm')) {
+            return $ep->getSubject();
+        } // No module permissions
 
         $sliceId = $ep->getParam('slice_id');
-        $articleId = is_numeric($ep->getParam('article_id')) ? (int) $ep->getParam('article_id') : 0;
-        $clang = is_numeric($ep->getParam('clang')) ? (int) $ep->getParam('clang') : 1;
-        $moduleId = is_numeric($ep->getParam('module_id')) ? (int) $ep->getParam('module_id') : null;
+        $articleId = $ep->getParam('article_id');
+        $clang = $ep->getParam('clang');
+        $ctype = $ep->getParam('ctype');
+        $moduleId = $ep->getParam('module_id');
 
         // Check for template/module exclusions
-        if (PermissionUtility::isExcluded($articleId, $clang, $moduleId)) {
-            return false;
+        if (self::isExcluded($articleId, $clang, $moduleId)) {
+            return $ep->getSubject();
         }
 
         // Check if user has content edit permissions for this article
-        return PermissionUtility::hasContentEditPermission($articleId, $clang, $moduleId);
+        if (!self::hasContentEditPermission($articleId, $clang, $moduleId)) {
+            return $ep->getSubject();
+        }
+
+        // Get revision from Version plugin if available
+        $revision = 0; // Default revision (LIVE)
+        if (class_exists('rex_article_revision')) {
+            $revision = rex_article_revision::getSessionArticleRevision($articleId);
+        }
+
+        // Get category_id for proper URL construction
+        $categoryId = 0;
+        if ($articleId) {
+            $article = rex_article::get($articleId, $clang);
+            if ($article) {
+                $categoryId = $article->getCategoryId();
+            }
+        }
+
+        $clipboard = rex_session('bloecks_clipboard', 'array', null);
+        $isSource = $clipboard && (int) $clipboard['source_slice_id'] === (int) $sliceId;
+
+        $baseParams = [
+            'page' => 'content/edit',
+            'article_id' => $articleId,
+            'category_id' => $categoryId,
+            'clang' => $clang,
+            'ctype' => $ctype,
+            'slice_id' => $sliceId,
+            'module_id' => $moduleId,
+            'revision' => $revision,
+        ];
+
+        $buttons = [];
+
+        // Copy button
+        $buttons[] = [
+            'hidden_label' => 'Copy Slice',
+            'url' => '#',
+            'icon' => 'copy',
+            'attributes' => [
+                'class' => ['btn', 'btn-default', 'bloecks-copy', $isSource && 'copy' === $clipboard['action'] ? 'is-copied' : ''],
+                'title' => rex_i18n::msg('bloecks_copy_slice'),
+                'data-slice-id' => $sliceId,
+                'data-article-id' => $articleId,
+                'data-clang-id' => $clang,
+                'data-ctype-id' => $ctype,
+            ],
+        ];
+
+        // Cut button
+        $buttons[] = [
+            'hidden_label' => 'Cut Slice',
+            'url' => '#',
+            'icon' => 'cut',
+            'attributes' => [
+                'class' => ['btn', 'btn-default', 'bloecks-cut', $isSource && 'cut' === $clipboard['action'] ? 'is-cut' : ''],
+                'title' => rex_i18n::msg('bloecks_cut_slice'),
+                'data-slice-id' => $sliceId,
+                'data-article-id' => $articleId,
+                'data-clang-id' => $clang,
+                'data-ctype-id' => $ctype,
+            ],
+        ];
+
+        // Paste button - always available in slice menu
+        if ($clipboard) {
+            $sourceInfo = $clipboard['source_info'] ?? null;
+
+            // Get paste position from config
+            $pastePosition = $addon->getConfig('paste_position', 'after');
+            $isPasteBefore = 'before' === $pastePosition;
+
+            // Check multi-clipboard status
+            $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);
+            $clipboardCount = count($multiClipboard);
+
+            // Build tooltip based on clipboard content
+            if ($clipboardCount > 1) {
+                // Multiple items
+                $tooltipText = sprintf('Zwischenablage (%d Elemente) - %s',
+                    $clipboardCount,
+                    $isPasteBefore ? 'vor dem Slice einfügen' : 'nach dem Slice einfügen',
+                );
+                $buttonClass = ['btn', 'btn-default', 'bloecks-paste', 'has-multiple'];
+            } elseif (1 === $clipboardCount && $sourceInfo) {
+                // Single item with detailed info
+                $actionText = 'cut' === $clipboard['action'] ? rex_i18n::msg('bloecks_action_cut') : rex_i18n::msg('bloecks_action_copied');
+                $positionText = $isPasteBefore ? rex_i18n::msg('paste_position_before') : rex_i18n::msg('paste_position_after');
+                $tooltipText = sprintf(
+                    '%s: "%s" aus "%s" (ID: %d) - %s',
+                    $actionText,
+                    $sourceInfo['module_name'],
+                    $sourceInfo['article_name'],
+                    $sourceInfo['article_id'],
+                    $positionText,
+                );
+                $buttonClass = ['btn', 'btn-default', 'bloecks-paste'];
+            } else {
+                // Fallback
+                $tooltipText = $isPasteBefore ? rex_i18n::msg('bloecks_paste_slice_before') : rex_i18n::msg('bloecks_paste_slice_after');
+                $buttonClass = ['btn', 'btn-default', 'bloecks-paste'];
+            }
+
+            $hiddenLabel = $isPasteBefore ? 'Paste before' : 'Paste after';
+
+            $buttons[] = [
+                'hidden_label' => $hiddenLabel,
+                'url' => '#',
+                'icon' => 'paste',
+                'attributes' => [
+                    'class' => $buttonClass,
+                    'title' => $tooltipText,
+                    'data-target-slice' => $sliceId,
+                    'data-article-id' => $articleId,
+                    'data-clang-id' => $clang,
+                    'data-ctype-id' => $ctype,
+                    'data-paste-position' => $pastePosition,
+                ],
+            ];
+        }
+
+        return array_merge((array) $ep->getSubject(), $buttons);
     }
 
     /**
      * Add paste button to module select menu when no slices exist yet.
-     * @param rex_extension_point<mixed> $ep
-     * @api Extension point callback for STRUCTURE_CONTENT_MODULE_SELECT
      */
     public static function addPasteToModuleSelect(rex_extension_point $ep): string
     {
-        if (!ClipboardUtility::hasClipboardContent()) {
-            $subject = $ep->getSubject();
-            return is_string($subject) ? $subject : '';
+        $addon = rex_addon::get('bloecks');
+        $user = rex::getUser();
+
+        if (!$addon->getConfig('enable_copy_paste', false)) {
+            return $ep->getSubject();
+        }
+
+        if (!$user || (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]'))) {
+            return $ep->getSubject();
+        }
+
+        // Only show paste button if there's something in clipboard
+        $clipboard = rex_session('bloecks_clipboard', 'array', null);
+        if (!$clipboard) {
+            return $ep->getSubject();
         }
 
         $articleId = rex_request('article_id', 'int');
         $clang = rex_request('clang', 'int');
         $ctype = rex_request('ctype', 'int', 1);
 
-        if ($articleId <= 0 || $clang <= 0) {
-            $subject = $ep->getSubject();
-            return is_string($subject) ? $subject : '';
+        if (!$articleId || !$clang) {
+            return $ep->getSubject();
         }
 
-        // Check for template exclusions
-        if (PermissionUtility::isExcluded($articleId, $clang, null)) {
-            $subject = $ep->getSubject();
-            return is_string($subject) ? $subject : '';
+        // Check for template exclusions (we can't check module here since it's the module select page)
+        if (self::isExcluded($articleId, $clang, null)) {
+            return $ep->getSubject();
         }
 
-        // Check if user has content edit permissions
-        if (!PermissionUtility::hasContentEditPermission($articleId, $clang, null)) {
-            $subject = $ep->getSubject();
-            return is_string($subject) ? $subject : '';
+        // Check if user has content edit permissions for this article
+        if (!self::hasContentEditPermission($articleId, $clang, null)) {
+            return $ep->getSubject();
         }
 
-        // Don't show button if there are already slices
-        if (ButtonUtility::hasExistingSlicesInCtype($articleId, $clang, $ctype)) {
-            $subject = $ep->getSubject();
-            return is_string($subject) ? $subject : '';
+        // Get revision from Version plugin if available
+        $revision = 0; // Default revision (LIVE)
+        if (class_exists('rex_article_revision')) {
+            $revision = rex_article_revision::getSessionArticleRevision($articleId);
         }
 
-        $addon = rex_addon::get('bloecks');
+        // Check if there are already slices in this ctype - if yes, don't show button
+        $sql = rex_sql::factory();
+        $existingSlices = $sql->getArray(
+            'SELECT id FROM ' . rex::getTablePrefix() . 'article_slice
+             WHERE article_id=? AND clang_id=? AND ctype_id=? AND revision=?',
+            [$articleId, $clang, $ctype, $revision],
+        );
+
+        if (count($existingSlices) > 0) {
+            // There are already slices, don't show paste button here
+            return $ep->getSubject();
+        }
+
+        // Get category_id for proper URL construction
+        $categoryId = 0;
+        if ($articleId) {
+            $article = rex_article::get($articleId, $clang);
+            if ($article) {
+                $categoryId = $article->getCategoryId();
+            }
+        }
+
+        $baseParams = [
+            'page' => 'content/edit',
+            'article_id' => $articleId,
+            'category_id' => $categoryId,
+            'clang' => $clang,
+            'ctype' => $ctype,
+            'revision' => $revision,
+        ];
+
+        // Add paste button before module selection
+        $sourceInfo = $clipboard['source_info'] ?? null;
+
+        // Get paste position from config
         $pastePosition = $addon->getConfig('paste_position', 'after');
-        $pastePositionString = is_string($pastePosition) ? $pastePosition : 'after';
-        $pasteButton = ButtonUtility::createModuleSelectPasteButton($articleId, $clang, $ctype, $pastePositionString);
 
-        $subject = $ep->getSubject();
-        $subjectString = is_string($subject) ? $subject : '';
-        return $pasteButton . $subjectString;
+        // Bestimme den Modulnamen für den Button-Text
+        $moduleName = '';
+
+        if ($sourceInfo && !empty($sourceInfo['module_name'])) {
+            // Verwende module_name aus source_info wenn verfügbar
+            $moduleName = $sourceInfo['module_name'];
+            $tooltipText = sprintf(
+                'Fügt ein: "%s" aus "%s" (ID: %d)',
+                $sourceInfo['module_name'],
+                $sourceInfo['article_name'],
+                $sourceInfo['article_id'],
+            );
+        } else {
+            // Fallback: Hole Modulnamen aus clipboard data
+            $moduleId = $clipboard['data']['module_id'] ?? null;
+            if ($moduleId) {
+                $moduleSql = rex_sql::factory();
+                $moduleRow = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$moduleId]);
+                $moduleName = $moduleRow ? $moduleRow[0]['name'] : rex_i18n::msg('bloecks_error_unknown_module');
+            }
+            $tooltipText = rex_i18n::msg('bloecks_paste_from_clipboard');
+        }
+
+        // Button-Text mit REDAXO-Sprachsystem (Parameter wird automatisch in {0} eingesetzt)
+        if (!empty($moduleName)) {
+            $buttonText = rex_i18n::msg('bloecks_paste_module', $moduleName);
+        } else {
+            $buttonText = rex_i18n::msg('bloecks_action_paste');
+        }
+
+        // Tooltip - sollte immer "Fügt ein: ..." sein, nicht "Kopiert: ..."
+        if (!empty($moduleName)) {
+            $tooltipText = sprintf('Fügt ein: "%s"', $moduleName);
+            if ($sourceInfo) {
+                $tooltipText = sprintf(
+                    'Fügt ein: "%s" aus "%s" (ID: %d)',
+                    $sourceInfo['module_name'],
+                    $sourceInfo['article_name'],
+                    $sourceInfo['article_id'],
+                );
+            }
+        } else {
+            $tooltipText = rex_i18n::msg('bloecks_paste_from_clipboard');
+        }
+
+        $pasteButton = sprintf(
+            '<div class="rex-toolbar"><div class="btn-toolbar"><a href="#" class="btn btn-success bloecks-paste" title="%s" data-target-slice="0" data-article-id="%d" data-clang-id="%d" data-ctype-id="%d" data-paste-position="%s"><i class="rex-icon rex-icon-paste"></i> %s</a></div></div>',
+            htmlspecialchars($tooltipText),
+            $articleId,
+            $clang,
+            $ctype,
+            $pastePosition,
+            htmlspecialchars($buttonText),
+        );
+
+        return $pasteButton . $ep->getSubject();
     }
 
     /**
      * Process copy/cut/paste actions.
-     * @param rex_extension_point<mixed> $ep
-     * @api Extension point callback for STRUCTURE_CONTENT_BEFORE_SLICES
      */
     public static function process(rex_extension_point $ep): void
     {
         $action = rex_request('bloecks_action', 'string');
-        if ('' === $action) {
+        if (!$action) {
             return;
         }
 
-        if (!PermissionUtility::shouldShowCopyPasteButtons()) {
+        $user = rex::getUser();
+        if (!$user || (!$user->hasPerm('bloecks[]') && !$user->hasPerm('bloecks[copy]'))) {
             return;
         }
 
-        $msg = self::processAction($action);
+        $msg = '';
 
-        if ('' !== $msg && '0' !== $msg) {
-            $subject = $ep->getSubject();
-            $subjectString = is_string($subject) ? $subject : '';
-            $ep->setSubject($msg . $subjectString);
-        }
-    }
-
-    /**
-     * Process a specific action.
-     * @api
-     */
-    private static function processAction(string $action): string
-    {
         switch ($action) {
             case 'copy':
             case 'cut':
-                return self::processCopyOrCut($action);
-            case 'paste':
-                return self::processPaste();
-            default:
-                return '';
-        }
-    }
-
-    /**
-     * Process copy or cut action.
-     * @api
-     */
-    private static function processCopyOrCut(string $action): string
-    {
-        $sliceId = rex_request('slice_id', 'int');
-        if ($sliceId <= 0) {
-            return '';
-        }
-
-        $sql = rex_sql::factory();
-        $result = $sql->getArray('SELECT * FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
-        $row = 0 === count($result) ? null : $result[0];
-
-        if (!is_array($row)) {
-            return rex_view::warning(rex_i18n::msg('bloecks_error_slice_not_found'));
-        }
-
-        if (!self::validateSlicePermissions($row)) {
-            return rex_view::warning(rex_i18n::msg('bloecks_error_no_permission'));
-        }
-
-        ClipboardUtility::storeInClipboard($sliceId, $row, $action);
-
-        $successMsg = 'cut' === $action ? rex_i18n::msg('bloecks_slice_cut') : rex_i18n::msg('bloecks_slice_copied');
-        return rex_view::success($successMsg);
-    }
-
-    /**
-     * Validate permissions for a slice.
-     * @param array<string, mixed> $row
-     */
-    private static function validateSlicePermissions(array $row): bool
-    {
-        $user = rex::getUser();
-        if (null === $user) {
-            return false;
-        }
-
-        $modulePerm = $user->getComplexPerm('modules');
-        if (null === $modulePerm || !method_exists($modulePerm, 'hasPerm')) {
-            return false;
-        }
-
-        $moduleId = is_numeric($row['module_id']) ? (int) $row['module_id'] : 0;
-        if (!$modulePerm->hasPerm($moduleId)) {
-            return false;
-        }
-
-        return PermissionUtility::hasContentEditPermission(
-            is_numeric($row['article_id']) ? (int) $row['article_id'] : 0,
-            is_numeric($row['clang_id']) ? (int) $row['clang_id'] : 0,
-            is_numeric($row['module_id']) ? (int) $row['module_id'] : null,
-        );
-    }
-
-    /**
-     * Process paste action.
-     * @api
-     */
-    private static function processPaste(): string
-    {
-        $clipboard = ClipboardUtility::getClipboard();
-        if (!is_array($clipboard) || !isset($clipboard['data']) || !is_array($clipboard['data'])) {
-            return rex_view::warning(rex_i18n::msg('bloecks_error_clipboard_empty'));
-        }
-
-        $targetSlice = rex_request('bloecks_target', 'int');
-        $articleId = rex_request('article_id', 'int');
-        $clang = rex_request('clang', 'int');
-        $ctype = rex_request('ctype', 'int', 1);
-
-        if ($articleId <= 0 || $clang <= 0) {
-            return rex_view::warning(rex_i18n::msg('bloecks_error_missing_parameters'));
-        }
-
-        $data = $clipboard['data'];
-
-        $moduleId = isset($data['module_id']) && is_numeric($data['module_id']) ? (int) $data['module_id'] : null;
-        if (!PermissionUtility::hasContentEditPermission($articleId, $clang, $moduleId)) {
-            return rex_view::warning(rex_i18n::msg('bloecks_error_no_content_permission'));
-        }
-
-        /** @var array<string, mixed> $dataArray */
-        $dataArray = $data;
-        return self::insertSlice($targetSlice, $articleId, $clang, $ctype, $dataArray, $clipboard);
-    }
-
-    /**
-     * Insert a slice and handle cleanup.
-     * @param array<string, mixed> $data
-     * @param array<string, mixed> $clipboard
-     */
-    private static function insertSlice(int $targetSlice, int $articleId, int $clang, int $ctype, array $data, array $clipboard): string
-    {
-        $priority = SliceUtility::calculateInsertionPriority($targetSlice, $articleId, $clang);
-
-        $ins = rex_sql::factory();
-        $ins->setTable(rex::getTablePrefix() . 'article_slice');
-        $ins->setValue('article_id', $articleId);
-        $ins->setValue('clang_id', $clang);
-        $ins->setValue('ctype_id', $ctype);
-        $ins->setValue('priority', $priority);
-        $ins->setValue('revision', 0); // Default revision (LIVE)
-
-        foreach ($data as $k => $v) {
-            if (is_string($v) || is_int($v) || is_float($v) || is_bool($v) || null === $v) {
-                $ins->setValue($k, $v);
-            }
-        }
-
-        $ins->addGlobalCreateFields();
-        $ins->addGlobalUpdateFields();
-
-        try {
-            $ins->insert();
-
-            if ('cut' === $clipboard['action']) {
-                $srcId = isset($clipboard['source_slice_id']) && is_numeric($clipboard['source_slice_id']) ? (int) $clipboard['source_slice_id'] : 0;
-                if (0 !== $srcId) {
-                    rex_content_service::deleteSlice($srcId);
+                $sliceId = rex_request('slice_id', 'int');
+                if (!$sliceId) {
+                    break;
                 }
-                rex_unset_session('bloecks_clipboard');
-            }
 
-            rex_article_cache::delete($articleId, $clang);
-            return rex_view::success(rex_i18n::msg('bloecks_slice_inserted'));
-        } catch (rex_sql_exception $e) {
-            return rex_view::warning(sprintf(rex_i18n::msg('bloecks_error_insert_failed'), $e->getMessage()));
+                $sql = rex_sql::factory();
+                $row = $sql->getArray('SELECT * FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
+
+                if (!$row) {
+                    $msg = rex_view::warning(rex_i18n::msg('bloecks_error_slice_not_found'));
+                    break;
+                }
+
+                $row = $row[0];
+
+                if (!$user->getComplexPerm('modules')->hasPerm($row['module_id'])) {
+                    $msg = rex_view::warning(rex_i18n::msg('bloecks_error_no_module_permission'));
+                    break;
+                }
+
+                // Check if user has content edit permissions for this slice
+                if (!self::hasContentEditPermission($row['article_id'], $row['clang_id'], $row['module_id'])) {
+                    $msg = rex_view::warning(rex_i18n::msg('bloecks_error_no_content_permission'));
+                    break;
+                }
+
+                // Store slice data in session
+                $fields = ['module_id', 'status'];
+                for ($i = 1; $i <= 20; ++$i) {
+                    $fields[] = 'value' . $i;
+                }
+                for ($i = 1; $i <= 5; ++$i) {
+                    $fields[] = 'media' . $i;
+                    $fields[] = 'medialist' . $i;
+                }
+                for ($i = 1; $i <= 5; ++$i) {
+                    $fields[] = 'link' . $i;
+                    $fields[] = 'linklist' . $i;
+                }
+
+                $data = [];
+                foreach ($fields as $field) {
+                    $data[$field] = $row[$field];
+                }
+
+                // Get source slice info for tooltips
+                $sourceArticle = rex_article::get($row['article_id'], $row['clang_id']);
+
+                // Get module name
+                $moduleSql = rex_sql::factory();
+                $moduleRow = $moduleSql->getArray('SELECT name FROM ' . rex::getTablePrefix() . 'module WHERE id=?', [$row['module_id']]);
+                $moduleName = $moduleRow ? $moduleRow[0]['name'] : rex_i18n::msg('bloecks_error_unknown_module');
+
+                rex_set_session('bloecks_clipboard', [
+                    'data' => $data,
+                    'source_slice_id' => $sliceId,
+                    'source_revision' => $row['revision'] ?? 0, // Store source revision
+                    'action' => $action,
+                    'timestamp' => time(),
+                    'source_info' => [
+                        'article_name' => $sourceArticle ? $sourceArticle->getName() : rex_i18n::msg('bloecks_error_unknown_article'),
+                        'module_name' => $moduleName,
+                        'article_id' => $row['article_id'],
+                        'clang_id' => $row['clang_id'],
+                    ],
+                ]);
+
+                $successMsg = 'cut' === $action ? rex_i18n::msg('bloecks_slice_cut') : rex_i18n::msg('bloecks_slice_copied');
+                $msg = rex_view::success($successMsg);
+                break;
+
+            case 'paste':
+                $clipboard = rex_session('bloecks_clipboard', 'array', null);
+                if (!$clipboard || !isset($clipboard['data'])) {
+                    $msg = rex_view::warning(rex_i18n::msg('bloecks_error_clipboard_empty'));
+                    break;
+                }
+
+                $targetSlice = rex_request('bloecks_target', 'int');
+                $articleId = rex_request('article_id', 'int');
+                $clang = rex_request('clang', 'int');
+                $ctype = rex_request('ctype', 'int', 1);
+
+                if (!$articleId || !$clang) {
+                    $msg = rex_view::warning(rex_i18n::msg('bloecks_error_missing_parameters'));
+                    break;
+                }
+
+                $data = $clipboard['data'];
+
+                // Check if user has content edit permissions for target article
+                if (!self::hasContentEditPermission($articleId, $clang, $data['module_id'])) {
+                    $msg = rex_view::warning(rex_i18n::msg('bloecks_error_no_content_permission'));
+                    break;
+                }
+
+                // Determine priority for insertion
+                $priority = 1;
+                $sql = rex_sql::factory();
+
+                // Get revision from Version plugin if available
+                $revision = 0; // Default revision (LIVE)
+                if (class_exists('rex_article_revision')) {
+                    $revision = rex_article_revision::getSessionArticleRevision($articleId);
+                }
+
+                if ($targetSlice) {
+                    $sql->setQuery('SELECT priority FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$targetSlice]);
+                    if ($sql->getRows()) {
+                        $priority = (int) $sql->getValue('priority') + 1; // Insert AFTER target slice
+                        // Shift existing slices down (only in current revision)
+                        $shift = rex_sql::factory();
+                        $shift->setQuery(
+                            'UPDATE ' . rex::getTablePrefix() . 'article_slice
+                             SET priority = priority + 1
+                             WHERE article_id=? AND clang_id=? AND revision=? AND priority>=?',
+                            [$articleId, $clang, $revision, $priority],
+                        );
+                    }
+                } else {
+                    $priority = (int) ($sql->getArray(
+                        'SELECT MAX(priority) p FROM ' . rex::getTablePrefix() . 'article_slice
+                         WHERE article_id=? AND clang_id=? AND revision=?',
+                        [$articleId, $clang, $revision],
+                    )[0]['p'] ?? 0) + 1;
+                }
+
+                // Insert new slice
+                $ins = rex_sql::factory();
+                $ins->setTable(rex::getTablePrefix() . 'article_slice');
+                $ins->setValue('article_id', $articleId);
+                $ins->setValue('clang_id', $clang);
+                $ins->setValue('ctype_id', $ctype);
+                $ins->setValue('priority', $priority);
+                $ins->setValue('revision', $revision);
+
+                foreach ($data as $k => $v) {
+                    $ins->setValue($k, $v);
+                }
+
+                $ins->addGlobalCreateFields();
+                $ins->addGlobalUpdateFields();
+
+                try {
+                    $ins->insert();
+                    $newSliceId = $ins->getLastId();
+
+                    // If cut, delete original slice
+                    if ('cut' === $clipboard['action']) {
+                        $srcId = (int) $clipboard['source_slice_id'];
+                        if ($srcId) {
+                            rex_content_service::deleteSlice($srcId);
+                        }
+                        rex_unset_session('bloecks_clipboard');
+                    }
+
+                    rex_article_cache::delete($articleId, $clang);
+
+                    $msg = rex_view::success(rex_i18n::msg('bloecks_slice_inserted'));
+                } catch (rex_sql_exception $e) {
+                    $msg = rex_view::warning(sprintf(rex_i18n::msg('bloecks_error_insert_failed'), $e->getMessage()));
+                }
+                break;
+        }
+
+        if ($msg) {
+            $subject = $ep->getSubject();
+            $ep->setSubject($msg . $subject);
         }
     }
 
     /**
-     * Output JavaScript configuration variables.
-     * @deprecated Use rex_view::setJsProperty instead
-     * @api
+     * Check if template or module is excluded from BLOECKS functionality.
      */
-    public static function outputJavaScriptConfig(): void
+    public static function isExcluded($articleId, $clang, $moduleId): bool
     {
-        $multiClipboardEnabled = PermissionUtility::isMultiClipboardAvailable();
+        $addon = rex_addon::get('bloecks');
 
-        echo '<script type="text/javascript">';
-        echo 'var BLOECKS_MULTI_CLIPBOARD = ' . ($multiClipboardEnabled ? 'true' : 'false') . ';';
-        echo '</script>';
+        // Check module exclusions
+        $modulesExclude = $addon->getConfig('modules_exclude', '');
+        if ($modulesExclude && $moduleId) {
+            $excludedModules = array_map('trim', explode(',', $modulesExclude));
+            if (in_array((string) $moduleId, $excludedModules)) {
+                return true;
+            }
+        }
+
+        // Check template exclusions
+        $templatesExclude = $addon->getConfig('templates_exclude', '');
+        if ($templatesExclude && $articleId && $clang) {
+            $article = rex_article::get($articleId, $clang);
+            if ($article && $article->getTemplateId()) {
+                $excludedTemplates = array_map('trim', explode(',', $templatesExclude));
+                if (in_array((string) $article->getTemplateId(), $excludedTemplates)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
-     * Clear clipboard at session start for security.
-     * Delegated to ClipboardUtility.
-     * @api
+     * Clear clipboard at session start for security
+     * This ensures clipboard is cleared on login/logout/session restart.
      */
     public static function clearClipboardOnSessionStart(): void
     {
-        ClipboardUtility::clearClipboardOnSessionStart();
+        // Check if this is a fresh session or no user logged in
+        if (!rex::getUser() || false === rex_session('bloecks_session_started', 'bool', false)) {
+            self::clearClipboard();
+            rex_set_session('bloecks_session_started', true);
+        }
+
+        // Also clear on logout detection
+        if (rex_request('logout') || 'login' === rex_be_controller::getCurrentPagePart(1)) {
+            self::clearClipboard();
+            rex_unset_session('bloecks_session_started');
+        }
     }
 
     /**
      * Clear all clipboard data from session.
-     * Delegated to ClipboardUtility.
-     * @api
      */
     public static function clearClipboard(): void
     {
-        ClipboardUtility::clearClipboard();
+        rex_unset_session('bloecks_clipboard');
+    }
+
+    /**
+     * Check if user has content edit permissions for article/template/module
+     * Based on REDAXO structure content permissions.
+     */
+    public static function hasContentEditPermission($articleId, $clang, $moduleId = null): bool
+    {
+        $user = rex::getUser();
+
+        if (!$user) {
+            return false;
+        }
+
+        // Admin users always have permission
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        // Check if user has structure permission for this article/category
+        $article = rex_article::get($articleId, $clang);
+        if (!$article) {
+            return false;
+        }
+
+        $structurePerm = $user->getComplexPerm('structure');
+        if ($structurePerm) {
+            // Check category permission (articles inherit from their category)
+            $categoryId = $article->getCategoryId();
+            if ($categoryId && !$structurePerm->hasCategoryPerm($categoryId)) {
+                return false;
+            }
+        }
+
+        // Check module permissions if module is specified
+        if ($moduleId) {
+            $modulePerm = $user->getComplexPerm('modules');
+            if ($modulePerm && !$modulePerm->hasPerm($moduleId)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Selects a value of a slice from the database.
+     * Helper function similar to the old bloecks version.
+     *
+     * @param int $sliceId ID of the slice
+     * @param string $key name of the value
+     * @param mixed $default if the value is not contained in the database or set to NULL return this value (default is NULL)
+     *
+     * @return mixed The slice's value
+     */
+    protected static function getValueOfSlice($sliceId, $key, $default = null)
+    {
+        $sliceId = (int) $sliceId;
+        $value = $default;
+
+        if ($sliceId > 0) {
+            $sql = rex_sql::factory();
+            $sql->setQuery('SELECT ' . $key . ' FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
+            if ($sql->getRows() > 0 && $sql->hasValue($key)) {
+                $value = $sql->getValue($key);
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Check if user has Multi-Clipboard permission.
+     */
+    public static function hasMultiClipboardPermission(): bool
+    {
+        $user = rex::getUser();
+
+        // Check if user is logged in
+        if (!$user) {
+            return false;
+        }
+
+        // Admin can always use multi-clipboard
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        // Check if user has specific multi-clipboard permission
+        if ($user->hasPerm('bloecks[multi]')) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Check if multi-clipboard is available for current user.
-     * Delegated to PermissionUtility.
+     * Requires BOTH: global setting enabled AND user permission.
      */
     public static function isMultiClipboardAvailable(): bool
     {
-        return PermissionUtility::isMultiClipboardAvailable();
+        $addon = rex_addon::get('bloecks');
+
+        // Feature must be globally enabled first
+        if (!$addon->getConfig('enable_multi_clipboard', false)) {
+            return false;
+        }
+
+        // Then user needs permission
+        return self::hasMultiClipboardPermission();
+    }
+
+    /**
+     * Output JavaScript configuration variables.
+     */
+    public static function outputJavaScriptConfig()
+    {
+        $addon = rex_addon::get('bloecks');
+        $multiClipboardEnabled = $addon->getConfig('enable_multi_clipboard', false);
+
+        echo '<script type="text/javascript">';
+        echo 'var BLOECKS_MULTI_CLIPBOARD = ' . ($multiClipboardEnabled ? 'true' : 'false') . ';';
+        echo '</script>';
     }
 }
