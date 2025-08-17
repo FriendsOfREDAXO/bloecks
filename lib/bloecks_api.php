@@ -24,6 +24,8 @@ use function is_int;
 use function is_string;
 use function sprintf;
 
+use const PHP_SESSION_ACTIVE;
+
 /**
  * API endpoint for drag & drop ordering (exactly like slice_columns sorter.php).
  */
@@ -243,9 +245,9 @@ class Api extends rex_api_function
         }
 
         rex_set_session('bloecks_multi_clipboard', $multiClipboard);
-        
+
         // Force session save to ensure persistence across navigation
-        if (session_status() === PHP_SESSION_ACTIVE) {
+        if (PHP_SESSION_ACTIVE === session_status()) {
             session_write_close();
             session_start();
         }
@@ -455,13 +457,13 @@ class Api extends rex_api_function
 
             // Update multi-clipboard after cuts
             rex_set_session('bloecks_multi_clipboard', array_values($multiClipboard));
-            
+
             // Force session save to ensure persistence across navigation
-            if (session_status() === PHP_SESSION_ACTIVE) {
+            if (PHP_SESSION_ACTIVE === session_status()) {
                 session_write_close();
                 session_start();
             }
-            
+
             rex_article_cache::delete($articleId, $clang);
 
             echo json_encode([
