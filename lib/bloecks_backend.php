@@ -30,15 +30,21 @@ use function sprintf;
 class Backend
 {
     /**
-     * In                    rex_article_cache::delete($articleId, $clang);.
-     *
-     * // Create success message with hidden new slice ID embedded in the message
-     * $successMessage = rex_i18n::msg('bloecks_slice_inserted') .
-     * '<span style="display: none;" data-bloecks-new-slice-id="' . $newSliceId . '"></span>';
-     * $msg = rex_view::success($successMessage);ze the backend functionality.
+     * Flag to prevent multiple initialization
+     */
+    private static bool $initialized = false;
+
+    /**
+     * Initialize the backend functionality.
      */
     public static function init(): void
     {
+        // Prevent multiple initialization
+        if (self::$initialized) {
+            return;
+        }
+        self::$initialized = true;
+
         $user = rex::getUser();
         if (!$user) {
             return;
