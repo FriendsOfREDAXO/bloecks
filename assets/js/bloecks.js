@@ -275,6 +275,7 @@ var BLOECKS = (function($) {
         initDragDrop();
         checkForMessages();
         initCopyPasteHandlers();
+        // Button states will be updated after loadMultiClipboardFromServer() completes
     });
     
     // Check for BLOECKS messages and show as toasts
@@ -489,6 +490,7 @@ var BLOECKS = (function($) {
                 checkForMessages();
                 initCopyPasteHandlers();
                 checkForScrollTarget(); // Add this call!
+                // Button states will be updated via loadMultiClipboardFromServer()
             }, 100);
         }
     });
@@ -502,6 +504,7 @@ var BLOECKS = (function($) {
                 checkForMessages();
                 initCopyPasteHandlers();
                 checkForScrollTarget(); // Add this call!
+                // Button states will be updated via loadMultiClipboardFromServer()
             }, 150);
         }
     });
@@ -524,6 +527,7 @@ var BLOECKS = (function($) {
                 checkForMessages();
                 initCopyPasteHandlers();
                 checkForScrollTarget();
+                // Button states will be updated via loadMultiClipboardFromServer()
             }, 100);
         }
     });
@@ -651,6 +655,11 @@ var BLOECKS = (function($) {
                             container: '#rex-js-page-main-content',
                             fragment: '#rex-js-page-main-content',
                             push: false // Important: don't push to history
+                        }).done(function() {
+                            // After PJAX reload, restore button states based on clipboard
+                            setTimeout(function() {
+                                updateAllButtonStates();
+                            }, 100);
                         });
                     }, 800); // Shorter wait time
                 } else {
@@ -706,6 +715,8 @@ var BLOECKS = (function($) {
         }
         
         updatePasteButtons();
+        // Update button states after adding
+        updateAllButtonStates();
     }
 
     function removeFromMultiClipboard(sliceId) {
@@ -713,6 +724,33 @@ var BLOECKS = (function($) {
             return item.source_slice_id !== sliceId;
         });
         updatePasteButtons();
+        // Update button states after removal
+        updateAllButtonStates();
+    }
+    
+    // Update all copy/cut button states based on current clipboard
+    function updateAllButtonStates() {
+        // Reset all buttons first
+        $('.bloecks-copy, .bloecks-cut').each(function() {
+            var $btn = $(this);
+            $btn.removeClass('btn-success')
+                .removeClass('active')
+                .removeAttr('data-bloecks-cutncopy-iscopied');
+        });
+        
+        // Mark buttons for items in clipboard
+        multiClipboard.forEach(function(item) {
+            var sliceId = item.source_slice_id;
+            var action = item.action;
+            var selector = '.bloecks-' + action + '[data-slice-id="' + sliceId + '"]';
+            
+            $(selector).each(function() {
+                var $btn = $(this);
+                $btn.addClass('btn-success')
+                    .addClass('active')
+                    .attr('data-bloecks-cutncopy-iscopied', 'true');
+            });
+        });
     }
 
     function clearMultiClipboard() {
@@ -1051,6 +1089,8 @@ var BLOECKS = (function($) {
             // Re-check multi-clipboard config after navigation
             if (typeof BLOECKS_MULTI_CLIPBOARD !== 'undefined' && BLOECKS_MULTI_CLIPBOARD) {
                 setMultiClipboardEnabled(true);
+                // Update button states after PJAX reload
+                updateAllButtonStates();
                 loadMultiClipboardFromServer();
             }
         }, 100);
@@ -1083,6 +1123,8 @@ var BLOECKS = (function($) {
                     }
                     
                     updatePasteButtons();
+                    // Update button states after loading from server
+                    updateAllButtonStates();
                 }
             },
             error: function() {
@@ -1112,6 +1154,7 @@ var BLOECKS = (function($) {
         removeFromMultiClipboard: removeFromMultiClipboard,
         clearMultiClipboard: clearMultiClipboard,
         loadMultiClipboardFromServer: loadMultiClipboardFromServer,
+        updateAllButtonStates: updateAllButtonStates,
         version: '2.5.0'
     };
     
@@ -1126,6 +1169,9 @@ $(document).ready(function() {
     if (typeof BLOECKS_MULTI_CLIPBOARD !== 'undefined' && BLOECKS_MULTI_CLIPBOARD) {
         BLOECKS.setMultiClipboardEnabled(true);
     }
+    
+    // Load clipboard status from server (which will call updateAllButtonStates)
+    BLOECKS.loadMultiClipboardFromServer();
 });
 
 // Re-initialize after PJAX navigation
@@ -1140,6 +1186,7 @@ $(document).on('pjax:complete pjax:end rex:ready', function() {
         }
         
         // Load current clipboard status to sync frontend with backend
+        // This will also call updateAllButtonStates() in its success callback
         BLOECKS.loadMultiClipboardFromServer();
         
         // Check for scroll target after PJAX navigation (important for paste operations)
@@ -1165,6 +1212,10 @@ if (typeof MutationObserver !== 'undefined') {
         if (shouldReinit) {
             setTimeout(function() {
                 BLOECKS.initCopyPasteHandlers();
+                // Update button states when new buttons are added
+                if (typeof BLOECKS.updateAllButtonStates === 'function') {
+                    BLOECKS.updateAllButtonStates();
+                }
             }, 50);
         }
     });
