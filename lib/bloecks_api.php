@@ -406,7 +406,7 @@ class Api extends rex_api_function
             }
 
             // Sort by timestamp (oldest first) so they are pasted in chronological order
-            usort($itemsToInsert, function($a, $b) {
+            usort($itemsToInsert, static function ($a, $b) {
                 return ($a['item']['timestamp'] ?? 0) - ($b['item']['timestamp'] ?? 0);
             });
 
