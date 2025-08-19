@@ -326,13 +326,6 @@ html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
 
 /* Beautiful drag handle styling - positioned next to slice title */
 
-
-/* Drag handle in slice headers/titles */
-.rex-slice .panel-heading,
-.rex-slice .panel-title {
-    position: relative;
-}
-
 /* Make slice titles draggable by adding drag handle */
 .bloecks-dragdrop .panel-heading,
 .rex-slice-draggable .panel-heading {
