@@ -12,6 +12,7 @@ var BLOECKS = (function($) {
     // Toast notification system
     var toastContainer = null;
     var toastCounter = 0;
+    var processedMessages = new Set(); // Track processed messages to prevent duplicates
     
     function createToastContainer() {
         if (toastContainer) {
@@ -268,17 +269,12 @@ var BLOECKS = (function($) {
         document.querySelectorAll('.bloecks-initialized').forEach(function(el) {
             el.classList.remove('bloecks-initialized');
         });
+        
+        // Clear processed messages when destroying to allow fresh check
+        processedMessages.clear();
     }
     
-    // Initialize when DOM is ready
-    $(document).ready(function() {
-        initDragDrop();
-        checkForMessages();
-        initCopyPasteHandlers();
-        // Button states will be updated after loadMultiClipboardFromServer() completes
-    });
-    
-    // Check for BLOECKS messages and show as toasts
+    // Check for BLOECKS messages and show as toasts - now with duplicate prevention
     function checkForMessages() {
         // Look for BLOECKS success/warning/error messages in rex-page-main-content
         var mainContent = document.getElementById('rex-page-main-content');
@@ -286,44 +282,43 @@ var BLOECKS = (function($) {
             mainContent = document.body;
         }
         
-        // Check for success messages
-        var successMessages = mainContent.querySelectorAll('.alert-success');
-        successMessages.forEach(function(alert) {
-            var text = alert.textContent.trim();
-            if (text.includes('kopiert') || text.includes('eingefügt') || text.includes('ausgeschnitten')) {
-                showToast(text, 'success');
-                // Hide the original alert after showing toast
-                alert.style.display = 'none';
-            }
-        });
+        // Function to process alerts with duplicate prevention
+        function processAlerts(selector, type, duration) {
+            duration = duration || 4000;
+            var alerts = mainContent.querySelectorAll(selector);
+            
+            alerts.forEach(function(alert) {
+                var text = alert.textContent.trim();
+                
+                // Create unique identifier for this message
+                var messageId = type + ':' + text + ':' + alert.className;
+                
+                // Skip if we've already processed this message
+                if (processedMessages.has(messageId)) {
+                    return;
+                }
+                
+                // Check if message is BLOECKS related
+                if (text.includes('kopiert') || text.includes('eingefügt') || text.includes('ausgeschnitten') || 
+                    text.includes('bloecks') || text.includes('Berechtigung') || text.includes('Clipboard') ||
+                    text.includes('Fehler')) {
+                    
+                    // Mark as processed
+                    processedMessages.add(messageId);
+                    
+                    // Show toast
+                    showToast(text, type, duration);
+                    
+                    // Hide the original alert
+                    alert.style.display = 'none';
+                }
+            });
+        }
         
-        // Check for warning messages
-        var warningMessages = mainContent.querySelectorAll('.alert-warning');
-        warningMessages.forEach(function(alert) {
-            var text = alert.textContent.trim();
-            if (text.includes('bloecks') || text.includes('Berechtigung') || text.includes('Clipboard')) {
-                showToast(text, 'warning', 6000);
-                alert.style.display = 'none';
-            }
-        });
-        
-        // Check for error messages
-        var errorMessages = mainContent.querySelectorAll('.alert-danger, .alert-error');
-        errorMessages.forEach(function(alert) {
-            var text = alert.textContent.trim();
-            if (text.includes('bloecks') || text.includes('Fehler')) {
-                showToast(text, 'error', 8000);
-                alert.style.display = 'none';
-            }
-        });
-        
-        // Test Toast - show once on page load (remove this later)
-        // if (!window.bloecksToastTested) {
-        //     window.bloecksToastTested = true;
-        //     setTimeout(function() {
-        //         showToast('BLOECKS Toast-System geladen!', 'success', 3000);
-        //     }, 1000);
-        // }
+        // Process different types of alerts
+        processAlerts('.alert-success', 'success', 4000);
+        processAlerts('.alert-warning', 'warning', 6000);
+        processAlerts('.alert-danger, .alert-error', 'error', 8000);
     }
     
     // Check for scroll target after page reload
@@ -363,7 +358,9 @@ var BLOECKS = (function($) {
                 window.scrollTo(0, parseInt(scrollPosition, 10));
             }, 100); // Shorter delay for position restore
         }
-    }    function findSliceById(sliceId) {
+    }
+    
+    function findSliceById(sliceId) {
         
         // First, try to find slice_id input fields (most reliable in REDAXO)
         var sliceInputs = document.querySelectorAll('input[name="slice_id"]');
@@ -480,33 +477,49 @@ var BLOECKS = (function($) {
         }, 50);
     }
     
-    // Reinitialize after PJAX requests
-    $(document).on('rex:ready', function() {
-        // Always reinitialize on content pages
+    // Central initialization function to prevent multiple event handler registration
+    var isInitialized = false;
+    
+    function initializeOnce() {
+        if (isInitialized) {
+            return;
+        }
+        
+        isInitialized = true;
+        
+        // Initialize drag & drop only once
+        initDragDrop();
+        
+        // Check for messages only once per page load
+        checkForMessages();
+        
+        // Initialize copy/paste handlers
+        initCopyPasteHandlers();
+    }
+    
+    // Reinitialize after PJAX - but control the frequency
+    function reinitializeAfterPjax() {
         if (window.location.href.includes('page=content')) {
+            // Reset initialization flag to allow re-init
+            isInitialized = false;
+            
             destroy();
             setTimeout(function() {
-                initDragDrop();
-                checkForMessages();
-                initCopyPasteHandlers();
-                checkForScrollTarget(); // Add this call!
+                initializeOnce();
+                checkForScrollTarget();
                 // Button states will be updated via loadMultiClipboardFromServer()
             }, 100);
         }
+    }
+    
+    // Reinitialize after PJAX requests
+    $(document).on('rex:ready', function() {
+        reinitializeAfterPjax();
     });
     
     // Also listen for pjax:end as backup
     $(document).on('pjax:end', function() {
-        if (window.location.href.includes('page=content')) {
-            destroy();
-            setTimeout(function() {
-                initDragDrop();
-                checkForMessages();
-                initCopyPasteHandlers();
-                checkForScrollTarget(); // Add this call!
-                // Button states will be updated via loadMultiClipboardFromServer()
-            }, 150);
-        }
+        reinitializeAfterPjax();
     });
     
     // Listen specifically for PJAX events on the main content container
@@ -520,19 +533,10 @@ var BLOECKS = (function($) {
     
     // Listen for PJAX complete event
     $(document).on('pjax:complete', '#rex-js-page-main-content', function(event) {
-        if (window.location.href.includes('page=content')) {
-            destroy();
-            setTimeout(function() {
-                initDragDrop();
-                checkForMessages();
-                initCopyPasteHandlers();
-                checkForScrollTarget();
-                // Button states will be updated via loadMultiClipboardFromServer()
-            }, 100);
-        }
+        reinitializeAfterPjax();
     });
     
-    // Additional event listeners for real page loads (not just PJAX)
+    // Initial page load events - only run once
     $(document).ready(function() {
         if (window.location.href.includes('page=content')) {
             setTimeout(function() {
@@ -1160,23 +1164,36 @@ var BLOECKS = (function($) {
     
 })(jQuery);
 
-// Global initialization - always runs
+// Global initialization - use centralized initialization
 $(document).ready(function() {
-    // Always initialize copy/paste handlers
-    BLOECKS.initCopyPasteHandlers();
+    // Use centralized initialization to prevent duplicates
+    BLOECKS.initializeOnce = BLOECKS.initializeOnce || function() {
+        if (BLOECKS._isInitialized) {
+            return;
+        }
+        BLOECKS._isInitialized = true;
+        
+        // Always initialize copy/paste handlers
+        BLOECKS.initCopyPasteHandlers();
+        
+        // Initialize multi-clipboard if enabled
+        if (typeof BLOECKS_MULTI_CLIPBOARD !== 'undefined' && BLOECKS_MULTI_CLIPBOARD) {
+            BLOECKS.setMultiClipboardEnabled(true);
+        }
+        
+        // Load clipboard status from server (which will call updateAllButtonStates)
+        BLOECKS.loadMultiClipboardFromServer();
+    };
     
-    // Initialize multi-clipboard if enabled
-    if (typeof BLOECKS_MULTI_CLIPBOARD !== 'undefined' && BLOECKS_MULTI_CLIPBOARD) {
-        BLOECKS.setMultiClipboardEnabled(true);
-    }
-    
-    // Load clipboard status from server (which will call updateAllButtonStates)
-    BLOECKS.loadMultiClipboardFromServer();
+    BLOECKS.initializeOnce();
 });
 
-// Re-initialize after PJAX navigation
+// Re-initialize after PJAX navigation - but prevent multiple initializations
 $(document).on('pjax:complete pjax:end rex:ready', function() {
     setTimeout(function() {
+        // Reset initialization flag to allow re-init after PJAX
+        BLOECKS._isInitialized = false;
+        
         // Always reinitialize handlers
         BLOECKS.initCopyPasteHandlers();
         
@@ -1194,7 +1211,7 @@ $(document).on('pjax:complete pjax:end rex:ready', function() {
     }, 100);
 });
 
-// Fallback: Watch for new bloecks buttons being added to DOM
+// Fallback: Watch for new bloecks buttons being added to DOM - but prevent duplicate handlers
 if (typeof MutationObserver !== 'undefined') {
     var bloecksObserver = new MutationObserver(function(mutations) {
         var shouldReinit = false;
@@ -1222,12 +1239,13 @@ if (typeof MutationObserver !== 'undefined') {
     
     // Start observing only when document.body is available
     function startObserving() {
-        if (document.body) {
+        if (document.body && !BLOECKS._observerStarted) {
+            BLOECKS._observerStarted = true;
             bloecksObserver.observe(document.body, {
                 childList: true,
                 subtree: true
             });
-        } else {
+        } else if (!document.body) {
             // Wait for body to be available
             setTimeout(startObserving, 50);
         }
