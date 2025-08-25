@@ -281,12 +281,8 @@ html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
 }
 
 .bloecks-toast {
-    background: #28a745;
-    color: white;
-    padding: 20px 26px;
-    margin-bottom: 12px;
-    border-radius: 8px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    /* Remove hardcoded background, let Bootstrap alert classes handle colors */
+    padding: 15px; /* Bootstrap alert default padding */
     transform: scale(0.8);
     opacity: 0;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -295,28 +291,26 @@ html[data-bs-theme="dark"] .bloecks-clipboard-item-meta {
     max-width: 500px;
     min-width: 350px;
     word-wrap: break-word;
-    font-size: 16px;
-    line-height: 1.5;
     position: relative;
-    text-align: center;
-    font-weight: 500;
+    /* Remove border-radius as requested */
+    /* Remove box-shadow that conflicts with backend design */
 }
 
+/* Remove individual color classes as Bootstrap alert classes will handle them */
 .bloecks-toast-success {
-    background: #28a745;
+    /* Removed hardcoded background */
 }
 
 .bloecks-toast-warning {
-    background: #ffc107;
-    color: #212529;
+    /* Removed hardcoded background and color */
 }
 
 .bloecks-toast-error {
-    background: #dc3545;
+    /* Removed hardcoded background */
 }
 
 .bloecks-toast-info {
-    background: #17a2b8;
+    /* Removed hardcoded background */
 }
 
 /* Show toast */

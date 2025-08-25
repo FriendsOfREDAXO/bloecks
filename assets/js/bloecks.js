@@ -49,14 +49,10 @@ var BLOECKS = (function($) {
         var toast = document.createElement('div');
         
         toast.id = toastId;
-        toast.className = 'bloecks-toast bloecks-toast-' + type;
+        // Use Bootstrap alert classes for styling
+        var alertClass = type === 'error' ? 'alert-danger' : 'alert-' + type;
+        toast.className = 'bloecks-toast ' + alertClass;
         toast.style.cssText = `
-            background: ${type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : type === 'info' ? '#17a2b8' : '#dc3545'};
-            color: white;
-            padding: 20px 26px;
-            margin-bottom: 12px;
-            border-radius: 8px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
             transform: scale(0.8);
             opacity: 0;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -65,20 +61,15 @@ var BLOECKS = (function($) {
             max-width: 500px;
             min-width: 350px;
             word-wrap: break-word;
-            font-size: 16px;
-            line-height: 1.5;
             position: relative;
-            text-align: center;
-            font-weight: 500;
+            margin-bottom: 12px;
         `;
         
         toast.innerHTML = `
-            <div style="display: flex; align-items: flex-start; gap: 8px;">
-                <div style="flex: 1;">${message}</div>
-                <button onclick="BLOECKS.closeToast('${toastId}')" 
-                        style="background: none; border: none; color: white; font-size: 18px; 
-                               line-height: 1; cursor: pointer; padding: 0; margin: -2px 0 0 0;">×</button>
-            </div>
+            <button type="button" class="close" onclick="BLOECKS.closeToast('${toastId}')" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            ${message}
         `;
         
         container.appendChild(toast);
