@@ -104,8 +104,8 @@ class Api extends rex_api_function
     private function handleCopyOrCut($action)
     {
         $sliceId = rex_request('slice_id', 'int');
-        if (!$sliceId) {
-            echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_slice_id_missing')]);
+        if (!$sliceId || $sliceId <= 0) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_slice_id_missing') . ' (ID: ' . $sliceId . ')']);
             return;
         }
 
@@ -220,9 +220,29 @@ class Api extends rex_api_function
 
     private function handlePaste()
     {
+        // Clean up clipboard first
+        Backend::cleanupClipboard();
+        
         $clipboard = rex_session('bloecks_clipboard', 'array', null);
-        if (!$clipboard || !isset($clipboard['data'])) {
+        if (!$clipboard || !isset($clipboard['data']) || !isset($clipboard['source_slice_id'])) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_clipboard_empty')]);
+            return;
+        }
+
+        // Additional validation for source slice ID
+        $sourceSliceId = (int) $clipboard['source_slice_id'];
+        if ($sourceSliceId <= 0) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_invalid_slice_id') . ' (Source ID: ' . $sourceSliceId . ')']);
+            return;
+        }
+        
+        // Verify that the source slice still exists
+        $sql = rex_sql::factory();
+        $sql->setQuery('SELECT id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sourceSliceId]);
+        if ($sql->getRows() === 0) {
+            // Source slice no longer exists, clear clipboard
+            rex_unset_session('bloecks_clipboard');
+            echo json_encode(['success' => false, 'message' => 'Der kopierte Slice existiert nicht mehr (ID: ' . $sourceSliceId . ')']);
             return;
         }
 
@@ -320,8 +340,13 @@ class Api extends rex_api_function
             // If cut, delete original slice
             if ('cut' === $clipboard['action']) {
                 $srcId = (int) $clipboard['source_slice_id'];
-                if ($srcId) {
-                    rex_content_service::deleteSlice($srcId);
+                if ($srcId && $srcId > 0) {
+                    // Check if slice still exists before trying to delete it
+                    $checkSql = rex_sql::factory();
+                    $checkSql->setQuery('SELECT id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$srcId]);
+                    if ($checkSql->getRows() > 0) {
+                        rex_content_service::deleteSlice($srcId);
+                    }
                 }
                 rex_unset_session('bloecks_clipboard');
             }
@@ -532,8 +557,13 @@ class Api extends rex_api_function
         // If cut, delete original slice
         if ('cut' === $clipboard['action']) {
             $srcId = (int) $clipboard['source_slice_id'];
-            if ($srcId) {
-                rex_content_service::deleteSlice($srcId);
+            if ($srcId && $srcId > 0) {
+                // Check if slice still exists before trying to delete it
+                $checkSql = rex_sql::factory();
+                $checkSql->setQuery('SELECT id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$srcId]);
+                if ($checkSql->getRows() > 0) {
+                    rex_content_service::deleteSlice($srcId);
+                }
             }
         }
 
@@ -542,6 +572,9 @@ class Api extends rex_api_function
 
     private function handleGetClipboardStatus()
     {
+        // Clean up clipboard before checking status
+        Backend::cleanupClipboard();
+        
         $clipboard = rex_session('bloecks_clipboard', 'array', null);
         $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);
 

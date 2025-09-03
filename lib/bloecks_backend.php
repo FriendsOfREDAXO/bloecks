@@ -126,6 +126,21 @@ class Backend
         $clang = $ep->getParam('clang');
         $ctype = $ep->getParam('ctype');
         $moduleId = $ep->getParam('module_id');
+        
+        // Debug: Log slice parameters to identify issues
+        if (!$sliceId || $sliceId <= 0) {
+            error_log('BLOECKS WARNING: Invalid slice_id in addButtons: ' . var_export($sliceId, true) . 
+                      ' Article: ' . $articleId . ' Clang: ' . $clang . ' Module: ' . $moduleId);
+            return $ep->getSubject(); // Don't add buttons for invalid slice IDs
+        }
+        
+        // Additional validation - ensure slice exists in database
+        $sql = rex_sql::factory();
+        $sql->setQuery('SELECT id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
+        if ($sql->getRows() === 0) {
+            error_log('BLOECKS WARNING: Slice with ID ' . $sliceId . ' not found in database');
+            return $ep->getSubject(); // Don't add buttons for non-existent slices
+        }
 
         // Check for template/module exclusions
         if (self::isExcluded($articleId, $clang, $moduleId)) {
@@ -176,7 +191,7 @@ class Backend
             'attributes' => [
                 'class' => ['btn', 'btn-default', 'bloecks-copy', $isSource && 'copy' === $clipboard['action'] ? 'is-copied' : ''],
                 'title' => rex_i18n::msg('bloecks_copy_slice'),
-                'data-slice-id' => $sliceId,
+                'data-slice-id' => (int) $sliceId, // Ensure integer cast
                 'data-article-id' => $articleId,
                 'data-clang-id' => $clang,
                 'data-ctype-id' => $ctype,
@@ -191,7 +206,7 @@ class Backend
             'attributes' => [
                 'class' => ['btn', 'btn-default', 'bloecks-cut', $isSource && 'cut' === $clipboard['action'] ? 'is-cut' : ''],
                 'title' => rex_i18n::msg('bloecks_cut_slice'),
-                'data-slice-id' => $sliceId,
+                'data-slice-id' => (int) $sliceId, // Ensure integer cast
                 'data-article-id' => $articleId,
                 'data-clang-id' => $clang,
                 'data-ctype-id' => $ctype,
@@ -569,8 +584,13 @@ class Backend
                     // If cut, delete original slice
                     if ('cut' === $clipboard['action']) {
                         $srcId = (int) $clipboard['source_slice_id'];
-                        if ($srcId) {
-                            rex_content_service::deleteSlice($srcId);
+                        if ($srcId && $srcId > 0) {
+                            // Check if slice still exists before trying to delete it
+                            $checkSql = rex_sql::factory();
+                            $checkSql->setQuery('SELECT id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$srcId]);
+                            if ($checkSql->getRows() > 0) {
+                                rex_content_service::deleteSlice($srcId);
+                            }
                         }
                         rex_unset_session('bloecks_clipboard');
                     }
@@ -715,6 +735,48 @@ class Backend
         }
 
         return $value;
+    }
+
+    /**
+     * Clean up clipboard and multi-clipboard by removing items with invalid slice IDs.
+     */
+    public static function cleanupClipboard(): void
+    {
+        // Clean up multi-clipboard: remove items with invalid slice IDs
+        $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);
+        $cleanedMultiClipboard = [];
+        
+        foreach ($multiClipboard as $item) {
+            $sliceId = (int) ($item['source_slice_id'] ?? 0);
+            if ($sliceId > 0) {
+                // Check if slice still exists
+                $checkSql = rex_sql::factory();
+                $checkSql->setQuery('SELECT id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
+                if ($checkSql->getRows() > 0) {
+                    $cleanedMultiClipboard[] = $item;
+                }
+            }
+        }
+
+        // Update session if items were removed
+        if (count($cleanedMultiClipboard) !== count($multiClipboard)) {
+            rex_set_session('bloecks_multi_clipboard', $cleanedMultiClipboard);
+        }
+
+        // Clean up single clipboard as well
+        $clipboard = rex_session('bloecks_clipboard', 'array', null);
+        if ($clipboard && isset($clipboard['source_slice_id'])) {
+            $sliceId = (int) $clipboard['source_slice_id'];
+            if ($sliceId <= 0) {
+                rex_unset_session('bloecks_clipboard');
+            } else {
+                $checkSql = rex_sql::factory();
+                $checkSql->setQuery('SELECT id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
+                if ($checkSql->getRows() === 0) {
+                    rex_unset_session('bloecks_clipboard');
+                }
+            }
+        }
     }
 
     /**

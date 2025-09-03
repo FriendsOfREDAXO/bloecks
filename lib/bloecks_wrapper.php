@@ -39,6 +39,13 @@ class Wrapper
         if (!$clang_id || $clang_id <= 0) {
             $clang_id = rex_request('clang', 'int', 1);
         }
+        
+        // Validate slice_id - don't wrap if invalid
+        if (!$slice_id || $slice_id <= 0) {
+            error_log('BLOECKS WARNING: Invalid slice_id in wrapper: ' . var_export($slice_id, true) . 
+                      ' Article: ' . $article_id . ' Clang: ' . $clang_id);
+            return $subject; // Return unwrapped content for invalid slices
+        }
 
         // Check for exclusions using the backend method
         if (Backend::isExcluded($article_id, $clang_id, $module_id)) {
@@ -135,6 +142,13 @@ class Wrapper
         // If still no valid clang_id, use current request clang
         if (!$clang_id || $clang_id <= 0) {
             $clang_id = rex_request('clang', 'int', 1);
+        }
+        
+        // Validate slice_id - don't wrap if invalid
+        if (!$slice_id || $slice_id <= 0) {
+            error_log('BLOECKS WARNING: Invalid slice_id in compact wrapper: ' . var_export($slice_id, true) . 
+                      ' Article: ' . $article_id . ' Clang: ' . $clang_id);
+            return $subject; // Return unwrapped content for invalid slices
         }
 
         // Check for exclusions using the backend method
