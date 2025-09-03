@@ -126,18 +126,18 @@ class Backend
         $clang = $ep->getParam('clang');
         $ctype = $ep->getParam('ctype');
         $moduleId = $ep->getParam('module_id');
-        
+
         // Debug: Log slice parameters to identify issues
         if (!$sliceId || $sliceId <= 0) {
-            error_log('BLOECKS WARNING: Invalid slice_id in addButtons: ' . var_export($sliceId, true) . 
+            error_log('BLOECKS WARNING: Invalid slice_id in addButtons: ' . var_export($sliceId, true) .
                       ' Article: ' . $articleId . ' Clang: ' . $clang . ' Module: ' . $moduleId);
             return $ep->getSubject(); // Don't add buttons for invalid slice IDs
         }
-        
+
         // Additional validation - ensure slice exists in database
         $sql = rex_sql::factory();
         $sql->setQuery('SELECT id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
-        if ($sql->getRows() === 0) {
+        if (0 === $sql->getRows()) {
             error_log('BLOECKS WARNING: Slice with ID ' . $sliceId . ' not found in database');
             return $ep->getSubject(); // Don't add buttons for non-existent slices
         }
@@ -745,7 +745,7 @@ class Backend
         // Clean up multi-clipboard: remove items with invalid slice IDs
         $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);
         $cleanedMultiClipboard = [];
-        
+
         foreach ($multiClipboard as $item) {
             $sliceId = (int) ($item['source_slice_id'] ?? 0);
             if ($sliceId > 0) {
@@ -772,7 +772,7 @@ class Backend
             } else {
                 $checkSql = rex_sql::factory();
                 $checkSql->setQuery('SELECT id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sliceId]);
-                if ($checkSql->getRows() === 0) {
+                if (0 === $checkSql->getRows()) {
                     rex_unset_session('bloecks_clipboard');
                 }
             }

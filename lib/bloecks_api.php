@@ -222,7 +222,7 @@ class Api extends rex_api_function
     {
         // Clean up clipboard first
         Backend::cleanupClipboard();
-        
+
         $clipboard = rex_session('bloecks_clipboard', 'array', null);
         if (!$clipboard || !isset($clipboard['data']) || !isset($clipboard['source_slice_id'])) {
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_clipboard_empty')]);
@@ -235,11 +235,11 @@ class Api extends rex_api_function
             echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_invalid_slice_id') . ' (Source ID: ' . $sourceSliceId . ')']);
             return;
         }
-        
+
         // Verify that the source slice still exists
         $sql = rex_sql::factory();
         $sql->setQuery('SELECT id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$sourceSliceId]);
-        if ($sql->getRows() === 0) {
+        if (0 === $sql->getRows()) {
             // Source slice no longer exists, clear clipboard
             rex_unset_session('bloecks_clipboard');
             echo json_encode(['success' => false, 'message' => 'Der kopierte Slice existiert nicht mehr (ID: ' . $sourceSliceId . ')']);
@@ -574,7 +574,7 @@ class Api extends rex_api_function
     {
         // Clean up clipboard before checking status
         Backend::cleanupClipboard();
-        
+
         $clipboard = rex_session('bloecks_clipboard', 'array', null);
         $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);
 
