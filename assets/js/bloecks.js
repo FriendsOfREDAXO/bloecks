@@ -261,8 +261,8 @@ var BLOECKS = (function($) {
             el.classList.remove('bloecks-initialized');
         });
         
-        // Clear processed messages when destroying to allow fresh check
-        processedMessages.clear();
+        // Don't clear processed messages - keep them to prevent duplicates across page reloads
+        // processedMessages.clear();
     }
     
     // Check for BLOECKS messages and show as toasts - now with duplicate prevention
@@ -279,13 +279,21 @@ var BLOECKS = (function($) {
             var alerts = mainContent.querySelectorAll(selector);
             
             alerts.forEach(function(alert) {
+                // Skip if already processed (marked)
+                if (alert.hasAttribute('data-bloecks-processed')) {
+                    return;
+                }
+                
                 var text = alert.textContent.trim();
                 
-                // Create unique identifier for this message
-                var messageId = type + ':' + text + ':' + alert.className;
+                // Create unique identifier for this message based on content and timestamp window
+                var timestamp = Math.floor(Date.now() / 1000); // 1 second window
+                var messageId = type + ':' + text + ':' + timestamp;
                 
-                // Skip if we've already processed this message
+                // Skip if we've already processed this exact message in the last second
                 if (processedMessages.has(messageId)) {
+                    alert.setAttribute('data-bloecks-processed', 'true');
+                    alert.style.display = 'none';
                     return;
                 }
                 
@@ -296,12 +304,18 @@ var BLOECKS = (function($) {
                     
                     // Mark as processed
                     processedMessages.add(messageId);
+                    alert.setAttribute('data-bloecks-processed', 'true');
                     
                     // Show toast
                     showToast(text, type, duration);
                     
                     // Hide the original alert
                     alert.style.display = 'none';
+                    
+                    // Clean up old messages from Set after 2 seconds to prevent memory leak
+                    setTimeout(function() {
+                        processedMessages.delete(messageId);
+                    }, 2000);
                 }
             });
         }
@@ -470,6 +484,7 @@ var BLOECKS = (function($) {
     
     // Central initialization function to prevent multiple event handler registration
     var isInitialized = false;
+    var lastMessageCheck = 0;
     
     function initializeOnce() {
         if (isInitialized) {
@@ -481,8 +496,12 @@ var BLOECKS = (function($) {
         // Initialize drag & drop only once
         initDragDrop();
         
-        // Check for messages only once per page load
-        checkForMessages();
+        // Check for messages only if not checked recently (debounce)
+        var now = Date.now();
+        if (now - lastMessageCheck > 500) {
+            lastMessageCheck = now;
+            checkForMessages();
+        }
         
         // Initialize copy/paste handlers
         initCopyPasteHandlers();
@@ -499,6 +518,13 @@ var BLOECKS = (function($) {
                 initializeOnce();
                 checkForScrollTarget();
                 // Button states will be updated via loadMultiClipboardFromServer()
+                
+                // Check for messages again after PJAX with debouncing
+                var now = Date.now();
+                if (now - lastMessageCheck > 500) {
+                    lastMessageCheck = now;
+                    setTimeout(checkForMessages, 200);
+                }
             }, 100);
         }
     }
