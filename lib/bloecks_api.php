@@ -574,8 +574,10 @@ class Api extends rex_api_function
                     rex_content_service::deleteSlice($srcId);
                     
                     // Clear cache of source article so it disappears from frontend
-                    rex_article_cache::delete($sourceArticleId, $sourceClangId);
-                }
+                    // Only clear if source and target are different to avoid redundant cache clear
+                    if ($sourceArticleId !== $articleId || $sourceClangId !== $clang) {
+                        rex_article_cache::delete($sourceArticleId, $sourceClangId);
+                    }
             }
         }
 
