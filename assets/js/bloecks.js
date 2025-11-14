@@ -75,7 +75,12 @@ var BLOECKS = (function($) {
             ${message}
         `;
         
-        container.appendChild(toast);
+        // Insert at the beginning instead of appending to prevent jumping
+        if (container.firstChild) {
+            container.insertBefore(toast, container.firstChild);
+        } else {
+            container.appendChild(toast);
+        }
         
         // Trigger animation
         setTimeout(function() {
