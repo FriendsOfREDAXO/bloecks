@@ -562,7 +562,7 @@ class Api extends rex_api_function
      * @param int $srcId The ID of the slice to delete
      * @return void
      */
-    private function deleteSourceSliceAndClearCache($srcId)
+    private function deleteSourceSliceAndClearCache(int $srcId)
     {
         if ($srcId && $srcId > 0) {
             // Check if slice still exists before trying to delete it
