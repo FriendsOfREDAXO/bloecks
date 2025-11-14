@@ -340,20 +340,7 @@ class Api extends rex_api_function
             // If cut, delete original slice
             if ('cut' === $clipboard['action']) {
                 $srcId = (int) $clipboard['source_slice_id'];
-                if ($srcId && $srcId > 0) {
-                    // Check if slice still exists before trying to delete it
-                    $checkSql = rex_sql::factory();
-                    $checkSql->setQuery('SELECT id, article_id, clang_id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$srcId]);
-                    if ($checkSql->getRows() > 0) {
-                        $sourceArticleId = $checkSql->getValue('article_id');
-                        $sourceClangId = $checkSql->getValue('clang_id');
-                        
-                        rex_content_service::deleteSlice($srcId);
-                        
-                        // Clear cache of source article so it disappears from frontend
-                        rex_article_cache::delete($sourceArticleId, $sourceClangId);
-                    }
-                }
+                $this->deleteSourceSliceAndClearCache($srcId);
                 rex_unset_session('bloecks_clipboard');
             }
 
@@ -563,23 +550,34 @@ class Api extends rex_api_function
         // If cut, delete original slice
         if ('cut' === $clipboard['action']) {
             $srcId = (int) $clipboard['source_slice_id'];
-            if ($srcId && $srcId > 0) {
-                // Check if slice still exists before trying to delete it
-                $checkSql = rex_sql::factory();
-                $checkSql->setQuery('SELECT id, article_id, clang_id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$srcId]);
-                if ($checkSql->getRows() > 0) {
-                    $sourceArticleId = $checkSql->getValue('article_id');
-                    $sourceClangId = $checkSql->getValue('clang_id');
-                    
-                    rex_content_service::deleteSlice($srcId);
-                    
-                    // Clear cache of source article so it disappears from frontend
-                    rex_article_cache::delete($sourceArticleId, $sourceClangId);
-                }
-            }
+            $this->deleteSourceSliceAndClearCache($srcId);
         }
 
         return ['success' => true, 'new_slice_id' => $newSliceId];
+    }
+
+    /**
+     * Deletes a source slice and clears the cache of its article.
+     *
+     * @param int $srcId The ID of the slice to delete
+     * @return void
+     */
+    private function deleteSourceSliceAndClearCache($srcId)
+    {
+        if ($srcId && $srcId > 0) {
+            // Check if slice still exists before trying to delete it
+            $checkSql = rex_sql::factory();
+            $checkSql->setQuery('SELECT id, article_id, clang_id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$srcId]);
+            if ($checkSql->getRows() > 0) {
+                $sourceArticleId = $checkSql->getValue('article_id');
+                $sourceClangId = $checkSql->getValue('clang_id');
+                
+                rex_content_service::deleteSlice($srcId);
+                
+                // Clear cache of source article so it disappears from frontend
+                rex_article_cache::delete($sourceArticleId, $sourceClangId);
+            }
+        }
     }
 
     private function handleGetClipboardStatus()
