@@ -343,9 +343,15 @@ class Api extends rex_api_function
                 if ($srcId && $srcId > 0) {
                     // Check if slice still exists before trying to delete it
                     $checkSql = rex_sql::factory();
-                    $checkSql->setQuery('SELECT id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$srcId]);
+                    $checkSql->setQuery('SELECT id, article_id, clang_id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$srcId]);
                     if ($checkSql->getRows() > 0) {
+                        $sourceArticleId = $checkSql->getValue('article_id');
+                        $sourceClangId = $checkSql->getValue('clang_id');
+                        
                         rex_content_service::deleteSlice($srcId);
+                        
+                        // Clear cache of source article so it disappears from frontend
+                        rex_article_cache::delete($sourceArticleId, $sourceClangId);
                     }
                 }
                 rex_unset_session('bloecks_clipboard');
@@ -560,9 +566,15 @@ class Api extends rex_api_function
             if ($srcId && $srcId > 0) {
                 // Check if slice still exists before trying to delete it
                 $checkSql = rex_sql::factory();
-                $checkSql->setQuery('SELECT id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$srcId]);
+                $checkSql->setQuery('SELECT id, article_id, clang_id FROM ' . rex::getTablePrefix() . 'article_slice WHERE id=?', [$srcId]);
                 if ($checkSql->getRows() > 0) {
+                    $sourceArticleId = $checkSql->getValue('article_id');
+                    $sourceClangId = $checkSql->getValue('clang_id');
+                    
                     rex_content_service::deleteSlice($srcId);
+                    
+                    // Clear cache of source article so it disappears from frontend
+                    rex_article_cache::delete($sourceArticleId, $sourceClangId);
                 }
             }
         }
