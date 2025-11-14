@@ -35,7 +35,10 @@ var BLOECKS = (function($) {
     
     function showToast(message, type, duration) {
         type = type || 'success';
-        duration = duration || 4000;
+        // Shorter default durations, longer for warnings/errors
+        if (!duration) {
+            duration = (type === 'warning' || type === 'error') ? 4000 : 2500;
+        }
         
         var toastId = 'bloecks-toast-' + (++toastCounter);
         return showToastWithId(message, type, duration, toastId);
@@ -90,6 +93,9 @@ var BLOECKS = (function($) {
             removeToast(toastId);
         });
         
+        // Store type in dataset for scroll listener
+        toast.setAttribute('data-toast-type', type);
+        
         return toastId; // Return the ID so it can be removed later
     }
     
@@ -108,6 +114,40 @@ var BLOECKS = (function($) {
     
     function closeToast(toastId) {
         removeToast(toastId);
+    }
+    
+    // Remove success/info toasts on scroll (keep warnings and errors)
+    var lastScrollTime = 0;
+    function attachScrollListener() {
+        var scrollTimeout;
+        
+        window.addEventListener('scroll', function() {
+            // Debounce scroll event
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(function() {
+                var now = Date.now();
+                // Only process every 200ms
+                if (now - lastScrollTime < 200) {
+                    return;
+                }
+                lastScrollTime = now;
+                
+                // Remove all success/info toasts, keep warnings and errors
+                if (toastContainer) {
+                    var toasts = toastContainer.querySelectorAll('.bloecks-toast');
+                    toasts.forEach(function(toast) {
+                        var toastType = toast.getAttribute('data-toast-type');
+                        // Only remove success and info toasts on scroll
+                        if (toastType === 'success' || toastType === 'info') {
+                            var toastId = toast.id;
+                            if (toastId) {
+                                removeToast(toastId);
+                            }
+                        }
+                    });
+                }
+            }, 100);
+        }, { passive: true });
     }
     
     function initDragDrop() {
@@ -320,10 +360,10 @@ var BLOECKS = (function($) {
             });
         }
         
-        // Process different types of alerts
-        processAlerts('.alert-success', 'success', 4000);
-        processAlerts('.alert-warning', 'warning', 6000);
-        processAlerts('.alert-danger, .alert-error', 'error', 8000);
+        // Process different types of alerts with shorter durations
+        processAlerts('.alert-success', 'success', 2500);
+        processAlerts('.alert-warning', 'warning', 4000);
+        processAlerts('.alert-danger, .alert-error', 'error', 5000);
     }
     
     // Check for scroll target after page reload
@@ -485,6 +525,7 @@ var BLOECKS = (function($) {
     // Central initialization function to prevent multiple event handler registration
     var isInitialized = false;
     var lastMessageCheck = 0;
+    var scrollListenerAttached = false;
     
     function initializeOnce() {
         if (isInitialized) {
@@ -505,6 +546,12 @@ var BLOECKS = (function($) {
         
         // Initialize copy/paste handlers
         initCopyPasteHandlers();
+        
+        // Attach scroll listener once
+        if (!scrollListenerAttached) {
+            attachScrollListener();
+            scrollListenerAttached = true;
+        }
     }
     
     // Reinitialize after PJAX - but control the frequency
@@ -650,7 +697,7 @@ var BLOECKS = (function($) {
                 
                 
                 if (response.success) {
-                    showToast(response.message, 'success', 6000); // Längere Anzeigedauer für Paste-Erfolg
+                    showToast(response.message, 'success', 2500);
                     
                     // Always add to multi-clipboard on successful copy/cut
                     if ((action === 'copy' || action === 'cut') && response.clipboard_item) {
