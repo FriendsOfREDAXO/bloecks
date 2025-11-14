@@ -35,7 +35,10 @@ var BLOECKS = (function($) {
     
     function showToast(message, type, duration) {
         type = type || 'success';
-        duration = duration || 4000;
+        // Shorter default durations, longer for warnings/errors
+        if (!duration) {
+            duration = (type === 'warning' || type === 'error') ? 4000 : 2500;
+        }
         
         var toastId = 'bloecks-toast-' + (++toastCounter);
         return showToastWithId(message, type, duration, toastId);
@@ -72,7 +75,12 @@ var BLOECKS = (function($) {
             ${message}
         `;
         
-        container.appendChild(toast);
+        // Insert at the beginning instead of appending to prevent jumping
+        if (container.firstChild) {
+            container.insertBefore(toast, container.firstChild);
+        } else {
+            container.appendChild(toast);
+        }
         
         // Trigger animation
         setTimeout(function() {
@@ -89,6 +97,9 @@ var BLOECKS = (function($) {
         toast.addEventListener('click', function() {
             removeToast(toastId);
         });
+        
+        // Store type in dataset for scroll listener
+        toast.setAttribute('data-toast-type', type);
         
         return toastId; // Return the ID so it can be removed later
     }
@@ -108,6 +119,40 @@ var BLOECKS = (function($) {
     
     function closeToast(toastId) {
         removeToast(toastId);
+    }
+    
+    // Remove success/info toasts on scroll (keep warnings and errors)
+    var lastScrollTime = 0;
+    function attachScrollListener() {
+        var scrollTimeout;
+        
+        window.addEventListener('scroll', function() {
+            // Debounce scroll event
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(function() {
+                var now = Date.now();
+                // Only process every 200ms
+                if (now - lastScrollTime < 200) {
+                    return;
+                }
+                lastScrollTime = now;
+                
+                // Remove all success/info toasts, keep warnings and errors
+                if (toastContainer) {
+                    var toasts = toastContainer.querySelectorAll('.bloecks-toast');
+                    toasts.forEach(function(toast) {
+                        var toastType = toast.getAttribute('data-toast-type');
+                        // Only remove success and info toasts on scroll
+                        if (toastType === 'success' || toastType === 'info') {
+                            var toastId = toast.id;
+                            if (toastId) {
+                                removeToast(toastId);
+                            }
+                        }
+                    });
+                }
+            }, 100);
+        }, { passive: true });
     }
     
     function initDragDrop() {
@@ -261,8 +306,8 @@ var BLOECKS = (function($) {
             el.classList.remove('bloecks-initialized');
         });
         
-        // Clear processed messages when destroying to allow fresh check
-        processedMessages.clear();
+        // Don't clear processed messages - keep them to prevent duplicates across page reloads
+        // processedMessages.clear();
     }
     
     // Check for BLOECKS messages and show as toasts - now with duplicate prevention
@@ -279,13 +324,21 @@ var BLOECKS = (function($) {
             var alerts = mainContent.querySelectorAll(selector);
             
             alerts.forEach(function(alert) {
+                // Skip if already processed (marked)
+                if (alert.hasAttribute('data-bloecks-processed')) {
+                    return;
+                }
+                
                 var text = alert.textContent.trim();
                 
-                // Create unique identifier for this message
-                var messageId = type + ':' + text + ':' + alert.className;
+                // Create unique identifier for this message based on content and timestamp window
+                var timestamp = Math.floor(Date.now() / 1000); // 1 second window
+                var messageId = type + ':' + text + ':' + timestamp;
                 
-                // Skip if we've already processed this message
+                // Skip if we've already processed this exact message in the last second
                 if (processedMessages.has(messageId)) {
+                    alert.setAttribute('data-bloecks-processed', 'true');
+                    alert.style.display = 'none';
                     return;
                 }
                 
@@ -296,20 +349,26 @@ var BLOECKS = (function($) {
                     
                     // Mark as processed
                     processedMessages.add(messageId);
+                    alert.setAttribute('data-bloecks-processed', 'true');
                     
                     // Show toast
                     showToast(text, type, duration);
                     
                     // Hide the original alert
                     alert.style.display = 'none';
+                    
+                    // Clean up old messages from Set after 2 seconds to prevent memory leak
+                    setTimeout(function() {
+                        processedMessages.delete(messageId);
+                    }, 2000);
                 }
             });
         }
         
-        // Process different types of alerts
-        processAlerts('.alert-success', 'success', 4000);
-        processAlerts('.alert-warning', 'warning', 6000);
-        processAlerts('.alert-danger, .alert-error', 'error', 8000);
+        // Process different types of alerts with shorter durations
+        processAlerts('.alert-success', 'success', 2500);
+        processAlerts('.alert-warning', 'warning', 4000);
+        processAlerts('.alert-danger, .alert-error', 'error', 5000);
     }
     
     // Check for scroll target after page reload
@@ -470,6 +529,8 @@ var BLOECKS = (function($) {
     
     // Central initialization function to prevent multiple event handler registration
     var isInitialized = false;
+    var lastMessageCheck = 0;
+    var scrollListenerAttached = false;
     
     function initializeOnce() {
         if (isInitialized) {
@@ -481,11 +542,21 @@ var BLOECKS = (function($) {
         // Initialize drag & drop only once
         initDragDrop();
         
-        // Check for messages only once per page load
-        checkForMessages();
+        // Check for messages only if not checked recently (debounce)
+        var now = Date.now();
+        if (now - lastMessageCheck > 500) {
+            lastMessageCheck = now;
+            checkForMessages();
+        }
         
         // Initialize copy/paste handlers
         initCopyPasteHandlers();
+        
+        // Attach scroll listener once
+        if (!scrollListenerAttached) {
+            attachScrollListener();
+            scrollListenerAttached = true;
+        }
     }
     
     // Reinitialize after PJAX - but control the frequency
@@ -499,6 +570,13 @@ var BLOECKS = (function($) {
                 initializeOnce();
                 checkForScrollTarget();
                 // Button states will be updated via loadMultiClipboardFromServer()
+                
+                // Check for messages again after PJAX with debouncing
+                var now = Date.now();
+                if (now - lastMessageCheck > 500) {
+                    lastMessageCheck = now;
+                    setTimeout(checkForMessages, 200);
+                }
             }, 100);
         }
     }
@@ -624,7 +702,7 @@ var BLOECKS = (function($) {
                 
                 
                 if (response.success) {
-                    showToast(response.message, 'success', 6000); // Längere Anzeigedauer für Paste-Erfolg
+                    showToast(response.message, 'success', 2500);
                     
                     // Always add to multi-clipboard on successful copy/cut
                     if ((action === 'copy' || action === 'cut') && response.clipboard_item) {
