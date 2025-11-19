@@ -347,9 +347,9 @@ class Api extends rex_api_function
                     if ($checkSql->getRows() > 0) {
                         $sourceArticleId = $checkSql->getValue('article_id');
                         $sourceClangId = $checkSql->getValue('clang_id');
-                        
+
                         rex_content_service::deleteSlice($srcId);
-                        
+
                         // Clear cache of source article so it disappears from frontend
                         rex_article_cache::delete($sourceArticleId, $sourceClangId);
                     }
@@ -570,14 +570,15 @@ class Api extends rex_api_function
                 if ($checkSql->getRows() > 0) {
                     $sourceArticleId = $checkSql->getValue('article_id');
                     $sourceClangId = $checkSql->getValue('clang_id');
-                    
+
                     rex_content_service::deleteSlice($srcId);
-                    
+
                     // Clear cache of source article so it disappears from frontend
                     // Only clear if source and target are different to avoid redundant cache clear
                     if ($sourceArticleId !== $articleId || $sourceClangId !== $clang) {
                         rex_article_cache::delete($sourceArticleId, $sourceClangId);
                     }
+                }
             }
         }
 
