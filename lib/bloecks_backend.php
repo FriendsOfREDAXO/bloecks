@@ -607,6 +607,29 @@ class Backend
         if ($msg) {
             $subject = $ep->getSubject();
             $ep->setSubject($msg . $subject);
+            $ep->setSubject(self::markBackendMessage($msg) . $subject);
+        }
+    }
+
+    /**
+     * Mark backend alert HTML as BLOECKS-owned.
+     */
+    private static function markBackendMessage(string $message_html): string
+    {
+        $pattern = '/class="([^"]*\balert\b[^"]*)"/';
+        $replacement = static function (array $matches): string {
+            $classes = $matches[1];
+
+            if (str_contains($classes, 'bloecks-message')) {
+                return 'class="' . $classes . '"';
+            }
+
+            return 'class="' . $classes . ' bloecks-message" data-bloecks-message="1"';
+        };
+
+        return (string) preg_replace_callback($pattern, $replacement, $message_html, 1);
+    }
+            
         }
     }
 
