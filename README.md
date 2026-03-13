@@ -2,6 +2,12 @@
 
 Schlankes REDAXO AddOn für Copy/Cut/Paste und Drag & Drop Sortierung von Slices mit Toast-Benachrichtigungen und intelligenter Scroll-Funktionalität.
 
+## Changelog
+
+### 5.3.2
+- Scope-Fix für Toast-Erkennung: Konvertierung von Backend-Alerts zu BLOECKS-Toasts erfolgt nur noch für BLOECKS-eigene, markierte Meldungen.
+- Verhindert Fehltrigger mit Alerts aus anderen AddOns.
+
 ## Features
 - **Copy/Cut/Paste**: Slices kopieren, ausschneiden und einfügen mit visueller Rückmeldung
 - **Multi-Clipboard**: Mehrere Slices gleichzeitig kopieren und selektiv einfügen

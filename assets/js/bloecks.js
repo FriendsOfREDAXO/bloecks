@@ -318,10 +318,13 @@ var BLOECKS = (function($) {
             mainContent = document.body;
         }
         
-        // Function to process alerts with duplicate prevention
+        // Function to process only BLOECKS-owned alerts with duplicate prevention
         function processAlerts(selector, type, duration) {
             duration = duration || 4000;
-            var alerts = mainContent.querySelectorAll(selector);
+            // Only select alerts that were explicitly marked as BLOECKS-owned by the PHP backend.
+            // This prevents accidentally converting alerts from other AddOns into toasts.
+            var bloecksSelector = selector + '.bloecks-message, ' + selector + '[data-bloecks-message="1"]';
+            var alerts = mainContent.querySelectorAll(bloecksSelector);
             
             alerts.forEach(function(alert) {
                 // Skip if already processed (marked)
@@ -342,26 +345,20 @@ var BLOECKS = (function($) {
                     return;
                 }
                 
-                // Check if message is BLOECKS related
-                if (text.includes('kopiert') || text.includes('eingefügt') || text.includes('ausgeschnitten') || 
-                    text.includes('bloecks') || text.includes('Berechtigung') || text.includes('Clipboard') ||
-                    text.includes('Fehler')) {
-                    
-                    // Mark as processed
-                    processedMessages.add(messageId);
-                    alert.setAttribute('data-bloecks-processed', 'true');
-                    
-                    // Show toast
-                    showToast(text, type, duration);
-                    
-                    // Hide the original alert
-                    alert.style.display = 'none';
-                    
-                    // Clean up old messages from Set after 2 seconds to prevent memory leak
-                    setTimeout(function() {
-                        processedMessages.delete(messageId);
-                    }, 2000);
-                }
+                // Mark as processed
+                processedMessages.add(messageId);
+                alert.setAttribute('data-bloecks-processed', 'true');
+
+                // Show toast
+                showToast(text, type, duration);
+
+                // Hide the original alert
+                alert.style.display = 'none';
+
+                // Clean up old messages from Set after 2 seconds to prevent memory leak
+                setTimeout(function() {
+                    processedMessages.delete(messageId);
+                }, 2000);
             });
         }
         
