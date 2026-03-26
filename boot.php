@@ -17,7 +17,7 @@ rex_perm::register('bloecks[order]');
 rex_perm::register('bloecks[multi]');
 
 // Backend functionality
-if (rex::isBackend() && PHP_SAPI !== 'cli') {
+if (rex::isBackend() && rex::getEnvironment() != 'console') {
     // Only run session-dependent code when not in CLI context
     rex_extension::register('PACKAGES_INCLUDED', static function () {
         // Clear clipboard on login/logout and session start for security
