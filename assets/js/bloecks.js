@@ -323,7 +323,14 @@ var BLOECKS = (function($) {
             duration = duration || 4000;
             // Only select alerts that were explicitly marked as BLOECKS-owned by the PHP backend.
             // This prevents accidentally converting alerts from other AddOns into toasts.
-            var bloecksSelector = selector + '.bloecks-message, ' + selector + '[data-bloecks-message="1"]';
+            // Each base selector must be qualified individually: concatenating a
+            // comma-containing selector (e.g. '.alert-danger, .alert-error') would leave
+            // the first group unqualified and match every foreign alert on the page.
+            var baseSelectors = (typeof selector === 'string') ? selector.split(',') : selector;
+            var bloecksSelector = baseSelectors.map(function (sel) {
+                sel = sel.trim();
+                return sel + '.bloecks-message, ' + sel + '[data-bloecks-message="1"]';
+            }).join(', ');
             var alerts = mainContent.querySelectorAll(bloecksSelector);
             
             alerts.forEach(function(alert) {
