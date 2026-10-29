@@ -11,6 +11,7 @@ Schlankes REDAXO AddOn für Copy/Cut/Paste und Drag & Drop Sortierung von Slices
 - **Kompaktmodus** ([#184](https://github.com/FriendsOfREDAXO/bloecks/issues/184)): „Block hinzufügen“ liegt nicht mehr halb verdeckt über dem Slice-Kopf, sondern erscheint beim Überfahren (oder per Tastatur-Fokus) als schmale Leiste in der Lücke zwischen den Slices. Funktioniert jetzt auch ohne Copy/Paste und Drag & Drop und zeigt ohne Drag & Drop keinen Griff-Look mehr.
 - Dark-Mode-Farben des Overlays greifen nur noch im automatischen Theme, nicht mehr bei manuell gewähltem hellen Theme.
 - Assets werden über ihre Änderungszeit statt bei jedem Aufruf neu geladen.
+- Einfügen spürbar schneller: Der Status der Zwischenablage wird pro Seitenaufbau nur noch einmal abgefragt (vorher bis zu dreimal, die Requests warteten hintereinander auf die PHP-Session), die Abfrage gibt die Session sofort frei, und nach dem Einfügen wird ohne künstliche Pause von 800 ms neu geladen.
 
 ### 5.3.2
 - Scope-Fix für Toast-Erkennung: Konvertierung von Backend-Alerts zu BLOECKS-Toasts erfolgt nur noch für BLOECKS-eigene, markierte Meldungen.

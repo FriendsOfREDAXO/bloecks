@@ -668,12 +668,17 @@ var BLOECKS = (function($) {
         $(document).off('click', '.bloecks-paste').on('click', '.bloecks-paste', function(e) {
             e.preventDefault();
 
+            var $btn = $(this);
             if (multiClipboard.length === 0 && favorites.length === 0) {
-                showToast(label('error_clipboard_empty', 'Zwischenablage ist leer'), 'warning');
+                // Status kommt gesammelt und kurz verzoegert -- bei einem schnellen Klick jetzt holen
+                clearTimeout(clipboardStatusTimer);
+                fetchClipboardStatus(function() {
+                    showClipboardDropdown($btn);
+                });
                 return;
             }
 
-            showClipboardDropdown($(this));
+            showClipboardDropdown($btn);
         });
 
         // Slice als Favorit speichern
@@ -727,21 +732,19 @@ var BLOECKS = (function($) {
                         sessionStorage.setItem('bloecks_scroll_position', window.pageYOffset || document.documentElement.scrollTop);
                     }
                     
-                    // PJAX reload für alle Aktionen (copy/cut/paste) für Button-State Updates
-                    setTimeout(function() {
-                        // Use the correct PJAX method like REDAXO core does
-                        $.pjax({
-                            url: getCleanUrlForReload(),
-                            container: '#rex-js-page-main-content',
-                            fragment: '#rex-js-page-main-content',
-                            push: false // Important: don't push to history
-                        }).done(function() {
-                            // After PJAX reload, restore button states based on clipboard
-                            setTimeout(function() {
-                                updateAllButtonStates();
-                            }, 100);
-                        });
-                    }, 800); // Shorter wait time
+                    // PJAX reload für alle Aktionen (copy/cut/paste) für Button-State Updates.
+                    // Sofort -- der Toast liegt ausserhalb des neu geladenen Bereichs und bleibt stehen.
+                    $.pjax({
+                        url: getCleanUrlForReload(),
+                        container: '#rex-js-page-main-content',
+                        fragment: '#rex-js-page-main-content',
+                        push: false // Important: don't push to history
+                    }).done(function() {
+                        // After PJAX reload, restore button states based on clipboard
+                        setTimeout(function() {
+                            updateAllButtonStates();
+                        }, 100);
+                    });
                 } else {
                     showToast(response.message || 'Unbekannter Fehler', 'error');
                 }
@@ -855,14 +858,12 @@ var BLOECKS = (function($) {
                     showToast(response.message, 'success');
                     
                     // Force PJAX reload to update button states
-                    setTimeout(function() {
-                        $.pjax({
-                            url: getCleanUrlForReload(),
-                            container: '#rex-js-page-main-content',
-                            fragment: '#rex-js-page-main-content',
-                            push: false // Important: don't push to history
-                        });
-                    }, 800);
+                    $.pjax({
+                        url: getCleanUrlForReload(),
+                        container: '#rex-js-page-main-content',
+                        fragment: '#rex-js-page-main-content',
+                        push: false // Important: don't push to history
+                    });
                 } else {
                     showToast('Fehler beim Leeren der Zwischenablage', 'error');
                 }
@@ -1203,14 +1204,12 @@ var BLOECKS = (function($) {
         if (newSliceIds && newSliceIds.length > 0) {
             sessionStorage.setItem('bloecks_scroll_target', newSliceIds[0]);
         }
-        setTimeout(function() {
-            $.pjax({
-                url: getCleanUrlForReload(),
-                container: '#rex-js-page-main-content',
-                fragment: '#rex-js-page-main-content',
-                push: false
-            });
-        }, 800);
+        $.pjax({
+            url: getCleanUrlForReload(),
+            container: '#rex-js-page-main-content',
+            fragment: '#rex-js-page-main-content',
+            push: false
+        });
     }
 
     function showFavoriteSaveDialog($button) {
@@ -1315,7 +1314,16 @@ var BLOECKS = (function($) {
         }, 100);
     });
     
+    // ready, rex:ready und pjax:* fordern den Status pro Seitenaufbau mehrfach an. Jeder Request
+    // haelt die PHP-Session-Sperre, ein Klick auf "Einfuegen" muesste dahinter warten -- deshalb
+    // kurz sammeln und nur einmal fragen.
+    var clipboardStatusTimer = null;
     function loadMultiClipboardFromServer() {
+        clearTimeout(clipboardStatusTimer);
+        clipboardStatusTimer = setTimeout(fetchClipboardStatus, 200);
+    }
+
+    function fetchClipboardStatus(done) {
         // Load current clipboard status from server
         var data = {
             'function': 'get_clipboard_status',
@@ -1347,6 +1355,9 @@ var BLOECKS = (function($) {
                     updatePasteButtons();
                     // Update button states after loading from server
                     updateAllButtonStates();
+                }
+                if (typeof done === 'function') {
+                    done();
                 }
             },
             error: function() {
