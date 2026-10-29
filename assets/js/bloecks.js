@@ -327,7 +327,7 @@ var BLOECKS = (function($) {
             // comma-containing selector (e.g. '.alert-danger, .alert-error') would leave
             // the first group unqualified and match every foreign alert on the page.
             var baseSelectors = (typeof selector === 'string') ? selector.split(',') : selector;
-            var bloecksSelector = baseSelectors.map(function (sel) {
+            var bloecksSelector = baseSelectors.map(function(sel) {
                 sel = sel.trim();
                 return sel + '.bloecks-message, ' + sel + '[data-bloecks-message="1"]';
             }).join(', ');
