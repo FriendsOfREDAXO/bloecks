@@ -903,7 +903,7 @@ var BLOECKS = (function($) {
     }
 
     var favorites = [];
-    var canManageFavorites = false;
+    var canManageFavorites = !!(window.rex && rex.bloecks && rex.bloecks.favorites_manage);
     var activeTab = 'clipboard';
 
     function label(key, fallback) {

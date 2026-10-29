@@ -603,11 +603,12 @@ class Api extends rex_api_function
         // Clean up clipboard before checking status
         Backend::cleanupClipboard();
 
-        // Nur noch lesen: Session-Sperre freigeben, damit parallele Requests (z. B. Einfuegen) nicht warten
-        session_write_close();
-
         $clipboard = rex_session('bloecks_clipboard', 'array', null);
         $multiClipboard = rex_session('bloecks_multi_clipboard', 'array', []);
+
+        // Ab hier wird die Session nicht mehr gebraucht: Sperre freigeben, damit parallele
+        // Requests (z. B. Einfuegen) nicht warten
+        session_write_close();
 
         // Multi-clipboard is available if setting is enabled AND user has permission
         $isMultiClipboardAvailable = Backend::isMultiClipboardAvailable();
