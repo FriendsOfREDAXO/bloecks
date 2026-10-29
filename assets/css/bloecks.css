@@ -199,7 +199,9 @@
     gap: 6px;
 }
 
-.bloecks-dropdown-clear {
+.bloecks-clipboard-dropdown .bloecks-dropdown-clear,
+.bloecks-clipboard-dropdown .bloecks-dropdown-clear:hover,
+.bloecks-clipboard-dropdown .bloecks-dropdown-clear:focus {
     margin-left: auto;
     color: #dc3545;
 }
