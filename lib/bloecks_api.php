@@ -10,6 +10,7 @@ use rex_article_cache;
 use rex_article_revision;
 use rex_article_slice_history;
 use rex_content_service;
+use rex_csrf_token;
 use rex_i18n;
 use rex_plugin;
 use rex_sql;
@@ -32,7 +33,7 @@ class Api extends rex_api_function
         $function = rex_request('function', 'string', '');
 
         // Handle copy/paste AJAX operations
-        if (in_array($function, ['copy', 'cut', 'paste', 'clear_clipboard', 'multi_paste', 'get_clipboard_status'])) {
+        if (in_array($function, ['copy', 'cut', 'paste', 'clear_clipboard', 'multi_paste', 'get_clipboard_status', 'favorite_add', 'favorite_delete', 'favorite_paste'])) {
             $this->handleCopyPasteAjax($function);
             exit;
         }
@@ -97,6 +98,18 @@ class Api extends rex_api_function
 
             case 'get_clipboard_status':
                 $this->handleGetClipboardStatus();
+                break;
+
+            case 'favorite_add':
+                $this->handleFavoriteAdd();
+                break;
+
+            case 'favorite_delete':
+                $this->handleFavoriteDelete();
+                break;
+
+            case 'favorite_paste':
+                $this->handleFavoritePaste();
                 break;
         }
     }
@@ -602,6 +615,146 @@ class Api extends rex_api_function
             'multi_clipboard_enabled' => $isMultiClipboardAvailable,
             'multi_clipboard_count' => count($multiClipboard),
             'multi_clipboard_items' => $multiClipboard,
+            'favorites' => Favorites::getList(),
+            'favorites_manage' => Favorites::canManage(),
+        ]);
+    }
+
+    private function handleFavoriteAdd(): void
+    {
+        if (!rex_csrf_token::factory('bloecks')->isValid()) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('csrf_token_invalid')]);
+            return;
+        }
+
+        if (!Favorites::canManage()) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_permission')]);
+            return;
+        }
+
+        $sliceId = rex_request('slice_id', 'int');
+        $name = trim(rex_request('name', 'string', ''));
+        $rows = rex_sql::factory()->getArray('SELECT * FROM ' . rex::getTable('article_slice') . ' WHERE id = ?', [$sliceId]);
+        if (!$rows) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_slice_not_found')]);
+            return;
+        }
+        $row = $rows[0];
+
+        if (!Backend::hasContentEditPermission($row['article_id'], $row['clang_id'], $row['module_id'])) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_content_permission')]);
+            return;
+        }
+
+        if ('' === $name) {
+            $module = rex_sql::factory()->getArray('SELECT name FROM ' . rex::getTable('module') . ' WHERE id = ?', [$row['module_id']]);
+            $name = $module ? (string) $module[0]['name'] : rex_i18n::msg('bloecks_unknown_module');
+        }
+
+        Favorites::add($row, $name);
+
+        echo json_encode([
+            'success' => true,
+            'message' => rex_i18n::rawMsg('bloecks_favorite_saved', $name),
+            'favorites' => Favorites::getList(),
+        ]);
+    }
+
+    private function handleFavoriteDelete(): void
+    {
+        if (!rex_csrf_token::factory('bloecks')->isValid()) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('csrf_token_invalid')]);
+            return;
+        }
+
+        if (!Favorites::canManage()) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_permission')]);
+            return;
+        }
+
+        if (!Favorites::delete(rex_request('favorite_id', 'int'))) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_favorite_not_found')]);
+            return;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'message' => rex_i18n::rawMsg('bloecks_favorite_deleted'),
+            'favorites' => Favorites::getList(),
+        ]);
+    }
+
+    /**
+     * Fuegt einen oder mehrere Favoriten ein -- gleiche Logik wie Multi-Paste, als Kopie.
+     */
+    private function handleFavoritePaste(): void
+    {
+        if (!rex_csrf_token::factory('bloecks')->isValid()) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('csrf_token_invalid')]);
+            return;
+        }
+
+        if (!Favorites::canUse()) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_no_permission')]);
+            return;
+        }
+
+        $ids = json_decode(rex_request('favorite_ids', 'string', ''), true);
+        $targetSlice = rex_request('bloecks_target', 'int');
+        $articleId = rex_request('article_id', 'int');
+        $clang = rex_request('clang', 'int');
+        $ctype = rex_request('ctype', 'int', 1);
+        $pastePosition = 'before' === rex_request('paste_position', 'string', 'after') ? 'before' : 'after';
+
+        if (!is_array($ids) || [] === $ids || !$articleId || !$clang) {
+            echo json_encode(['success' => false, 'message' => rex_i18n::msg('bloecks_error_missing_parameters')]);
+            return;
+        }
+
+        $allowed = array_column(Favorites::getList(), 'id');
+        $newSliceIds = [];
+        $errors = [];
+
+        try {
+            foreach ($ids as $id) {
+                $favorite = in_array((int) $id, $allowed, true) ? Favorites::get((int) $id) : null;
+                if (null === $favorite) {
+                    $errors[] = rex_i18n::rawMsg('bloecks_error_favorite_not_found');
+                    continue;
+                }
+                $moduleId = (int) ($favorite['data']['module_id'] ?? 0);
+                $module = rex_sql::factory()->getArray('SELECT id FROM ' . rex::getTable('module') . ' WHERE id = ?', [$moduleId]);
+                if (!$module) {
+                    $errors[] = rex_i18n::rawMsg('bloecks_error_favorite_module_missing', $favorite['name']);
+                    continue;
+                }
+
+                $data = array_intersect_key($favorite['data'], array_flip(Favorites::sliceFields()));
+                $result = $this->pasteSingleItem(['data' => $data, 'action' => 'copy'], $targetSlice, $articleId, $clang, $ctype, $pastePosition);
+                if (!$result['success']) {
+                    $errors[] = $result['message'];
+                    continue;
+                }
+
+                $newSliceIds[] = $result['new_slice_id'];
+                if ('after' === $pastePosition) {
+                    $targetSlice = $result['new_slice_id'];
+                }
+            }
+        } catch (rex_sql_exception $e) {
+            echo json_encode(['success' => false, 'message' => sprintf(rex_i18n::msg('bloecks_error_insert_failed'), $e->getMessage())]);
+            return;
+        }
+
+        rex_article_cache::delete($articleId, $clang);
+
+        echo json_encode([
+            'success' => [] !== $newSliceIds,
+            'message' => [] !== $newSliceIds
+                ? rex_i18n::rawMsg('bloecks_favorites_inserted', count($newSliceIds)) . ([] !== $errors ? ' – ' . implode(' ', array_unique($errors)) : '')
+                : implode(' ', array_unique($errors)),
+            'reload_needed' => [] !== $newSliceIds,
+            'new_slice_ids' => $newSliceIds,
         ]);
     }
 }

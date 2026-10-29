@@ -13,6 +13,7 @@ use rex_csrf_token;
 use rex_extension;
 use rex_extension_point;
 use rex_i18n;
+use rex_path;
 use rex_sql;
 use rex_sql_exception;
 use rex_view;
@@ -82,6 +83,12 @@ class Backend
             $loadDragDropAssets = $dragDropEnabled
                 && ($user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[order]'));
 
+            // Kompaktmodus braucht nur das Stylesheet, auch ohne Copy/Paste und Drag & Drop
+            $compactModeEnabled = (bool) $addon->getConfig('enable_compact_mode', false);
+            if ($compactModeEnabled && !$loadCopyPasteAssets && !$loadDragDropAssets) {
+                rex_view::addCssFile($addon->getAssetsUrl('css/bloecks.css') . '?v=' . self::assetVersion('css/bloecks.css'));
+            }
+
             if ($loadCopyPasteAssets || $loadDragDropAssets) {
                 // JS config for drag & drop ordering
                 rex_view::setJsProperty('bloecks', [
@@ -89,6 +96,10 @@ class Backend
                     'perm_order' => $user->hasPerm('bloecks[]') || $user->hasPerm('bloecks[order]'),
                     'enable_copy_paste' => $loadCopyPasteAssets,
                     'enable_drag_drop' => $loadDragDropAssets,
+                    'paste_position' => $addon->getConfig('paste_position', 'after'),
+                    'favorites' => Favorites::canUse(),
+                    'favorites_manage' => Favorites::canManage(),
+                    'i18n' => self::jsLabels(),
                 ]);
 
                 // Load SortableJS for drag & drop only if drag & drop is enabled and user has permissions
@@ -96,10 +107,41 @@ class Backend
                     rex_view::addJsFile($addon->getAssetsUrl('js/sortable.min.js'));
                 }
 
-                rex_view::addJsFile($addon->getAssetsUrl('js/bloecks.js') . '?v=' . time());
-                rex_view::addCssFile($addon->getAssetsUrl('css/bloecks.css') . '?v=' . time());
+                rex_view::addJsFile($addon->getAssetsUrl('js/bloecks.js') . '?v=' . self::assetVersion('js/bloecks.js'));
+                rex_view::addCssFile($addon->getAssetsUrl('css/bloecks.css') . '?v=' . self::assetVersion('css/bloecks.css'));
             }
         }
+    }
+
+    /**
+     * Texte fuer das Einfuege-Overlay und die Favoriten (rawMsg: werden im JS escaped).
+     *
+     * @return array<string, string>
+     */
+    private static function jsLabels(): array
+    {
+        $keys = [
+            'paste_above', 'paste_below', 'paste_here', 'clear', 'tab_clipboard', 'tab_favorites',
+            'select_all_short', 'select_none_short', 'favorites_empty', 'favorite_save', 'favorite_name',
+            'favorite_delete', 'favorite_delete_confirm', 'nothing_selected', 'save', 'cancel',
+            'action_copied_short', 'action_cut_short', 'from_article', 'unknown_module', 'error_clipboard_empty',
+        ];
+        $labels = [];
+        foreach ($keys as $key) {
+            $labels[$key] = rex_i18n::rawMsg('bloecks_' . $key);
+        }
+
+        return $labels;
+    }
+
+    /**
+     * Cache-Buster: Aenderungszeit der ausgelieferten Asset-Datei, faellt auf die AddOn-Version zurueck.
+     */
+    private static function assetVersion(string $file): string
+    {
+        $mtime = @filemtime(rex_path::addonAssets('bloecks', $file));
+
+        return false !== $mtime ? (string) $mtime : rex_addon::get('bloecks')->getVersion();
     }
 
     /**
@@ -213,8 +255,22 @@ class Backend
             ],
         ];
 
-        // Paste button - always available in slice menu
-        if ($clipboard) {
+        // Als Favorit speichern
+        if (Favorites::canManage()) {
+            $buttons[] = [
+                'hidden_label' => 'Save as favorite',
+                'url' => '#',
+                'icon' => 'favorite',
+                'attributes' => [
+                    'class' => ['btn', 'btn-default', 'bloecks-favorite-save'],
+                    'title' => rex_i18n::msg('bloecks_favorite_save'),
+                    'data-slice-id' => (int) $sliceId,
+                ],
+            ];
+        }
+
+        // Paste button - available when the clipboard or the favorites hold something
+        if ($clipboard || Favorites::hasAny()) {
             $sourceInfo = $clipboard['source_info'] ?? null;
 
             // Get paste position from config
@@ -233,7 +289,7 @@ class Backend
                     $isPasteBefore ? 'vor dem Slice einfügen' : 'nach dem Slice einfügen',
                 );
                 $buttonClass = ['btn', 'btn-default', 'bloecks-paste', 'has-multiple'];
-            } elseif (1 === $clipboardCount && $sourceInfo) {
+            } elseif ($clipboard && 1 === $clipboardCount && $sourceInfo) {
                 // Single item with detailed info
                 $actionText = 'cut' === $clipboard['action'] ? rex_i18n::msg('bloecks_action_cut') : rex_i18n::msg('bloecks_action_copied');
                 $positionText = $isPasteBefore ? rex_i18n::msg('paste_position_before') : rex_i18n::msg('paste_position_after');
@@ -245,6 +301,10 @@ class Backend
                     $sourceInfo['article_id'],
                     $positionText,
                 );
+                $buttonClass = ['btn', 'btn-default', 'bloecks-paste'];
+            } elseif (!$clipboard) {
+                // Nur Favoriten vorhanden
+                $tooltipText = rex_i18n::msg('bloecks_paste_favorite');
                 $buttonClass = ['btn', 'btn-default', 'bloecks-paste'];
             } else {
                 // Fallback
@@ -289,9 +349,9 @@ class Backend
             return $ep->getSubject();
         }
 
-        // Only show paste button if there's something in clipboard
+        // Only show paste button if there's something in clipboard or favorites
         $clipboard = rex_session('bloecks_clipboard', 'array', null);
-        if (!$clipboard) {
+        if (!$clipboard && !Favorites::hasAny()) {
             return $ep->getSubject();
         }
 
@@ -380,14 +440,18 @@ class Backend
         }
 
         // Button-Text mit REDAXO-Sprachsystem (Parameter wird automatisch in {0} eingesetzt)
-        if (!empty($moduleName)) {
+        if (!$clipboard) {
+            $buttonText = rex_i18n::msg('bloecks_paste_favorite');
+        } elseif (!empty($moduleName)) {
             $buttonText = rex_i18n::msg('bloecks_paste_module', $moduleName);
         } else {
             $buttonText = rex_i18n::msg('bloecks_action_paste');
         }
 
         // Tooltip - sollte immer "Fügt ein: ..." sein, nicht "Kopiert: ..."
-        if (!empty($moduleName)) {
+        if (!$clipboard) {
+            $tooltipText = rex_i18n::msg('bloecks_paste_favorite');
+        } elseif (!empty($moduleName)) {
             $tooltipText = sprintf('Fügt ein: "%s"', $moduleName);
             if ($sourceInfo) {
                 $tooltipText = sprintf(

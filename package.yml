@@ -1,5 +1,5 @@
 package: bloecks
-version: '5.3.4'
+version: '5.4.0'
 author: 'Friends Of REDAXO'
 supportpage: https://github.com/FriendsOfREDAXO/bloecks
 
@@ -29,6 +29,8 @@ default_config:
     enable_copy_paste: false
     enable_drag_drop: false
     enable_multi_clipboard: false
+    enable_favorites: false
+    enable_compact_mode: false
     paste_position: 'after'
     templates_exclude: ''
     modules_exclude: ''

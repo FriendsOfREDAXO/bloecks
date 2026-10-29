@@ -33,3 +33,6 @@ if (version_compare(rex_addon::get('bloecks')->getVersion(), '5.0.0-beta1', '<')
     // Cleanup alte Assets
     rex_dir::delete(rex_path::addonAssets('bloecks'));
 }
+
+// Ab 5.4.0: Tabelle fuer Favoriten
+include __DIR__ . '/install.php';
