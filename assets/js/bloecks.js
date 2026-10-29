@@ -188,7 +188,8 @@ var BLOECKS = (function($) {
         try {
             var sortable = Sortable.create(commonParent, {
                 draggable: '.bloecks-dragdrop',
-                handle: '.panel-heading, .panel-title',
+                // Nur der eigene Kopf des Slices -- nicht Panels im Modul-Inhalt (MForm, MBlock, Gridblock ...)
+                handle: '.rex-slice-output > .rex-page-section > .panel > .panel-heading',
                 filter: 'a, button, input, select, textarea, .btn, .dropdown-toggle, [data-toggle], [data-bs-toggle]',
                 preventOnFilter: false,
                 animation: 150,
@@ -663,23 +664,30 @@ var BLOECKS = (function($) {
             performCopyPasteAction(action, { slice_id: sliceId });
         });
         
-        // Handle paste buttons  
+        // Handle paste buttons
         $(document).off('click', '.bloecks-paste').on('click', '.bloecks-paste', function(e) {
             e.preventDefault();
-            
-            var $this = $(this);
-            
-            // Check if we have any clipboard items
-            if (multiClipboard.length === 0) {
-                showToast('Zwischenablage ist leer', 'warning');
+
+            var $btn = $(this);
+            if (multiClipboard.length === 0 && favorites.length === 0) {
+                // Status kommt gesammelt und kurz verzoegert -- bei einem schnellen Klick jetzt holen
+                clearTimeout(clipboardStatusTimer);
+                fetchClipboardStatus(function() {
+                    showClipboardDropdown($btn);
+                });
                 return;
             }
-            
-            // Always show dropdown if we have clipboard items (user can also clear clipboard)
-            showClipboardDropdown($this);
+
+            showClipboardDropdown($btn);
+        });
+
+        // Slice als Favorit speichern
+        $(document).off('click', '.bloecks-favorite-save').on('click', '.bloecks-favorite-save', function(e) {
+            e.preventDefault();
+            showFavoriteSaveDialog($(this));
         });
     }
-    
+
     function performCopyPasteAction(action, params) {
         // Show loading toast with unique ID
         var loadingToastId = 'bloecks-loading-' + Date.now();
@@ -724,21 +732,19 @@ var BLOECKS = (function($) {
                         sessionStorage.setItem('bloecks_scroll_position', window.pageYOffset || document.documentElement.scrollTop);
                     }
                     
-                    // PJAX reload für alle Aktionen (copy/cut/paste) für Button-State Updates
-                    setTimeout(function() {
-                        // Use the correct PJAX method like REDAXO core does
-                        $.pjax({
-                            url: getCleanUrlForReload(),
-                            container: '#rex-js-page-main-content',
-                            fragment: '#rex-js-page-main-content',
-                            push: false // Important: don't push to history
-                        }).done(function() {
-                            // After PJAX reload, restore button states based on clipboard
-                            setTimeout(function() {
-                                updateAllButtonStates();
-                            }, 100);
-                        });
-                    }, 800); // Shorter wait time
+                    // PJAX reload für alle Aktionen (copy/cut/paste) für Button-State Updates.
+                    // Sofort -- der Toast liegt ausserhalb des neu geladenen Bereichs und bleibt stehen.
+                    $.pjax({
+                        url: getCleanUrlForReload(),
+                        container: '#rex-js-page-main-content',
+                        fragment: '#rex-js-page-main-content',
+                        push: false // Important: don't push to history
+                    }).done(function() {
+                        // After PJAX reload, restore button states based on clipboard
+                        setTimeout(function() {
+                            updateAllButtonStates();
+                        }, 100);
+                    });
                 } else {
                     showToast(response.message || 'Unbekannter Fehler', 'error');
                 }
@@ -771,7 +777,7 @@ var BLOECKS = (function($) {
     var multiClipboard = [];
     var isMultiClipboardEnabled = false;
     var activeDropdown = null;
-    var currentPastePosition = (typeof BLOECKS_PASTE_POSITION !== 'undefined') ? BLOECKS_PASTE_POSITION : 'after';
+    var currentPastePosition = (window.rex && rex.bloecks && rex.bloecks.paste_position) || ((typeof BLOECKS_PASTE_POSITION !== 'undefined') ? BLOECKS_PASTE_POSITION : 'after');
 
     function setMultiClipboardEnabled(enabled) {
         isMultiClipboardEnabled = enabled;
@@ -852,14 +858,12 @@ var BLOECKS = (function($) {
                     showToast(response.message, 'success');
                     
                     // Force PJAX reload to update button states
-                    setTimeout(function() {
-                        $.pjax({
-                            url: getCleanUrlForReload(),
-                            container: '#rex-js-page-main-content',
-                            fragment: '#rex-js-page-main-content',
-                            push: false // Important: don't push to history
-                        });
-                    }, 800);
+                    $.pjax({
+                        url: getCleanUrlForReload(),
+                        container: '#rex-js-page-main-content',
+                        fragment: '#rex-js-page-main-content',
+                        push: false // Important: don't push to history
+                    });
                 } else {
                     showToast('Fehler beim Leeren der Zwischenablage', 'error');
                 }
@@ -898,135 +902,194 @@ var BLOECKS = (function($) {
         });
     }
 
+    var favorites = [];
+    var canManageFavorites = !!(window.rex && rex.bloecks && rex.bloecks.favorites_manage);
+    var activeTab = 'clipboard';
+
+    function label(key, fallback) {
+        var labels = (window.rex && rex.bloecks && rex.bloecks.i18n) || {};
+        return labels[key] || fallback;
+    }
+
+    function escapeHtml(value) {
+        return String(value === undefined || value === null ? '' : value).replace(/[&<>"']/g, function(c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+
+    function csrfToken() {
+        return (window.rex && rex.bloecks && rex.bloecks.token) || '';
+    }
+
     function showClipboardDropdown($button) {
         hideClipboardDropdown();
-        
-        if (multiClipboard.length === 0) {
-            showToast('Zwischenablage ist leer', 'warning');
+
+        if (multiClipboard.length === 0 && favorites.length === 0) {
+            showToast(label('error_clipboard_empty', 'Zwischenablage ist leer'), 'warning');
             return;
         }
-        
-        var $dropdown = $('<div class="bloecks-clipboard-dropdown"></div>');
-        
-        // Header
-        var headerText = multiClipboard.length === 1 ? 'Zwischenablage (1 Element)' : 'Zwischenablage (' + multiClipboard.length + ' Elemente)';
-        $dropdown.append('<div class="dropdown-header">' + headerText + '</div>');
-        
-        // Paste Position Toggle
-        var $positionToggle = $('<div class="dropdown-position-toggle"></div>');
-        $positionToggle.append('<label>Einfügeposition:</label>');
-        
-        var $positionSelect = $('<select class="bloecks-position-select">');
-        $positionSelect.append('<option value="after"' + (currentPastePosition === 'after' ? ' selected' : '') + '>Nach unten (unterhalb)</option>');
-        $positionSelect.append('<option value="before"' + (currentPastePosition === 'before' ? ' selected' : '') + '>Nach oben (oberhalb)</option>');
-        
-        $positionToggle.append($positionSelect);
-        $dropdown.append($positionToggle);
-        
-        // Actions - always show for consistency
-        var $actions = $('<div class="dropdown-actions"></div>');
-        
-        // Only show selection controls if multiple items OR multi-clipboard is enabled
-        if (multiClipboard.length > 1 || isMultiClipboardEnabled) {
-            $actions.append('<button type="button" class="btn btn-xs btn-default" data-action="select-all">Alle auswählen</button>');
-            $actions.append('<button type="button" class="btn btn-xs btn-default" data-action="select-none">Auswahl aufheben</button>');
-        }
-        
-        $actions.append('<button type="button" class="btn btn-xs btn-danger" data-action="clear">Leeren</button>');
-        $dropdown.append($actions);
-        
-        // Items - display in chronological order (oldest first = natural order)
-        var sortedItems = multiClipboard.slice().map(function(item, index) {
-            return { item: item, originalIndex: index };
-        }).sort(function(a, b) {
-            // Sort by timestamp (oldest first) to show items in the order they were added
-            return (a.item.timestamp || 0) - (b.item.timestamp || 0);
-        });
 
-        sortedItems.forEach(function(sortedItem) {
-            var item = sortedItem.item;
-            var originalIndex = sortedItem.originalIndex;
-            var $item = $('<div class="bloecks-clipboard-item"></div>');
-            
-            // Only show checkbox if multiple items OR multi-clipboard enabled
-            if (multiClipboard.length > 1 || isMultiClipboardEnabled) {
-                $item.append('<input type="checkbox" checked data-index="' + originalIndex + '">');
-            }
-            
-            var $info = $('<div class="bloecks-clipboard-item-info"></div>');
-            var moduleName = (item.source_info && item.source_info.module_name) ? item.source_info.module_name : 'Unbekanntes Modul';
-            
-            // Add Font Awesome icon based on action
-            var iconClass = item.action === 'cut' ? 'rex-icon rex-icon-cut' : 'rex-icon rex-icon-copy';
-            var iconStyle = item.action === 'cut' ? 'color: #dc3545; margin-right: 6px;' : 'color: #6c757d; margin-right: 6px;';
-            
-            $info.append('<div class="bloecks-clipboard-item-title"><i class="' + iconClass + '" style="' + iconStyle + '"></i>' + moduleName + '</div>');
-            if (item.source_info) {
-                var actionText = item.action === 'cut' ? 'ausgeschnitten' : 'kopiert';
-                $info.append('<div class="bloecks-clipboard-item-meta">' + actionText + ' aus: ' + item.source_info.article_name + ' (ID: ' + item.source_info.article_id + ')</div>');
-            }
-            $item.append($info);
-            
-            $dropdown.append($item);
-        });
-        
-        // Paste buttons
-        var $pasteActions = $('<div class="dropdown-actions"></div>');
-        
-        if (multiClipboard.length === 1) {
-            // Single item - simple paste
-            $pasteActions.append('<button type="button" class="btn btn-sm btn-success" data-action="paste-all">Einfügen</button>');
+        // Ohne Zwischenablage gleich die Favoriten zeigen
+        if (activeTab === 'favorites' && favorites.length === 0) activeTab = 'clipboard';
+        if (activeTab === 'clipboard' && multiClipboard.length === 0) activeTab = 'favorites';
+
+        var $dropdown = $('<div class="bloecks-clipboard-dropdown" role="dialog"></div>');
+        var showFavorites = !!(window.rex && rex.bloecks && rex.bloecks.favorites);
+
+        // Kopf: Reiter (Zwischenablage / Favoriten) oder nur Titel
+        var clipboardTitle = label('tab_clipboard', 'Zwischenablage') + ' (' + multiClipboard.length + ')';
+        if (showFavorites) {
+            var $tabs = $('<div class="bloecks-dropdown-tabs" role="tablist"></div>');
+            $tabs.append('<button type="button" role="tab" class="bloecks-dropdown-tab' + (activeTab === 'clipboard' ? ' is-active' : '') + '" data-tab="clipboard"' + (multiClipboard.length === 0 ? ' disabled' : '') + '>' + escapeHtml(clipboardTitle) + '</button>');
+            $tabs.append('<button type="button" role="tab" class="bloecks-dropdown-tab' + (activeTab === 'favorites' ? ' is-active' : '') + '" data-tab="favorites"' + (favorites.length === 0 ? ' disabled' : '') + '><i class="rex-icon rex-icon-favorite"></i> ' + escapeHtml(label('tab_favorites', 'Favoriten') + ' (' + favorites.length + ')') + '</button>');
+            $dropdown.append($tabs);
         } else {
-            // Multiple items - selective paste options
-            $pasteActions.append('<button type="button" class="btn btn-sm btn-success" data-action="paste-selected">Ausgewählte einfügen</button>');
-            $pasteActions.append('<button type="button" class="btn btn-sm btn-primary" data-action="paste-all">Alle einfügen</button>');
+            $dropdown.append('<div class="dropdown-header">' + escapeHtml(clipboardTitle) + '</div>');
         }
-        
-        $dropdown.append($pasteActions);
-        
-        // Position dropdown
+
+        var $list = $('<div class="bloecks-clipboard-list"></div>');
+        var selectable;
+        if (activeTab === 'favorites') {
+            selectable = true;
+            favorites.forEach(function(fav) {
+                var $item = $('<label class="bloecks-clipboard-item"></label>');
+                $item.append('<input type="checkbox" data-favorite-id="' + fav.id + '">');
+                $item.append('<span class="bloecks-clipboard-item-info"><span class="bloecks-clipboard-item-title"><i class="rex-icon rex-icon-favorite"></i>' + escapeHtml(fav.name) + '</span><span class="bloecks-clipboard-item-meta">' + escapeHtml(fav.module_name) + '</span></span>');
+                if (canManageFavorites) {
+                    $item.append('<button type="button" class="btn btn-xs btn-link bloecks-favorite-delete" data-favorite-id="' + fav.id + '" data-favorite-name="' + escapeHtml(fav.name) + '" title="' + escapeHtml(label('favorite_delete', 'Favorit löschen')) + '"><i class="rex-icon rex-icon-delete"></i></button>');
+                }
+                $list.append($item);
+            });
+        } else {
+            // Mehrere Eintraege oder Multi-Clipboard: Auswahl per Checkbox, alle vorausgewaehlt
+            selectable = multiClipboard.length > 1 || isMultiClipboardEnabled;
+            multiClipboard.map(function(item, index) {
+                return { item: item, index: index };
+            }).sort(function(a, b) {
+                return (a.item.timestamp || 0) - (b.item.timestamp || 0);
+            }).forEach(function(entry) {
+                var item = entry.item;
+                var $item = $('<label class="bloecks-clipboard-item"></label>');
+                if (selectable) {
+                    $item.append('<input type="checkbox" checked data-index="' + entry.index + '">');
+                }
+                var moduleName = (item.source_info && item.source_info.module_name) ? item.source_info.module_name : label('unknown_module', 'Unbekanntes Modul');
+                var icon = item.action === 'cut' ? 'rex-icon-cut bloecks-icon-cut' : 'rex-icon-copy';
+                var meta = '';
+                if (item.source_info) {
+                    meta = (item.action === 'cut' ? label('action_cut_short', 'ausgeschnitten') : label('action_copied_short', 'kopiert'))
+                        + ' ' + label('from_article', 'aus') + ': ' + item.source_info.article_name + ' (ID: ' + item.source_info.article_id + ')';
+                }
+                $item.append('<span class="bloecks-clipboard-item-info"><span class="bloecks-clipboard-item-title"><i class="rex-icon ' + icon + '"></i>' + escapeHtml(moduleName) + '</span><span class="bloecks-clipboard-item-meta">' + escapeHtml(meta) + '</span></span>');
+                $list.append($item);
+            });
+        }
+        $dropdown.append($list);
+
+        // Fuss: Alle/Keine, Einfuegen darueber/darunter, Leeren
+        var $footer = $('<div class="bloecks-dropdown-footer"></div>');
+        if (selectable && $list.children().length > 1) {
+            $footer.append('<span class="bloecks-dropdown-select"><button type="button" class="btn btn-xs btn-link" data-action="select-all">' + escapeHtml(label('select_all_short', 'Alle')) + '</button><button type="button" class="btn btn-xs btn-link" data-action="select-none">' + escapeHtml(label('select_none_short', 'Keine')) + '</button></span>');
+        }
+        var $paste = $('<span class="bloecks-dropdown-paste"></span>');
+        var hasTarget = !!$button.data('target-slice');
+        if (hasTarget) {
+            // Die eingestellte Standardposition ist hervorgehoben
+            var defaultPos = currentPastePosition === 'before' ? 'before' : 'after';
+            $paste.append('<button type="button" class="btn btn-sm ' + (defaultPos === 'before' ? 'btn-success' : 'btn-default') + '" data-action="paste" data-position="before"><i class="rex-icon fa-arrow-up"></i> ' + escapeHtml(label('paste_above', 'Darüber einfügen')) + '</button>');
+            $paste.append('<button type="button" class="btn btn-sm ' + (defaultPos === 'after' ? 'btn-success' : 'btn-default') + '" data-action="paste" data-position="after"><i class="rex-icon fa-arrow-down"></i> ' + escapeHtml(label('paste_below', 'Darunter einfügen')) + '</button>');
+        } else {
+            $paste.append('<button type="button" class="btn btn-sm btn-success" data-action="paste" data-position="after">' + escapeHtml(label('paste_here', 'Einfügen')) + '</button>');
+        }
+        $footer.append($paste);
+        if (activeTab === 'clipboard') {
+            $footer.append('<button type="button" class="btn btn-sm btn-link bloecks-dropdown-clear" data-action="clear">' + escapeHtml(label('clear', 'Leeren')) + '</button>');
+        }
+        $dropdown.append($footer);
+
         $('body').append($dropdown);
-        var buttonOffset = $button.offset();
-        $dropdown.css({
-            top: buttonOffset.top + $button.outerHeight() + 5,
-            left: Math.max(10, buttonOffset.left - ($dropdown.outerWidth() / 2) + ($button.outerWidth() / 2))
-        }).show();
-        
+        positionDropdown($dropdown, $button);
         activeDropdown = $dropdown;
-        
-        // Event handlers for dropdown actions
         setupDropdownEventHandlers($dropdown, $button);
+    }
+
+    function positionDropdown($dropdown, $button) {
+        var offset = $button.offset();
+        var width = $dropdown.outerWidth();
+        var left = offset.left - (width / 2) + ($button.outerWidth() / 2);
+        left = Math.min(left, $(window).width() - width - 10);
+        $dropdown.css({
+            top: offset.top + $button.outerHeight() + 5,
+            left: Math.max(10, left)
+        }).show();
     }
 
     function setupDropdownEventHandlers($dropdown, $button) {
         $dropdown.on('click', '[data-action="select-all"]', function() {
             $dropdown.find('input[type="checkbox"]').prop('checked', true);
         });
-        
+
         $dropdown.on('click', '[data-action="select-none"]', function() {
             $dropdown.find('input[type="checkbox"]').prop('checked', false);
         });
-        
+
         $dropdown.on('click', '[data-action="clear"]', function() {
             clearMultiClipboard();
         });
-        
-        $dropdown.on('click', '[data-action="paste-selected"]', function() {
-            pasteSelectedItems($button);
+
+        $dropdown.on('click', '[data-tab]', function() {
+            activeTab = $(this).data('tab');
+            showClipboardDropdown($button);
         });
-        
-        $dropdown.on('click', '[data-action="paste-all"]', function() {
-            pasteAllItems($button);
+
+        $dropdown.on('click', '.bloecks-favorite-delete', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var $btn = $(this);
+            var question = label('favorite_delete_confirm', 'Favorit „{0}“ wirklich löschen?').replace('{0}', $btn.data('favorite-name'));
+            if (window.confirm(question)) {
+                deleteFavorite($btn.data('favorite-id'), $button);
+            }
         });
-        
-        $dropdown.on('change', '.bloecks-position-select', function() {
-            currentPastePosition = $(this).val();
+
+        $dropdown.on('click', '[data-action="paste"]', function() {
+            var position = $(this).data('position');
+            if (activeTab === 'favorites') {
+                var ids = [];
+                $dropdown.find('input[data-favorite-id]:checked').each(function() {
+                    ids.push(parseInt($(this).data('favorite-id'), 10));
+                });
+                if (ids.length === 0) {
+                    showToast(label('nothing_selected', 'Nichts ausgewählt'), 'warning');
+                    return;
+                }
+                pasteFavorites($button, ids, position);
+            } else {
+                var $boxes = $dropdown.find('input[data-index]');
+                var indexes = [];
+                if ($boxes.length) {
+                    $boxes.filter(':checked').each(function() {
+                        indexes.push(parseInt($(this).data('index'), 10));
+                    });
+                    if (indexes.length === 0) {
+                        showToast(label('nothing_selected', 'Nichts ausgewählt'), 'warning');
+                        return;
+                    }
+                    indexes.sort(function(a, b) {
+                        return (multiClipboard[a].timestamp || 0) - (multiClipboard[b].timestamp || 0);
+                    });
+                } else {
+                    for (var i = 0; i < multiClipboard.length; i++) indexes.push(i);
+                }
+                pasteMultipleItems($button, indexes, position);
+            }
+            hideClipboardDropdown();
         });
-        
-        $dropdown.on('click', '.bloecks-clipboard-item', function(e) {
-            if (e.target.type !== 'checkbox') {
-                var $checkbox = $(this).find('input[type="checkbox"]');
-                $checkbox.prop('checked', !$checkbox.prop('checked'));
+
+        $dropdown.on('keydown', function(e) {
+            if (e.key === 'Escape') {
+                hideClipboardDropdown();
+                $button.trigger('focus');
             }
         });
     }
@@ -1038,114 +1101,59 @@ var BLOECKS = (function($) {
         }
     }
 
-    function pasteSelectedItems($button) {
-        var selectedIndexes = [];
-        activeDropdown.find('input[type="checkbox"]:checked').each(function() {
-            selectedIndexes.push(parseInt($(this).data('index')));
-        });
-        
-        if (selectedIndexes.length === 0) {
-            showToast('Keine Elemente ausgewählt', 'warning');
-            return;
-        }
-        
-        // Sort selected indexes by timestamp to maintain paste order
-        selectedIndexes.sort(function(a, b) {
-            var itemA = multiClipboard[a];
-            var itemB = multiClipboard[b];
-            return (itemA.timestamp || 0) - (itemB.timestamp || 0);
-        });
-        
-        pasteMultipleItems($button, selectedIndexes);
-        hideClipboardDropdown();
-    }
-
-    function pasteAllItems($button) {
-        var allIndexes = [];
-        for (var i = 0; i < multiClipboard.length; i++) {
-            allIndexes.push(i);
-        }
-        pasteMultipleItems($button, allIndexes);
-        hideClipboardDropdown();
-    }
-
-    function pasteMultipleItems($button, indexes) {
+    function pasteMultipleItems($button, indexes, position) {
         var targetSlice = $button.data('target-slice') || null;
         var articleId = $button.data('article-id');
         var clangId = $button.data('clang-id');
         var ctypeId = $button.data('ctype-id') || 1;
-        
+        position = position || currentPastePosition;
+
         if (!articleId || !clangId) {
             showToast('Fehler: Artikel-Parameter fehlen', 'error');
             return;
         }
-        
+
         // If multi-clipboard is NOT enabled AND we have only one item, use simple paste
         if (!isMultiClipboardEnabled && indexes.length === 1) {
-            var params = {
+            performCopyPasteAction('paste', {
                 'bloecks_target': targetSlice,
                 'article_id': articleId,
                 'clang': clangId,
                 'ctype': ctypeId,
-                'paste_position': currentPastePosition
-            };
-            
-            performCopyPasteAction('paste', params);
+                'paste_position': position
+            });
             return;
         }
-        
-        // Use multi-paste for multiple items or when multi-clipboard is enabled
-        // Show loading toast
+
         var loadingToastId = 'bloecks-multi-paste-' + Date.now();
-        var loadingToast = showToastWithId('Füge ' + indexes.length + ' Elemente ein...', 'info', 30000, loadingToastId);
-        
-        var data = {
-            'function': 'multi_paste',
-            'rex-api-call': 'bloecks',
-            'selected_items': JSON.stringify(indexes),
-            'bloecks_target': targetSlice,
-            'article_id': articleId,
-            'clang': clangId,
-            'ctype': ctypeId,
-            'paste_position': currentPastePosition
-        };
-        
+        showToastWithId('Füge ' + indexes.length + ' Elemente ein...', 'info', 30000, loadingToastId);
+
         $.ajax({
             url: 'index.php',
             type: 'POST',
             dataType: 'json',
-            data: data,
+            data: {
+                'function': 'multi_paste',
+                'rex-api-call': 'bloecks',
+                'selected_items': JSON.stringify(indexes),
+                'bloecks_target': targetSlice,
+                'article_id': articleId,
+                'clang': clangId,
+                'ctype': ctypeId,
+                'paste_position': position
+            },
             success: function(response) {
                 removeToast(loadingToastId);
-                
                 if (response.success) {
                     showToast(response.message, 'success');
-                    
-                    // Remove inserted items from local clipboard
-                    var sortedIndexes = indexes.sort(function(a, b) { return b - a; }); // Sort descending
-                    sortedIndexes.forEach(function(index) {
+                    // Ausgeschnittene Eintraege sind nach dem Einfuegen weg
+                    indexes.slice().sort(function(a, b) { return b - a; }).forEach(function(index) {
                         if (multiClipboard[index] && multiClipboard[index].action === 'cut') {
                             multiClipboard.splice(index, 1);
                         }
                     });
                     updatePasteButtons();
-                    
-                    // Set scroll target if new slices were created
-                    if (response.new_slice_ids && response.new_slice_ids.length > 0) {
-                        // Scroll to the first inserted slice
-                        sessionStorage.setItem('bloecks_scroll_target', response.new_slice_ids[0]);
-                    }
-                    
-                    // Reload page to show changes
-                    setTimeout(function() {
-                        // Use the correct PJAX method like REDAXO core does
-                        $.pjax({
-                            url: getCleanUrlForReload(),
-                            container: '#rex-js-page-main-content',
-                            fragment: '#rex-js-page-main-content',
-                            push: false // Important: don't push to history
-                        });
-                    }, 800);
+                    reloadAfterPaste(response.new_slice_ids);
                 } else {
                     showToast(response.message || 'Fehler beim Einfügen der Elemente', 'error');
                 }
@@ -1153,6 +1161,139 @@ var BLOECKS = (function($) {
             error: function() {
                 removeToast(loadingToastId);
                 showToast('Fehler beim Einfügen der Elemente', 'error');
+            }
+        });
+    }
+
+    function pasteFavorites($button, ids, position) {
+        var loadingToastId = 'bloecks-fav-paste-' + Date.now();
+        showToastWithId('Wird verarbeitet...', 'info', 30000, loadingToastId);
+
+        $.ajax({
+            url: 'index.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'function': 'favorite_paste',
+                'rex-api-call': 'bloecks',
+                '_csrf_token': csrfToken(),
+                'favorite_ids': JSON.stringify(ids),
+                'bloecks_target': $button.data('target-slice') || 0,
+                'article_id': $button.data('article-id'),
+                'clang': $button.data('clang-id'),
+                'ctype': $button.data('ctype-id') || 1,
+                'paste_position': position
+            },
+            success: function(response) {
+                removeToast(loadingToastId);
+                if (response.success) {
+                    showToast(response.message, 'success');
+                    reloadAfterPaste(response.new_slice_ids);
+                } else {
+                    showToast(response.message || 'Fehler beim Einfügen', 'error');
+                }
+            },
+            error: function() {
+                removeToast(loadingToastId);
+                showToast('Fehler beim Einfügen', 'error');
+            }
+        });
+    }
+
+    function reloadAfterPaste(newSliceIds) {
+        if (newSliceIds && newSliceIds.length > 0) {
+            sessionStorage.setItem('bloecks_scroll_target', newSliceIds[0]);
+        }
+        $.pjax({
+            url: getCleanUrlForReload(),
+            container: '#rex-js-page-main-content',
+            fragment: '#rex-js-page-main-content',
+            push: false
+        });
+    }
+
+    function showFavoriteSaveDialog($button) {
+        hideClipboardDropdown();
+        var sliceId = $button.data('slice-id');
+        var $title = $button.closest('.panel-heading').find('.panel-title').first();
+        var suggestion = $.trim($title.text());
+
+        var $dialog = $('<div class="bloecks-clipboard-dropdown bloecks-favorite-dialog" role="dialog"></div>');
+        var $form = $('<form class="bloecks-favorite-form"></form>');
+        $form.append('<label class="bloecks-favorite-label" for="bloecks-favorite-name">' + escapeHtml(label('favorite_name', 'Name des Favoriten')) + '</label>');
+        $form.append('<input type="text" class="form-control" id="bloecks-favorite-name" maxlength="191" value="' + escapeHtml(suggestion) + '">');
+        $form.append('<div class="bloecks-dropdown-footer"><span class="bloecks-dropdown-paste"><button type="submit" class="btn btn-sm btn-success"><i class="rex-icon rex-icon-favorite"></i> ' + escapeHtml(label('save', 'Speichern')) + '</button></span><button type="button" class="btn btn-sm btn-link" data-action="cancel">' + escapeHtml(label('cancel', 'Abbrechen')) + '</button></div>');
+        $dialog.append($form);
+
+        $('body').append($dialog);
+        positionDropdown($dialog, $button);
+        activeDropdown = $dialog;
+        $dialog.find('input').trigger('focus').trigger('select');
+
+        $dialog.on('click', '[data-action="cancel"]', hideClipboardDropdown);
+        $dialog.on('keydown', function(e) {
+            if (e.key === 'Escape') hideClipboardDropdown();
+        });
+        $form.on('submit', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: 'index.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    'function': 'favorite_add',
+                    'rex-api-call': 'bloecks',
+                    '_csrf_token': csrfToken(),
+                    'slice_id': sliceId,
+                    'name': $dialog.find('input').val()
+                },
+                success: function(response) {
+                    hideClipboardDropdown();
+                    if (response.success) {
+                        favorites = response.favorites || favorites;
+                        showToast(response.message, 'success');
+                        // Einfuege-Knoepfe erscheinen erst, wenn es etwas einzufuegen gibt
+                        if ($('.bloecks-paste').length === 0) {
+                            $.pjax({ url: getCleanUrlForReload(), container: '#rex-js-page-main-content', fragment: '#rex-js-page-main-content', push: false });
+                        }
+                    } else {
+                        showToast(response.message || 'Fehler', 'error');
+                    }
+                },
+                error: function() {
+                    hideClipboardDropdown();
+                    showToast('Netzwerk-Fehler bei der Verarbeitung', 'error');
+                }
+            });
+        });
+    }
+
+    function deleteFavorite(id, $button) {
+        $.ajax({
+            url: 'index.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'function': 'favorite_delete',
+                'rex-api-call': 'bloecks',
+                '_csrf_token': csrfToken(),
+                'favorite_id': id
+            },
+            success: function(response) {
+                if (response.success) {
+                    favorites = response.favorites || [];
+                    showToast(response.message, 'success');
+                    if (favorites.length || multiClipboard.length) {
+                        showClipboardDropdown($button);
+                    } else {
+                        hideClipboardDropdown();
+                    }
+                } else {
+                    showToast(response.message || 'Fehler', 'error');
+                }
+            },
+            error: function() {
+                showToast('Netzwerk-Fehler bei der Verarbeitung', 'error');
             }
         });
     }
@@ -1173,7 +1314,16 @@ var BLOECKS = (function($) {
         }, 100);
     });
     
+    // ready, rex:ready und pjax:* fordern den Status pro Seitenaufbau mehrfach an. Jeder Request
+    // haelt die PHP-Session-Sperre, ein Klick auf "Einfuegen" muesste dahinter warten -- deshalb
+    // kurz sammeln und nur einmal fragen.
+    var clipboardStatusTimer = null;
     function loadMultiClipboardFromServer() {
+        clearTimeout(clipboardStatusTimer);
+        clipboardStatusTimer = setTimeout(fetchClipboardStatus, 200);
+    }
+
+    function fetchClipboardStatus(done) {
         // Load current clipboard status from server
         var data = {
             'function': 'get_clipboard_status',
@@ -1194,6 +1344,9 @@ var BLOECKS = (function($) {
                         multiClipboard = [];
                     }
                     
+                    favorites = response.favorites || [];
+                    canManageFavorites = !!response.favorites_manage;
+
                     // Set multi-clipboard mode based on server setting
                     if (response.multi_clipboard_enabled) {
                         setMultiClipboardEnabled(true);
@@ -1202,6 +1355,9 @@ var BLOECKS = (function($) {
                     updatePasteButtons();
                     // Update button states after loading from server
                     updateAllButtonStates();
+                }
+                if (typeof done === 'function') {
+                    done();
                 }
             },
             error: function() {
@@ -1213,7 +1369,7 @@ var BLOECKS = (function($) {
 
     // Hide dropdown when clicking outside
     $(document).on('click', function(e) {
-        if (activeDropdown && !$(e.target).closest('.bloecks-clipboard-dropdown, .bloecks-paste').length) {
+        if (activeDropdown && !$(e.target).closest('.bloecks-clipboard-dropdown, .bloecks-paste, .bloecks-favorite-save').length) {
             hideClipboardDropdown();
         }
     });

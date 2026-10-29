@@ -29,6 +29,11 @@ $field->setLabel(rex_i18n::msg('bloecks_enable_multi_clipboard'));
 $field->addOption(rex_i18n::msg('bloecks_active'), 1);
 $field->setNotice(rex_i18n::msg('bloecks_multi_clipboard_notice') . '<br><strong>Hinweis:</strong> Multi-Clipboard ist nur verfügbar, wenn diese Einstellung aktiviert ist. Zusätzlich benötigen Benutzer die "bloecks[multi]"-Berechtigung (Administratoren haben automatisch Zugriff).');
 
+$field = $form->addCheckboxField('enable_favorites');
+$field->setLabel(rex_i18n::msg('bloecks_enable_favorites'));
+$field->addOption(rex_i18n::msg('bloecks_active'), 1);
+$field->setNotice(rex_i18n::msg('bloecks_favorites_notice'));
+
 $field = $form->addCheckboxField('enable_compact_mode');
 $field->setLabel(rex_i18n::msg('bloecks_enable_compact_mode'));
 $field->addOption(rex_i18n::msg('bloecks_active'), 1);

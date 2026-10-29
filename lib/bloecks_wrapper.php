@@ -172,7 +172,7 @@ class Wrapper
             } else {
                 // No drag-drop wrapper, create minimal compact wrapper
                 $wrapper = sprintf(
-                    '<div class="rex-slice-draggable is--compact" data-slice-id="%d" data-article-id="%d" data-clang-id="%d">%s</div>',
+                    '<div class="bloecks-compact is--compact" data-slice-id="%d" data-article-id="%d" data-clang-id="%d">%s</div>',
                     $slice_id,
                     $article_id,
                     $clang_id,

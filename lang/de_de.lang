@@ -83,3 +83,33 @@ bloecks_select_none = Auswahl aufheben
 # Compact Mode Feature
 bloecks_enable_compact_mode = Kompakt-Modus aktivieren
 bloecks_compact_mode_notice = Block-Hinzufügen-Menü wird ausgeblendet und erscheint nur beim Hover über Slices
+
+# Einfüge-Overlay und Favoriten (5.4.0)
+bloecks_paste_above = Darüber einfügen
+bloecks_paste_below = Darunter einfügen
+bloecks_paste_here = Einfügen
+bloecks_clear = Leeren
+bloecks_tab_clipboard = Zwischenablage
+bloecks_tab_favorites = Favoriten
+bloecks_select_all_short = Alle
+bloecks_select_none_short = Keine
+bloecks_nothing_selected = Nichts ausgewählt
+bloecks_action_copied_short = kopiert
+bloecks_action_cut_short = ausgeschnitten
+bloecks_from_article = aus
+bloecks_save = Speichern
+bloecks_cancel = Abbrechen
+bloecks_enable_favorites = Favoriten aktivieren
+bloecks_favorites_notice = Slices als gemeinsame Vorlagen speichern und in jedem Artikel einfügen. Benötigt Copy & Paste. Einfügen darf, wer kopieren darf; Favoriten anlegen und löschen dürfen Administratoren und Benutzer mit dem Recht „bloecks[favorites]“.
+bloecks_favorites_empty = Noch keine Favoriten gespeichert.
+bloecks_favorite_save = Als Favorit speichern
+bloecks_favorite_name = Name des Favoriten
+bloecks_favorite_saved = Favorit „{0}“ gespeichert
+bloecks_favorite_deleted = Favorit gelöscht
+bloecks_favorite_delete = Favorit löschen
+bloecks_favorite_delete_confirm = Favorit „{0}“ wirklich löschen?
+bloecks_favorites_inserted = {0} Favorit(en) eingefügt
+bloecks_paste_favorite = Favorit einfügen
+bloecks_error_favorite_not_found = Favorit nicht gefunden
+bloecks_error_favorite_module_missing = Das Modul des Favoriten „{0}“ gibt es nicht mehr
+perm_general_bloecks[favorites] = blÖcks: Favoriten anlegen und löschen

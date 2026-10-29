@@ -15,6 +15,7 @@ rex_perm::register('bloecks[]');
 rex_perm::register('bloecks[copy]');
 rex_perm::register('bloecks[order]');
 rex_perm::register('bloecks[multi]');
+rex_perm::register('bloecks[favorites]');
 
 // Backend functionality
 if (rex::isBackend() && 'console' != rex::getEnvironment()) {
